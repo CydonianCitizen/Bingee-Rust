@@ -67,7 +67,7 @@ the rule deliberately rather than working around it in a session.
 ## Rust spike
 
 See `IMPLEMENTATION_PLAN.md` for the full roadmap and `docs/milestones/` for
-milestone briefs. R0, R1, and R2 are implemented.
+milestone briefs. R0, R1, R2, and R3 are implemented.
 
 ### Prerequisites
 
@@ -97,19 +97,21 @@ cargo test
 cargo clippy --all-targets --all-features -- -D warnings
 ```
 
-### Current scope: R2
+### Current scope: R3
 
-A desktop shell with three panes over a 1,000-record library stored in SQLite.
-R2 changed where the data comes from, not what the user sees:
+A desktop shell with three panes over a 1,000-record library stored in SQLite,
+with local synthetic posters behind a bounded cache:
 
 - **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings.
   Only Library is active; the other entries are not wired up yet.
 - **Library**: search field, result count, and a virtualized list of the
-  matching titles. Each row has a gradient-and-initials poster placeholder,
-  title, type, year, original title, and progress. A search with no matches
-  shows a "No titles found" empty state.
-- **Detail**: the selected title with type/year, original title, progress, and
-  overview, or "No title selected" when the results are empty.
+  matching titles. Each row has a 40×60 poster thumbnail, title, type, year,
+  original title, and progress. A search with no matches shows a "No titles
+  found" empty state.
+- **Detail**: the selected title's 160×240 poster, type/year, original title,
+  progress, and overview, or "No title selected" when the results are empty.
+- **Posters**: if a poster file is missing or cannot be decoded, the R2
+  gradient-and-initials placeholder shows instead and the row stays usable.
 - **Errors**: if the database cannot be opened, created, seeded, or queried,
   the library pane shows the error in red instead of an empty library.
 
@@ -120,9 +122,15 @@ Code layout:
   reference oracle). No Slint or SQLite types.
 - `src/db.rs`: the SQLite schema, the seed, and the SQL search, with their
   tests. No Slint types.
-- `src/main.rs`: the database path, `LibraryView` (a `slint::Model` over the
-  current results that owns the connection), and the window callbacks.
+- `src/poster.rs`: the id → poster mapping and `PosterCache`, a byte-budgeted
+  LRU generic over the loaded value, with its tests. No Slint types.
+- `src/main.rs`: the database and poster paths, the Slint poster loader,
+  `LibraryView` (a `slint::Model` over the current results that owns the
+  connection and the poster cache), and the window callbacks.
 - `ui/app-window.slint`: layout, visuals, and keyboard handling.
+- `benchmark/assets/posters/`: the shared synthetic posters (see their
+  README); `examples/generate_posters.rs` recreates them.
+- `benchmark/scripts/r3-memory.ps1`: the informal R3 memory script (Windows).
 
 #### Database (spike only)
 
@@ -219,6 +227,40 @@ memory; only visible rows exist as components and `MediaRow` values. Loading
 every matching record is a deliberate R2 simplification. For much larger
 libraries, the view would hold ids only and load visible rows by id.
 
+#### Posters (R3, spike only)
+
+See `docs/adr/0003-poster-pipeline-and-bounded-cache.md` and
+`docs/measurements/R3-posters-informal.md`.
+
+- **Assets**: 100 synthetic 240×360 JPEGs in `benchmark/assets/posters/`,
+  shared with the Avalonia spike. Record `local_id` shows poster
+  `(local_id − 1) % 100 + 1`; the number is printed on the poster. For example,
+  Severance (id 1) shows 001, Pale Harbor (id 11) shows 011, and Lost Canyon
+  (id 1000) shows 100. Nothing poster-related is stored in SQLite.
+- **Location**: read from the checkout the binary was built from
+  (`CARGO_MANIFEST_DIR`). A copied executable finds no posters and shows
+  placeholders. Packaging decides the real location (R5).
+- **Loading**: `slint::Image::load_from_path`, synchronously on the UI thread,
+  only from `Model::row_data` (the rows the ListView instantiates) and for the
+  detail row. It decodes immediately (JPEG → RGB8, about 1.1 ms in release).
+  Nothing is decoded at startup beyond the first frame's rows (9 at the default
+  window size).
+- **Cache**: one LRU in `LibraryView`, shared by the rows and the detail pane,
+  keyed by poster number and bounded at 12 MiB of estimated decoded size
+  (`w × h × 4`, so 36 posters). A hit returns the cached `slint::Image`
+  handle without touching the file. Eviction drops the cache's handle, and
+  the pixels are freed once no visible row still uses them. Slint has its own
+  internal 5 MiB LRU behind `load_from_path`, so some misses are served
+  without decoding.
+- **Failures**: a missing or corrupt file is logged once to stderr, never
+  retried, and shown as the placeholder.
+- **Debug dump**: F12 with the list focused prints the cache counters to
+  stderr: entries, estimated bytes, hits, misses, evictions, failures, and load
+  times. In release builds stderr is only visible when redirected, for example
+  by `benchmark/scripts/r3-memory.ps1`.
+- **Debug builds** decode about 30× slower (unoptimized dependencies), so
+  scrolling in `cargo run` without `--release` is not representative.
+
 #### Keyboard
 
 | Key | Effect |
@@ -227,14 +269,15 @@ libraries, the view would hold ids only and load visible rows by id.
 | Up / Down / PageUp / PageDown / Home / End | In the list: move the selection and scroll it into view. |
 | Down or Enter | In the search field: move focus to the list. |
 | Esc | In the search field or the list: clear the search. |
+| F12 | In the list: print poster cache counters to stderr (debug aid). |
 
 Clicking a row selects it and focuses the list. A focused list shows an accent
 outline on the selected row.
 
 **Not implemented yet:** the production database schema, migrations, TMDB or
-any network access, poster loading or caching, sidebar navigation, and
-benchmarking (R4). The only numbers so far are the informal R2 SQL timings,
-which make no comparative claims.
+any network access, remote images or a disk image cache, sidebar navigation,
+and benchmarking (R4). The only numbers so far are the informal R2 SQL timings
+and R3 poster observations, which make no comparative claims.
 
 ### Slint licensing (spike assumption only)
 

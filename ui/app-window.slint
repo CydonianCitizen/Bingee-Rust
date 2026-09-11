@@ -12,6 +12,8 @@ export struct MediaRow {
     progress: float,
     overview: string,
     tint: color,
+    // From the bounded poster cache; empty if the poster could not be loaded.
+    poster: image,
 }
 
 global Theme {
@@ -26,14 +28,17 @@ global Theme {
     out property <color> accent: #6ea8fe;
 }
 
-// Cheap poster stand-in: gradient plus initials, no image decoding.
-component PosterPlaceholder inherits Rectangle {
+// Poster image (decoded and cached in Rust), drawn over a gradient-and-initials
+// placeholder that stays visible when the poster is missing or unreadable.
+component Poster inherits Rectangle {
+    in property <image> source;
     in property <string> initials;
     in property <color> tint;
     in property <length> font-size: 15px;
     border-radius: 6px;
+    clip: true;
     background: @linear-gradient(160deg, root.tint 0%, root.tint.darker(0.6) 100%);
-    Text {
+    if root.source.width == 0: Text {
         width: 100%;
         height: 100%;
         horizontal-alignment: center;
@@ -42,6 +47,12 @@ component PosterPlaceholder inherits Rectangle {
         color: #ffffffd0;
         font-size: root.font-size;
         font-weight: 700;
+    }
+    Image {
+        width: 100%;
+        height: 100%;
+        source: root.source;
+        image-fit: cover;
     }
 }
 
@@ -120,7 +131,7 @@ component Sidebar inherits Rectangle {
         }
         Rectangle { }
         Text {
-            text: "R2 spike · SQLite sample data";
+            text: "R3 spike · SQLite + local posters";
             font-size: 11px;
             color: Theme.text-faint;
         }
@@ -151,8 +162,10 @@ component LibraryRow inherits Rectangle {
             // Leave room for the ListView's overlay scrollbar.
             padding-right: 22px;
             spacing: 14px;
-            PosterPlaceholder {
-                width: 38px;
+            // 40×60: the 2:3 poster ratio at the row's content height.
+            Poster {
+                width: 40px;
+                source: root.item.poster;
                 initials: root.item.initials;
                 tint: root.item.tint;
             }
@@ -212,12 +225,18 @@ component DetailPane inherits Rectangle {
         padding: 24px;
         spacing: 14px;
         alignment: start;
-        PosterPlaceholder {
-            height: 170px;
-            border-radius: 10px;
-            initials: root.item.initials;
-            tint: root.item.tint;
-            font-size: 52px;
+        // Same cached 240×360 image as the row thumbnail, scaled by Slint.
+        HorizontalLayout {
+            alignment: start;
+            Poster {
+                width: 160px;
+                height: 240px;
+                border-radius: 10px;
+                source: root.item.poster;
+                initials: root.item.initials;
+                tint: root.item.tint;
+                font-size: 52px;
+            }
         }
         Text {
             text: root.item.title;
@@ -288,6 +307,8 @@ export component AppWindow inherits Window {
 
     callback query-changed(query: string);
     callback row-selected(row: int);
+    // F12 in the list: print poster cache counters to stderr (R3 debug aid).
+    callback debug-dump();
 
     private property <length> row-height: 80px;
 
@@ -401,6 +422,8 @@ export component AppWindow inherits Window {
                             root.select-row(root.results.length - 1);
                         } else if event.text == Key.Escape {
                             root.clear-search();
+                        } else if event.text == Key.F12 {
+                            root.debug-dump();
                         } else {
                             return reject;
                         }
