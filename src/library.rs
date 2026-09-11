@@ -70,7 +70,7 @@ pub struct MediaItem {
 }
 
 impl MediaItem {
-    fn new(
+    pub fn new(
         id: u32,
         title: String,
         original_title: String,
@@ -90,6 +90,12 @@ impl MediaItem {
             overview,
             search_text,
         }
+    }
+
+    /// The lowercased search key. The SQLite seed stores it, so SQL search
+    /// folds case exactly like `search` does.
+    pub fn search_text(&self) -> &str {
+        &self.search_text
     }
 
     /// Up to two uppercase initials from the first two words, used by the
@@ -258,6 +264,10 @@ fn generated_record(k: usize) -> RecordFields {
 
 /// Indices into `items` whose title or original title contains `query`,
 /// case-insensitively, in dataset order. A blank query matches everything.
+///
+/// The R1 in-memory search. Since R2 the app searches with `db::search`; this
+/// stays as the reference oracle its tests compare against.
+#[cfg(test)]
 pub fn search(items: &[MediaItem], query: &str) -> Vec<usize> {
     let query = query.trim().to_lowercase();
     items
@@ -271,10 +281,10 @@ pub fn search(items: &[MediaItem], query: &str) -> Vec<usize> {
 /// Selection policy after a search: keep the selected id if it is still in
 /// `results`, otherwise select the first result, or nothing if there are no
 /// results. The selection therefore never points outside the visible results.
-pub fn reselect(items: &[MediaItem], results: &[usize], selected: Option<u32>) -> Option<u32> {
+pub fn reselect(results: &[MediaItem], selected: Option<u32>) -> Option<u32> {
     match selected {
-        Some(id) if results.iter().any(|&index| items[index].id == id) => Some(id),
-        _ => results.first().map(|&index| items[index].id),
+        Some(id) if results.iter().any(|item| item.id == id) => Some(id),
+        _ => results.first().map(|item| item.id),
     }
 }
 
@@ -384,16 +394,18 @@ mod tests {
     #[test]
     fn reselect_keeps_visible_selection_else_first_result_else_none() {
         let items = generate_library();
-        let dune = search(&items, "dune");
-        assert_eq!(reselect(&items, &search(&items, ""), Some(3)), Some(3));
-        assert_eq!(reselect(&items, &dune, Some(3)), Some(3));
-        let harbors = search(&items, "harbor");
-        assert_eq!(
-            reselect(&items, &harbors, Some(3)),
-            Some(items[harbors[0]].id)
-        );
-        assert_eq!(reselect(&items, &harbors, None), Some(items[harbors[0]].id));
-        assert_eq!(reselect(&items, &search(&items, "zzzz"), Some(3)), None);
+        let found = |query| -> Vec<MediaItem> {
+            search(&items, query)
+                .into_iter()
+                .map(|index| items[index].clone())
+                .collect()
+        };
+        assert_eq!(reselect(&found(""), Some(3)), Some(3));
+        assert_eq!(reselect(&found("dune"), Some(3)), Some(3));
+        let harbors = found("harbor");
+        assert_eq!(reselect(&harbors, Some(3)), Some(harbors[0].id));
+        assert_eq!(reselect(&harbors, None), Some(harbors[0].id));
+        assert_eq!(reselect(&found("zzzz"), Some(3)), None);
     }
 
     #[test]

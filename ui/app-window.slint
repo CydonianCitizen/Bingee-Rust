@@ -120,7 +120,7 @@ component Sidebar inherits Rectangle {
         }
         Rectangle { }
         Text {
-            text: "R1 spike · sample data";
+            text: "R2 spike · SQLite sample data";
             font-size: 11px;
             color: Theme.text-faint;
         }
@@ -283,6 +283,8 @@ export component AppWindow inherits Window {
     in property <int> selected-id: -1;
     in property <int> selected-row: -1;
     in property <MediaRow> detail;
+    // A database failure to show instead of pretending the library is empty.
+    in property <string> error;
 
     callback query-changed(query: string);
     callback row-selected(row: int);
@@ -375,6 +377,12 @@ export component AppWindow inherits Window {
                     return reject;
                 }
             }
+            if root.error != "": Text {
+                text: root.error;
+                wrap: word-wrap;
+                font-size: 13px;
+                color: #f28b82;
+            }
             Rectangle {
                 // Owns keyboard navigation for the list; rows stay plain.
                 list-focus := FocusScope {
@@ -415,7 +423,7 @@ export component AppWindow inherits Window {
                     }
                 }
 
-                if root.results.length == 0: VerticalLayout {
+                if root.results.length == 0 && root.error == "": VerticalLayout {
                     alignment: center;
                     spacing: 6px;
                     Text {
