@@ -1,0 +1,24 @@
+# AI / local workflow
+AGENTS.md
+CLAUDE.md
+.claude/
+CODEX_*_PROMPT.md
+
+# Rust
+/target/
+
+# IDE
+.idea/
+.vscode/
+.vs/
+*.user
+*.suo
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db

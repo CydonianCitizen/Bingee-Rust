@@ -1,0 +1,448 @@
+import { LineEdit, ListView } from "std-widgets.slint";
+
+// One library entry as prepared by Rust (`to_row` in src/main.rs).
+export struct MediaRow {
+    id: int,
+    title: string,
+    original-title: string,
+    year: int,
+    kind: string,
+    initials: string,
+    status: string,
+    progress: float,
+    overview: string,
+    tint: color,
+}
+
+global Theme {
+    out property <color> window-bg: #101217;
+    out property <color> panel-bg: #15181e;
+    out property <color> hover-bg: #1c2027;
+    out property <color> selected-bg: #232a36;
+    out property <color> border: #252a32;
+    out property <color> text: #e6e8eb;
+    out property <color> text-muted: #9aa1ab;
+    out property <color> text-faint: #6a717c;
+    out property <color> accent: #6ea8fe;
+}
+
+// Cheap poster stand-in: gradient plus initials, no image decoding.
+component PosterPlaceholder inherits Rectangle {
+    in property <string> initials;
+    in property <color> tint;
+    in property <length> font-size: 15px;
+    border-radius: 6px;
+    background: @linear-gradient(160deg, root.tint 0%, root.tint.darker(0.6) 100%);
+    Text {
+        width: 100%;
+        height: 100%;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        text: root.initials;
+        color: #ffffffd0;
+        font-size: root.font-size;
+        font-weight: 700;
+    }
+}
+
+component ProgressTrack inherits Rectangle {
+    in property <float> progress;
+    height: 4px;
+    border-radius: 2px;
+    background: Theme.border;
+    Rectangle {
+        x: 0;
+        width: parent.width * clamp(root.progress, 0, 1);
+        border-radius: 2px;
+        background: Theme.accent;
+    }
+}
+
+component NavItem inherits Rectangle {
+    in property <string> label;
+    in property <bool> active;
+    height: 34px;
+    border-radius: 6px;
+    background: root.active ? Theme.selected-bg : transparent;
+    HorizontalLayout {
+        padding-right: 12px;
+        spacing: 10px;
+        Rectangle {
+            width: 3px;
+            border-radius: 1.5px;
+            background: root.active ? Theme.accent : transparent;
+        }
+        Text {
+            text: root.label;
+            vertical-alignment: center;
+            font-size: 13px;
+            font-weight: root.active ? 600 : 400;
+            color: root.active ? Theme.text : Theme.text-muted;
+        }
+    }
+}
+
+component Sidebar inherits Rectangle {
+    background: Theme.panel-bg;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 4px;
+        HorizontalLayout {
+            alignment: start;
+            padding-left: 6px;
+            padding-bottom: 20px;
+            spacing: 8px;
+            VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 5px;
+                    background: Theme.accent;
+                }
+            }
+            Text {
+                text: "Bingee";
+                font-size: 18px;
+                font-weight: 700;
+                color: Theme.text;
+            }
+            Text {
+                text: "Desktop";
+                font-size: 18px;
+                color: Theme.text-faint;
+            }
+        }
+        // Navigation is visual only; Library is the only real view.
+        for label in ["Home", "Library", "Discover", "Calendar", "Statistics", "Settings"]: NavItem {
+            label: label;
+            active: label == "Library";
+        }
+        Rectangle { }
+        Text {
+            text: "R1 spike · sample data";
+            font-size: 11px;
+            color: Theme.text-faint;
+        }
+    }
+}
+
+component LibraryRow inherits Rectangle {
+    in property <MediaRow> item;
+    in property <bool> selected;
+    // The list has keyboard focus and this is the selected row.
+    in property <bool> focused;
+    callback clicked;
+    accessible-role: list-item;
+    accessible-label: root.item.title;
+    accessible-item-selectable: true;
+    accessible-item-selected: root.selected;
+    accessible-action-default => { root.clicked(); }
+
+    Rectangle {
+        y: 2px;
+        height: parent.height - 4px;
+        border-radius: 8px;
+        background: root.selected ? Theme.selected-bg : touch.has-hover ? Theme.hover-bg : transparent;
+        border-width: root.focused ? 1px : 0;
+        border-color: Theme.accent;
+        HorizontalLayout {
+            padding: 10px;
+            // Leave room for the ListView's overlay scrollbar.
+            padding-right: 22px;
+            spacing: 14px;
+            PosterPlaceholder {
+                width: 38px;
+                initials: root.item.initials;
+                tint: root.item.tint;
+            }
+            VerticalLayout {
+                alignment: center;
+                spacing: 4px;
+                Text {
+                    text: root.item.title;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Theme.text;
+                    overflow: elide;
+                }
+                Text {
+                    text: root.item.original-title == root.item.title
+                        ? "\{root.item.kind} · \{root.item.year}"
+                        : "\{root.item.kind} · \{root.item.year} · \{root.item.original-title}";
+                    font-size: 12px;
+                    color: Theme.text-muted;
+                    overflow: elide;
+                }
+            }
+            VerticalLayout {
+                // Shrinks first so titles stay readable at the minimum window width.
+                width: clamp(root.width * 0.28, 96px, 170px);
+                alignment: center;
+                spacing: 8px;
+                Text {
+                    text: root.item.status;
+                    font-size: 12px;
+                    horizontal-alignment: right;
+                    color: Theme.text-muted;
+                    overflow: elide;
+                }
+                ProgressTrack {
+                    progress: root.item.progress;
+                }
+            }
+        }
+    }
+
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+component DetailPane inherits Rectangle {
+    in property <MediaRow> item;
+    in property <bool> has-item;
+    background: Theme.panel-bg;
+    if !root.has-item: Text {
+        text: "No title selected";
+        font-size: 13px;
+        color: Theme.text-faint;
+    }
+    if root.has-item: VerticalLayout {
+        padding: 24px;
+        spacing: 14px;
+        alignment: start;
+        PosterPlaceholder {
+            height: 170px;
+            border-radius: 10px;
+            initials: root.item.initials;
+            tint: root.item.tint;
+            font-size: 52px;
+        }
+        Text {
+            text: root.item.title;
+            font-size: 22px;
+            font-weight: 700;
+            color: Theme.text;
+            wrap: word-wrap;
+        }
+        Text {
+            text: "\{root.item.kind} · \{root.item.year}";
+            font-size: 13px;
+            color: Theme.text-muted;
+        }
+        if root.item.original-title != root.item.title: Text {
+            text: "Original title: \{root.item.original-title}";
+            font-size: 13px;
+            color: Theme.text-muted;
+            wrap: word-wrap;
+        }
+        VerticalLayout {
+            padding-top: 6px;
+            spacing: 8px;
+            Text {
+                text: "PROGRESS";
+                font-size: 11px;
+                font-weight: 600;
+                color: Theme.text-faint;
+            }
+            Text {
+                text: root.item.status;
+                font-size: 13px;
+                color: Theme.text;
+            }
+            ProgressTrack {
+                progress: root.item.progress;
+            }
+        }
+        VerticalLayout {
+            padding-top: 6px;
+            spacing: 8px;
+            Text {
+                text: "OVERVIEW";
+                font-size: 11px;
+                font-weight: 600;
+                color: Theme.text-faint;
+            }
+            Text {
+                text: root.item.overview;
+                font-size: 13px;
+                color: Theme.text-muted;
+                wrap: word-wrap;
+            }
+        }
+    }
+}
+
+export component AppWindow inherits Window {
+    // Current search results; rows are pulled lazily from Rust.
+    in property <[MediaRow]> results;
+    in property <int> total-count;
+    // Selection is owned by Rust: the stable id drives the highlight, the row
+    // (position in `results`) drives keyboard movement and scrolling.
+    in property <int> selected-id: -1;
+    in property <int> selected-row: -1;
+    in property <MediaRow> detail;
+
+    callback query-changed(query: string);
+    callback row-selected(row: int);
+
+    private property <length> row-height: 80px;
+
+    // Scroll so `row` is fully visible, keeping the offset on a row boundary:
+    // ListView snaps long jumps (> 1.5 screens) down to a boundary, which would
+    // otherwise leave a bottom-aligned row cut off.
+    function bring-into-view(row: int) {
+        if row < 0 {
+            return;
+        }
+        if row * root.row-height + list.viewport-y < 0 {
+            list.viewport-y = -row * root.row-height;
+        } else if (row + 1) * root.row-height + list.viewport-y > list.visible-height {
+            list.viewport-y = -ceil(((row + 1) * root.row-height - list.visible-height) / root.row-height) * root.row-height;
+        }
+    }
+
+    // After a search the old scroll offset is meaningless: start from the top.
+    public function reveal-row(row: int) {
+        list.viewport-y = 0;
+        root.bring-into-view(row);
+    }
+
+    function select-row(row: int) {
+        if root.results.length > 0 {
+            root.row-selected(clamp(row, 0, root.results.length - 1));
+            root.bring-into-view(root.selected-row);
+        }
+    }
+
+    function clear-search() {
+        search.text = "";
+        root.query-changed("");
+    }
+
+    title: "Bingee Desktop";
+    preferred-width: 1280px;
+    preferred-height: 800px;
+    min-width: 960px;
+    min-height: 600px;
+    background: Theme.window-bg;
+
+    HorizontalLayout {
+        Sidebar {
+            width: 220px;
+        }
+        Rectangle {
+            width: 1px;
+            background: Theme.border;
+        }
+        VerticalLayout {
+            horizontal-stretch: 1;
+            padding: 24px;
+            padding-right: 16px;
+            spacing: 16px;
+            HorizontalLayout {
+                spacing: 12px;
+                Text {
+                    text: "Library";
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: Theme.text;
+                }
+                Text {
+                    text: root.results.length == root.total-count
+                        ? "\{root.total-count} titles"
+                        : "\{root.results.length} of \{root.total-count} titles";
+                    font-size: 13px;
+                    vertical-alignment: bottom;
+                    horizontal-stretch: 1;
+                    color: Theme.text-faint;
+                }
+            }
+            search := LineEdit {
+                placeholder-text: "Search titles or original titles";
+                edited(text) => { root.query-changed(text); }
+                accepted => { list-focus.focus(); }
+                key-pressed(event) => {
+                    if event.text == Key.Escape {
+                        root.clear-search();
+                        return accept;
+                    }
+                    if event.text == Key.DownArrow {
+                        list-focus.focus();
+                        return accept;
+                    }
+                    return reject;
+                }
+            }
+            Rectangle {
+                // Owns keyboard navigation for the list; rows stay plain.
+                list-focus := FocusScope {
+                    key-pressed(event) => {
+                        if event.text == Key.UpArrow {
+                            root.select-row(root.selected-row - 1);
+                        } else if event.text == Key.DownArrow {
+                            root.select-row(root.selected-row + 1);
+                        } else if event.text == Key.PageUp {
+                            root.select-row(root.selected-row - max(1, floor(list.visible-height / root.row-height)));
+                        } else if event.text == Key.PageDown {
+                            root.select-row(root.selected-row + max(1, floor(list.visible-height / root.row-height)));
+                        } else if event.text == Key.Home {
+                            root.select-row(0);
+                        } else if event.text == Key.End {
+                            root.select-row(root.results.length - 1);
+                        } else if event.text == Key.Escape {
+                            root.clear-search();
+                        } else {
+                            return reject;
+                        }
+                        return accept;
+                    }
+
+                    list := ListView {
+                        width: 100%;
+                        height: 100%;
+                        for item[index] in root.results: LibraryRow {
+                            height: root.row-height;
+                            item: item;
+                            selected: item.id == root.selected-id;
+                            focused: self.selected && list-focus.has-focus;
+                            clicked => {
+                                root.row-selected(index);
+                                list-focus.focus();
+                            }
+                        }
+                    }
+                }
+
+                if root.results.length == 0: VerticalLayout {
+                    alignment: center;
+                    spacing: 6px;
+                    Text {
+                        text: "No titles found";
+                        horizontal-alignment: center;
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: Theme.text;
+                    }
+                    Text {
+                        text: "Nothing matches “\{search.text}”. Try another title, or press Esc to clear the search.";
+                        horizontal-alignment: center;
+                        wrap: word-wrap;
+                        font-size: 13px;
+                        color: Theme.text-muted;
+                    }
+                }
+            }
+        }
+        Rectangle {
+            width: 1px;
+            background: Theme.border;
+        }
+        DetailPane {
+            width: 360px;
+            item: root.detail;
+            has-item: root.selected-id >= 0;
+        }
+    }
+}
