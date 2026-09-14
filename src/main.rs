@@ -8,21 +8,33 @@ mod error;
 #[cfg(any(test, feature = "benchmark-fixture"))]
 mod fixture;
 mod library;
+mod network;
 mod paths;
+mod remote;
+mod search;
+mod secrets;
 mod settings;
+mod tmdb;
 mod view;
 
 use std::path::Path;
 use std::process::ExitCode;
 use std::rc::Rc;
+use std::sync::Arc;
 
 use database::Database;
 use diagnostics::Log;
 use error::AppError;
+use network::Network;
 use paths::AppPaths;
+use secrets::KeyringStore;
 use settings::Settings;
 use slint::{ComponentHandle, Model, SharedString};
+use tmdb::TmdbClient;
 use view::LibraryView;
+
+/// Worker threads for network and credential-store calls (ADR-0008).
+const NETWORK_WORKERS: usize = 4;
 
 slint::include_modules!();
 
@@ -55,7 +67,7 @@ fn main() -> ExitCode {
 fn run() -> ExitCode {
     let paths = AppPaths::from_env(&Settings::from_env());
     // The log folder first, so every later failure reaches the log file.
-    let log = Rc::new(match &paths {
+    let log = Arc::new(match &paths {
         Ok(paths) => match std::fs::create_dir_all(&paths.logs) {
             Ok(()) => Log::open(&paths.log_file()),
             Err(err) => {
@@ -89,6 +101,16 @@ fn run() -> ExitCode {
         log.error(format_args!("The application id could not be set: {err}"));
     }
     start(&window, paths, log.clone());
+    // Independent of the library: a database failure does not stop remote
+    // search, and no network failure reaches the database.
+    let network = Network::start(NETWORK_WORKERS);
+    remote::start(
+        &window,
+        TmdbClient::new(),
+        Arc::new(KeyringStore),
+        network,
+        log.clone(),
+    );
     finish(window.run(), &log)
 }
 
@@ -134,7 +156,7 @@ fn set_app_info(window: &AppWindow) {
 
 /// Fills `window` with the library, or with the startup error page, and
 /// wires Try again and Quit.
-fn start(window: &AppWindow, paths: Result<AppPaths, AppError>, log: Rc<Log>) {
+fn start(window: &AppWindow, paths: Result<AppPaths, AppError>, log: Arc<Log>) {
     set_app_info(window);
     let paths = Rc::new(paths);
     load_library(window, &paths, &log);
@@ -152,7 +174,7 @@ fn start(window: &AppWindow, paths: Result<AppPaths, AppError>, log: Rc<Log>) {
     });
 }
 
-fn load_library(window: &AppWindow, paths: &Result<AppPaths, AppError>, log: &Rc<Log>) {
+fn load_library(window: &AppWindow, paths: &Result<AppPaths, AppError>, log: &Arc<Log>) {
     let opened = match paths {
         Ok(paths) => open_production(paths, log),
         Err(err) => Err(AppError::new(err.kind, err.message.clone())),
@@ -221,33 +243,103 @@ mod tests {
     use crate::paths::TestDir;
 
     /// A real `AppWindow` on Slint's software renderer, without a display.
-    /// The closure draws a frame if one is needed.
-    pub fn headless(width: u32, height: u32) -> (AppWindow, impl FnMut()) {
-        use slint::platform::software_renderer::{
-            MinimalSoftwareWindow, RepaintBufferType, Rgb565Pixel,
-        };
-        use slint::platform::{Platform, WindowAdapter};
+    /// Time stands still until `advance`. Closures that network jobs post
+    /// back (`post`) run on this thread, the UI thread, in `pump`.
+    pub struct Headless {
+        pub app: AppWindow,
+        window: Rc<slint::platform::software_renderer::MinimalSoftwareWindow>,
+        clock: Rc<std::cell::Cell<std::time::Duration>>,
+        posted: Arc<std::sync::Mutex<Vec<network::Job>>>,
+        buffer: Vec<slint::platform::software_renderer::Rgb565Pixel>,
+        size: (u32, u32),
+    }
 
-        struct Headless(Rc<MinimalSoftwareWindow>);
-        impl Platform for Headless {
-            fn create_window_adapter(&self) -> Result<Rc<dyn WindowAdapter>, slint::PlatformError> {
-                Ok(self.0.clone())
+    impl Headless {
+        pub fn new(width: u32, height: u32) -> Self {
+            use slint::platform::software_renderer::{
+                MinimalSoftwareWindow, RepaintBufferType, Rgb565Pixel,
+            };
+            use slint::platform::{Platform, WindowAdapter};
+            use std::cell::Cell;
+            use std::time::Duration;
+
+            struct TestPlatform {
+                window: Rc<MinimalSoftwareWindow>,
+                clock: Rc<Cell<Duration>>,
+            }
+            impl Platform for TestPlatform {
+                fn create_window_adapter(
+                    &self,
+                ) -> Result<Rc<dyn WindowAdapter>, slint::PlatformError> {
+                    Ok(self.window.clone())
+                }
+                fn duration_since_start(&self) -> Duration {
+                    self.clock.get()
+                }
+            }
+
+            let window = MinimalSoftwareWindow::new(RepaintBufferType::NewBuffer);
+            let clock = Rc::new(Cell::new(Duration::ZERO));
+            // The Slint platform is per thread, and each test runs on its own thread.
+            slint::platform::set_platform(Box::new(TestPlatform {
+                window: window.clone(),
+                clock: clock.clone(),
+            }))
+            .unwrap();
+            window.set_size(slint::PhysicalSize::new(width, height));
+            let app = AppWindow::new().unwrap();
+            app.show().unwrap();
+            Self {
+                app,
+                window,
+                clock,
+                posted: Arc::default(),
+                buffer: vec![Rgb565Pixel::default(); (width * height) as usize],
+                size: (width, height),
             }
         }
 
-        let window = MinimalSoftwareWindow::new(RepaintBufferType::NewBuffer);
-        // The Slint platform is per thread, and each test runs on its own thread.
-        slint::platform::set_platform(Box::new(Headless(window.clone()))).unwrap();
-        window.set_size(slint::PhysicalSize::new(width, height));
-        let app = AppWindow::new().unwrap();
-        app.show().unwrap();
-        let mut buffer = vec![Rgb565Pixel::default(); (width * height) as usize];
-        let render = move || {
-            window.draw_if_needed(|renderer| {
-                renderer.render(&mut buffer, width as usize);
+        /// A `Network` handoff into this window's queue.
+        pub fn post(&self) -> network::Post {
+            let posted = self.posted.clone();
+            Arc::new(move |job| posted.lock().unwrap().push(job))
+        }
+
+        /// Draws a frame if one is needed.
+        pub fn render(&mut self) {
+            let (buffer, width) = (&mut self.buffer, self.size.0 as usize);
+            self.window.draw_if_needed(|renderer| {
+                renderer.render(buffer, width);
             });
-        };
-        (app, render)
+        }
+
+        /// Moves the Slint clock forward and fires due timers.
+        pub fn advance(&self, by: std::time::Duration) {
+            self.clock.set(self.clock.get() + by);
+            slint::platform::update_timers_and_animations();
+        }
+
+        /// Runs the closures posted to the event loop so far.
+        pub fn pump(&self) -> usize {
+            let posted = std::mem::take(&mut *self.posted.lock().unwrap());
+            let count = posted.len();
+            posted.into_iter().for_each(|event| event());
+            count
+        }
+
+        /// Pumps until `done` holds, for up to 10 s of real time.
+        pub fn pump_until(&self, what: &str, done: impl Fn(&AppWindow) -> bool) {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+            while !done(&self.app) {
+                assert!(
+                    std::time::Instant::now() < deadline,
+                    "timed out waiting for {what}"
+                );
+                if self.pump() == 0 {
+                    std::thread::sleep(std::time::Duration::from_millis(5));
+                }
+            }
+        }
     }
 
     fn test_paths(dir: &TestDir) -> AppPaths {
@@ -261,10 +353,11 @@ mod tests {
     fn fresh_start_shows_an_empty_library_and_creates_v1() {
         let dir = TestDir::new("start-fresh");
         let paths = test_paths(&dir);
-        let (app, mut render) = headless(1280, 800);
-        let log = Rc::new(Log::stderr_only());
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let log = Arc::new(Log::stderr_only());
         start(&app, Ok(paths.clone()), log);
-        render();
+        ui.render();
         assert_eq!(app.get_startup_error(), "");
         assert_eq!(
             (app.get_total_count(), app.get_results().row_count()),
@@ -289,7 +382,7 @@ mod tests {
             "library",
         ] {
             app.set_page(page.into());
-            render();
+            ui.render();
         }
     }
 
@@ -300,11 +393,12 @@ mod tests {
         paths.create_dirs().unwrap();
         let garbage = vec![0x5a_u8; 8192];
         std::fs::write(paths.database(), &garbage).unwrap();
-        let log = Rc::new(Log::open(&paths.log_file()));
-        let (app, mut render) = headless(1280, 800);
+        let log = Arc::new(Log::open(&paths.log_file()));
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
 
         start(&app, Ok(paths.clone()), log);
-        render();
+        ui.render();
         let message = app.get_startup_error();
         assert!(message.contains("damaged"), "{message}");
         assert!(!message.to_lowercase().contains("sqlite"), "{message}");
@@ -331,21 +425,22 @@ mod tests {
         // ...and opens the library once the user has dealt with it.
         std::fs::rename(paths.database(), dir.0.join("damaged.db")).unwrap();
         app.invoke_retry();
-        render();
+        ui.render();
         assert_eq!(app.get_startup_error(), "");
         assert_eq!(app.get_storage().schema, "1");
     }
 
     #[test]
     fn configuration_error_is_shown_without_touching_any_folder() {
-        let (app, mut render) = headless(1280, 800);
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
         let error = AppError::new(ErrorKind::Configuration, "No data folder.");
-        start(&app, Err(error), Rc::new(Log::stderr_only()));
-        render();
+        start(&app, Err(error), Arc::new(Log::stderr_only()));
+        ui.render();
         assert_eq!(app.get_startup_error(), "No data folder.");
         assert!(app.get_storage().database.starts_with("Unknown"));
         app.set_page("about".into());
-        render();
+        ui.render();
     }
 
     #[test]

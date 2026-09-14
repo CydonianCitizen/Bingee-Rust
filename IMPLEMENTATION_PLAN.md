@@ -230,13 +230,53 @@ an empty real library. No TMDB.
 
 ### Status
 
-PASS locally / cross-platform CI pending (14 September 2026). See
-`docs/milestones/R6.md`.
+PASS (14 September 2026): committed as `2e4f01d`; the `cross-platform` CI run
+passed on Windows, Ubuntu and macOS. See `docs/milestones/R6.md`.
 
 ---
 
-## Next: R7 — TMDB
+## Milestone R7 — TMDB integration and remote search
 
-Search TMDB (Discover), add titles to the library, fetch and cache metadata
-and posters. First milestone allowed to add networking (HTTP client, and an
-async runtime only if it is justified).
+### Goal
+
+Search TMDB for movies and TV series from Discover, with the user's own TMDB
+credential kept securely, without ever blocking the UI. Results stay
+transient: no Add to Library, no poster cache, no details, no tracking.
+
+### Deliverables
+
+- TMDB API Read Access Token: validate, save, replace, remove; kept only in
+  the OS credential store; never logged or shown in full.
+- A TMDB client with isolated DTOs mapped to a provider-independent
+  `MediaSearchResult`; identity `(source, media_type, external_id)`.
+- Network I/O off the UI thread, with finite timeouts and differentiated
+  errors (invalid credential, rate limit, timeout, offline, server,
+  malformed, unexpected).
+- Discover: debounced search over movies and TV, stale-response protection,
+  paging with Load more, and a clear state for every case.
+- Mock-HTTP tests; no live TMDB needed. ADR-0007, ADR-0008, ADR-0009,
+  `docs/milestones/R7.md`, README.
+
+### Exit criteria
+
+- The token is securely stored and never logged or committed.
+- Remote validation, Movie search and TV search work.
+- Movie/TV id collisions remain impossible.
+- Network runs off the UI thread; debounce works; stale results cannot
+  overwrite newer ones; paging is correct; failures are differentiated.
+- Local data stays usable without a network.
+- Automated tests need no live TMDB, and all checks pass.
+- Search results remain transient.
+
+### Status
+
+PASS locally / cross-platform CI pending (14 September 2026). Live TMDB
+smoke test not run (no credential available). See `docs/milestones/R7.md`.
+
+---
+
+## Next: R8 — Add to Library
+
+Persist a chosen search result as `media` + `external_refs` +
+`library_entries`, fetch its details, and cache posters on disk. See the R8
+prerequisites in `docs/milestones/R7.md`.

@@ -11,9 +11,18 @@ benchmark-fixture = []
 r4-measurement = ["benchmark-fixture"]
 
 [dependencies]
+# OS credential store for the TMDB token (ADR-0009): Credential Manager,
+# Keychain, Secret Service (pure-Rust zbus client, no build-time libdbus).
+keyring = "4.2.0"
 # "functions": the Unicode case-folding SQL function used by library search.
 rusqlite = { version = "0.40.2", features = ["bundled", "functions"] }
+# TMDB response DTOs (ADR-0007).
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
 slint = "1.17.1"
+# Blocking HTTP client with rustls (ring) and gzip, run on a worker pool
+# (ADR-0008). No async runtime.
+ureq = "3.4.2"
 
 [build-dependencies]
 slint-build = "1.17.1"

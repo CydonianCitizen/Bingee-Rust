@@ -21,11 +21,12 @@ everything into memory.
 
 ## Status
 
-R6 (production foundations) is implemented: an empty real library in the
-per-user data folders, database schema v1 with migrations, startup error
-handling, a local log, and Settings/About. There is no TMDB access yet, so
-titles cannot be added; that is R7. See `IMPLEMENTATION_PLAN.md` and
-`docs/milestones/R6.md`.
+R6 (production foundations) and R7 (TMDB search) are implemented: a real
+library in the per-user data folders with schema v1 and migrations, startup
+error handling, a local log, Settings/About, and Discover, which searches TMDB
+for movies and TV series with your own token. Search results are not saved:
+adding titles to the library is R8. See `IMPLEMENTATION_PLAN.md`,
+`docs/milestones/R6.md` and `docs/milestones/R7.md`.
 
 ## Prerequisites
 
@@ -78,6 +79,43 @@ database, or created by a newer version), the window shows "Your library could n
 opened" with the reason, the database and log paths, and **Try again**. The
 file is never deleted, replaced or "repaired" automatically.
 
+## Connect TMDB (Discover)
+
+Discover searches [The Movie Database (TMDB)](https://www.themoviedb.org)
+with your own **API Read Access Token**:
+
+1. Create a free TMDB account and request an API key in your account settings
+   (themoviedb.org → Settings → API).
+2. Copy the long **API Read Access Token** (not the shorter "API Key").
+3. In Bingee Desktop, open **Settings → TMDB**, paste it, and choose
+   **Validate and save**.
+
+Bingee checks the token with TMDB (`GET /3/authentication`) and saves it only
+if TMDB accepts it. A rejected token, or one that could not be checked
+because TMDB was unreachable, is not saved. **Check again** re-validates the
+saved token; pasting a new one replaces it only once TMDB accepts it.
+
+**Where the token is kept:** only in your system's credential store: Windows
+Credential Manager (a generic credential named
+`tmdb-api-read-access-token.bingee-desktop`), the macOS Keychain, or the Secret
+Service keyring on Linux (GNOME Keyring, KWallet). Never in the database,
+a settings file, the log, or Git. The app shows only its last four characters.
+On Linux, a session without a running Secret Service cannot save it; Settings
+then says "Secure storage unavailable".
+
+**Removing it:** **Settings → TMDB → Remove token**. Discover stops at once;
+your library and everything else are untouched. You can also delete the entry
+in the credential store yourself.
+
+**Offline:** Library, Settings, About and all local data work without a
+network. Discover then says it can't reach TMDB and offers **Try again**; no
+network failure touches the database.
+
+Searching both movies and TV series sends two requests per page, 300 ms after
+you stop typing, in English (`en-US`) and without adult titles. Results show
+in TMDB's order, movies and series alternating, with **Load more** for further
+pages. See ADR-0007 to ADR-0009.
+
 ## Run the benchmark fixture (R4 workload)
 
 The 1,000-title deterministic library, the spike database and the synthetic
@@ -92,7 +130,8 @@ The fixture keeps the R5 portable layout: its database is
 `<exe dir>/data/bingee-spike.db` (seeded on first launch; delete it to
 reseed) and its posters come from `<exe dir>/assets/posters/`, or from the
 checkout's `benchmark/assets/posters/` for a build-tree binary. It never
-touches the per-user folders. The sidebar footer reads "Benchmark fixture".
+touches the per-user folders, the network or the credential store. The
+sidebar footer reads "Benchmark fixture".
 
 The opt-in R4 latency harness (ADR-0004) is the `r4-measurement` feature,
 which includes the fixture:
@@ -119,8 +158,9 @@ cargo clippy --all-targets --all-features -- -D warnings
 cargo build --release
 ```
 
-Tests never touch the real per-user folders: they use temporary directories
-and in-memory databases. `.github/workflows/cross-platform.yml` runs these on
+Tests never touch the real per-user folders, the network or the credential
+store: they use temporary directories, in-memory databases, an in-memory
+secret store, and a scripted HTTP server on `127.0.0.1` instead of TMDB. `.github/workflows/cross-platform.yml` runs these on
 Windows, Ubuntu and macOS, plus clippy for the default and fixture-only
 feature sets.
 
@@ -139,17 +179,22 @@ a second and a corrupt-database start from an unrelated working directory,
 with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
 and is not signed.
 
-## What the app does (R6)
+## What the app does (R7)
 
 - **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings,
-  About. Home, Discover, Calendar and Statistics are labelled placeholders.
+  About. Home, Calendar and Statistics are labelled placeholders.
 - **Library**: the titles in `library_entries`, with a search field (title and
   original title, Unicode case-insensitive), a virtualized list and a detail
-  pane. Empty until R7 can add titles.
-- **Settings**: where the database, data, cache and log live, the schema
-  version, and a link to About.
+  pane. Empty until R8 can add titles.
+- **Discover**: TMDB search over movies and TV series, with each result's
+  type and year, a preview pane, **Load more**, and a clear state for a
+  missing or rejected token, no network, rate limiting, TMDB errors and no
+  results. Posters show the placeholder; nothing is saved.
+- **Settings**: the TMDB token (validate and save, check, replace, remove),
+  where the database, data, cache and log live, the schema version, and a
+  link to About.
 - **About**: version, Rust/Slint/SQLite credits, the "Made with Slint"
-  widget, license status, data locations.
+  widget, TMDB logo and notice, license status, data locations.
 - **Startup error page** instead of an empty library when the database
   cannot be loaded.
 
@@ -167,6 +212,15 @@ and is not signed.
   logic, shared by the production library and the fixture.
 - `src/error.rs`: `AppError` (kind, user message, cause).
 - `src/diagnostics.rs`: the local log file and panic hook.
+- `src/secrets.rs`: the redacted `Token`, the `SecretStore` trait and the
+  OS credential store behind it.
+- `src/tmdb.rs`: the TMDB client (ureq), its private DTOs, error mapping, and
+  the scripted fake server used by tests.
+- `src/search.rs`: `MediaSearchResult`/`ExternalRef` and the search
+  controller (debounce generations, stale-response rules, paging). No Slint,
+  threads or clock.
+- `src/network.rs`: the worker pool and the handoff back to the UI thread.
+- `src/remote.rs`: Discover and the TMDB settings wired to the window.
 - `src/fixture/`: the benchmark fixture: `library.rs` (1,000-record
   generator and reference search), `db.rs` (spike schema, seed, SQL search),
   `poster.rs` (poster mapping and bounded LRU cache), `mod.rs` (fixture paths,
@@ -181,7 +235,7 @@ and is not signed.
 
 `rusqlite` 0.40 with SQLite 3.53.2 compiled in (`bundled`), plus its
 `functions` feature for the Unicode case-folding search function. No ORM,
-pool or async runtime. One `Database` value owns the only connection; it
+connection pool or async runtime. One `Database` value owns the only connection; it
 moves into the library view and closes when the window closes.
 
 Schema v1 (ADR-0006), all `STRICT` tables:
@@ -208,7 +262,9 @@ come from a newer version are refused without writing.
 A plain-text log, `bingee-desktop.log` in the log folder above, also echoed
 to stderr: startup (version, OS, architecture), the database path, migration
 start/end, schema version and title count, failures with their causes,
-panics, and close. It is rotated to `bingee-desktop.log.1` above 1 MiB. There
+panics, and close. For TMDB: token checks and saves (never the token), and one
+line per completed search request with its generation number, type, page,
+result count or error category, and duration (never the query text). It is rotated to `bingee-desktop.log.1` above 1 MiB. There
 is no telemetry, analytics or remote logging; no per-interaction events or
 secrets are logged.
 

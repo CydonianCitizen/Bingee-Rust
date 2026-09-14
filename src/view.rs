@@ -4,13 +4,14 @@
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
+use std::sync::Arc;
 
 use slint::{Color, ComponentHandle, Image, Model, ModelNotify, ModelRc, ModelTracker};
 
 use crate::database::Database;
 use crate::diagnostics::Log;
 use crate::error::AppError;
-use crate::library::{self, LibraryItem};
+use crate::library::{self, LibraryItem, MediaType};
 use crate::{AppWindow, MediaRow};
 
 /// A searchable set of titles and how each one is shown.
@@ -34,22 +35,42 @@ impl Library for Database {
     }
 
     fn row(&self, item: &LibraryItem) -> MediaRow {
-        let kind = item.media_type.label();
-        MediaRow {
-            id: ui_id(item.id),
-            title: item.title.as_str().into(),
-            original_title: item.original_title.as_deref().unwrap_or_default().into(),
-            meta: match item.year() {
-                Some(year) => format!("{kind} · {year}").into(),
-                None => kind.into(),
-            },
-            initials: library::initials(&item.title).into(),
-            status: Default::default(),
-            progress: 0.0,
-            overview: item.overview.as_deref().unwrap_or_default().into(),
-            tint: tint(item.id),
-            poster: Image::default(),
-        }
+        media_row(
+            item.id,
+            item.media_type,
+            &item.title,
+            item.original_title.as_deref(),
+            item.year(),
+            item.overview.as_deref(),
+        )
+    }
+}
+
+/// A row without progress or poster (the placeholder shows): library titles
+/// and remote search results.
+pub fn media_row(
+    id: i64,
+    kind: MediaType,
+    title: &str,
+    original_title: Option<&str>,
+    year: Option<&str>,
+    overview: Option<&str>,
+) -> MediaRow {
+    let kind = kind.label();
+    MediaRow {
+        id: ui_id(id),
+        title: title.into(),
+        original_title: original_title.unwrap_or_default().into(),
+        meta: match year {
+            Some(year) => format!("{kind} · {year}").into(),
+            None => kind.into(),
+        },
+        initials: library::initials(title).into(),
+        status: Default::default(),
+        progress: 0.0,
+        overview: overview.unwrap_or_default().into(),
+        tint: tint(id),
+        poster: Image::default(),
     }
 }
 
@@ -122,19 +143,23 @@ impl<L: Library> Model for LibraryView<L> {
     }
 }
 
-/// Selection policy after a search: keep the selected id if it is still in
+/// Selection policy after a search: keep the selected key if it is still in
 /// `results`, otherwise select the first result, or nothing if there are no
 /// results. The selection therefore never points outside the visible results.
-pub fn reselect<T>(results: &[T], id: impl Fn(&T) -> i64, selected: Option<i64>) -> Option<i64> {
+pub fn reselect<T, K: PartialEq>(
+    results: &[T],
+    key: impl Fn(&T) -> K,
+    selected: Option<K>,
+) -> Option<K> {
     match selected {
-        Some(selected) if results.iter().any(|item| id(item) == selected) => Some(selected),
-        _ => results.first().map(id),
+        Some(selected) if results.iter().any(|item| key(item) == selected) => Some(selected),
+        _ => results.first().map(key),
     }
 }
 
 /// Binds the library pane to `view`. Search failures keep the previous
 /// results, show a user message and go to the log.
-pub fn connect<L: Library + 'static>(window: &AppWindow, view: Rc<LibraryView<L>>, log: Rc<Log>) {
+pub fn connect<L: Library + 'static>(window: &AppWindow, view: Rc<LibraryView<L>>, log: Arc<Log>) {
     window.set_results(ModelRc::from(view.clone()));
     window.set_total_count(view.row_count() as i32);
     window.set_error("".into());

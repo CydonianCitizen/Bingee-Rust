@@ -28,6 +28,34 @@ export struct Storage {
     schema: string,
 }
 
+// The Discover page, prepared by Rust (`discover_view` in src/remote.rs).
+export struct DiscoverView {
+    // "results" shows the list, "loading" a progress line, anything else a
+    // centered title and message.
+    state: string,
+    title: string,
+    message: string,
+    // The button under a message: "settings", "retry" or "" (none).
+    action: string,
+    summary: string,
+    // A partial failure, shown above the results.
+    notice: string,
+    can-load-more: bool,
+    loading-more: bool,
+    // A token exists, so the search field is usable.
+    ready: bool,
+}
+
+// The TMDB part of Settings (`tmdb_view` in src/remote.rs).
+export struct TmdbView {
+    status: string,
+    detail: string,
+    // "ok", "warning", "error" or "" (neutral).
+    tone: string,
+    has-token: bool,
+    busy: bool,
+}
+
 // Application identity, set from Rust (Cargo package metadata).
 export global AppInfo {
     in property <string> name;
@@ -47,6 +75,8 @@ global Theme {
     out property <color> text-faint: #6a717c;
     out property <color> accent: #6ea8fe;
     out property <color> error: #f28b82;
+    out property <color> warning: #f2c46d;
+    out property <color> ok: #7fd49a;
 }
 
 // Poster image (decoded and cached in Rust), drawn over a gradient-and-initials
@@ -412,7 +442,13 @@ component Placeholder {
 
 component SettingsPage {
     in property <Storage> storage;
+    in property <TmdbView> tmdb;
+    // The token being typed: a password field, cleared by Rust once saved.
+    in-out property <string> token-input;
     callback open-about();
+    callback tmdb-save(token: string);
+    callback tmdb-check();
+    callback tmdb-remove();
     ScrollView {
         width: 100%;
         height: 100%;
@@ -422,6 +458,65 @@ component SettingsPage {
             alignment: start;
             PageTitle {
                 text: "Settings";
+            }
+            SectionTitle {
+                text: "TMDB";
+            }
+            Paragraph {
+                text: "Discover searches The Movie Database (TMDB) with your own API Read Access Token. The token is kept in your system's secure credential storage, never in Bingee's files.";
+            }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 8px;
+                VerticalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 8px;
+                        height: 8px;
+                        border-radius: 4px;
+                        background: root.tmdb.tone == "ok" ? Theme.ok : root.tmdb.tone == "warning" ? Theme.warning : root.tmdb.tone == "error" ? Theme.error : Theme.text-faint;
+                    }
+                }
+                Text {
+                    text: root.tmdb.status;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Theme.text;
+                }
+            }
+            if root.tmdb.detail != "": Paragraph {
+                text: root.tmdb.detail;
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                LineEdit {
+                    horizontal-stretch: 1;
+                    input-type: password;
+                    enabled: !root.tmdb.busy;
+                    placeholder-text: root.tmdb.has-token ? "Paste a new token to replace the saved one" : "Paste your TMDB API Read Access Token";
+                    text <=> root.token-input;
+                    accepted(text) => { root.tmdb-save(text); }
+                }
+                Button {
+                    text: "Validate and save";
+                    primary: true;
+                    enabled: !root.tmdb.busy && root.token-input != "";
+                    clicked => { root.tmdb-save(root.token-input); }
+                }
+            }
+            if root.tmdb.has-token: HorizontalLayout {
+                alignment: start;
+                spacing: 10px;
+                Button {
+                    text: "Check again";
+                    enabled: !root.tmdb.busy;
+                    clicked => { root.tmdb-check(); }
+                }
+                Button {
+                    text: "Remove token";
+                    enabled: !root.tmdb.busy;
+                    clicked => { root.tmdb-remove(); }
+                }
             }
             SectionTitle {
                 text: "LOCAL DATA";
@@ -481,6 +576,24 @@ component AboutPage {
                 text: "Slint is used under the Slint Royalty-free Desktop, Mobile, and Web Applications License 2.0 (https://slint.dev).";
             }
             SectionTitle {
+                text: "MOVIE AND TV DATA";
+            }
+            HorizontalLayout {
+                alignment: start;
+                // The official TMDB logo, unmodified, smaller than our own name.
+                Image {
+                    source: @image-url("assets/tmdb-logo.svg");
+                    width: 154px;
+                    height: 20px;
+                    image-fit: contain;
+                    accessible-role: image;
+                    accessible-label: "TMDB";
+                }
+            }
+            Paragraph {
+                text: "This product uses the TMDB API but is not endorsed or certified by TMDB. Search results come from The Movie Database (TMDB), https://www.themoviedb.org.";
+            }
+            SectionTitle {
                 text: "LICENSE";
             }
             Paragraph {
@@ -491,6 +604,125 @@ component AboutPage {
             }
             StorageRows {
                 storage: root.storage;
+            }
+        }
+    }
+}
+
+// Remote search. Rust owns the query, the results and every state.
+component DiscoverPage {
+    in property <DiscoverView> view;
+    in property <[MediaRow]> results;
+    in property <int> selected-row;
+    in property <length> row-height;
+    callback query-changed(query: string);
+    callback row-selected(row: int);
+    callback load-more();
+    callback open-settings();
+    VerticalLayout {
+        padding: 24px;
+        padding-right: 16px;
+        spacing: 16px;
+        HorizontalLayout {
+            spacing: 12px;
+            PageTitle {
+                text: "Discover";
+            }
+            Text {
+                text: root.view.state == "results" ? root.view.summary : "";
+                font-size: 13px;
+                vertical-alignment: bottom;
+                horizontal-stretch: 1;
+                color: Theme.text-faint;
+            }
+        }
+        LineEdit {
+            enabled: root.view.ready;
+            placeholder-text: "Search TMDB for movies and TV series";
+            edited(text) => { root.query-changed(text); }
+            key-pressed(event) => {
+                if event.text == Key.Escape {
+                    self.text = "";
+                    root.query-changed("");
+                    return accept;
+                }
+                return reject;
+            }
+        }
+        if root.view.notice != "": Text {
+            text: root.view.notice;
+            wrap: word-wrap;
+            font-size: 13px;
+            color: Theme.warning;
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            ListView {
+                width: 100%;
+                height: 100%;
+                visible: root.view.state == "results";
+                for item[index] in root.results: LibraryRow {
+                    height: root.row-height;
+                    item: item;
+                    selected: index == root.selected-row;
+                    clicked => { root.row-selected(index); }
+                }
+            }
+            if root.view.state != "results": VerticalLayout {
+                alignment: center;
+                spacing: 8px;
+                padding: 24px;
+                Text {
+                    text: root.view.title;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: Theme.text;
+                }
+                if root.view.message != "": Text {
+                    text: root.view.message;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                    font-size: 13px;
+                    color: Theme.text-muted;
+                }
+                if root.view.action != "": HorizontalLayout {
+                    alignment: center;
+                    padding-top: 6px;
+                    Button {
+                        text: root.view.action == "settings" ? "Open Settings" : "Try again";
+                        clicked => {
+                            if root.view.action == "settings" {
+                                root.open-settings();
+                            } else {
+                                root.load-more();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 12px;
+            if root.view.can-load-more: Button {
+                text: "Load more";
+                clicked => { root.load-more(); }
+            }
+            if root.view.loading-more: Text {
+                text: "Loading more…";
+                vertical-alignment: center;
+                font-size: 13px;
+                color: Theme.text-muted;
+            }
+            Rectangle {
+                horizontal-stretch: 1;
+            }
+            Text {
+                text: "Results from TMDB";
+                vertical-alignment: center;
+                font-size: 11px;
+                color: Theme.text-faint;
             }
         }
     }
@@ -565,6 +797,13 @@ export component AppWindow inherits Window {
     in property <string> startup-error;
     in property <Storage> storage;
     in-out property <string> page: "library";
+    // Discover and the TMDB settings; see src/remote.rs.
+    in property <DiscoverView> discover;
+    in property <[MediaRow]> discover-results;
+    in property <int> discover-selected-row: -1;
+    in property <MediaRow> discover-detail;
+    in property <TmdbView> tmdb;
+    in-out property <string> tmdb-token-input;
 
     callback query-changed(query: string);
     callback row-selected(row: int);
@@ -572,6 +811,12 @@ export component AppWindow inherits Window {
     callback debug-dump();
     callback retry();
     callback quit();
+    callback discover-query-changed(query: string);
+    callback discover-row-selected(row: int);
+    callback discover-load-more();
+    callback tmdb-save(token: string);
+    callback tmdb-check();
+    callback tmdb-remove();
 
     private property <length> row-height: 80px;
     private property <string> shown: root.startup-error != "" && root.page != "settings" && root.page != "about" ? "error" : root.page;
@@ -745,11 +990,19 @@ export component AppWindow inherits Window {
                 title: "Home";
                 body: "An overview of what to watch next will appear here in a later version.";
             }
-            if root.shown == "discover": Placeholder {
+            // Kept alive like the library, so the query survives navigation.
+            DiscoverPage {
                 width: 100%;
                 height: 100%;
-                title: "Discover";
-                body: "Searching for movies and TV series to add to your library arrives in a later version.";
+                visible: root.shown == "discover";
+                view: root.discover;
+                results: root.discover-results;
+                selected-row: root.discover-selected-row;
+                row-height: root.row-height;
+                query-changed(query) => { root.discover-query-changed(query); }
+                row-selected(row) => { root.discover-row-selected(row); }
+                load-more => { root.discover-load-more(); }
+                open-settings => { root.page = "settings"; }
             }
             if root.shown == "calendar": Placeholder {
                 width: 100%;
@@ -767,6 +1020,11 @@ export component AppWindow inherits Window {
                 width: 100%;
                 height: 100%;
                 storage: root.storage;
+                tmdb: root.tmdb;
+                token-input <=> root.tmdb-token-input;
+                tmdb-save(token) => { root.tmdb-save(token); }
+                tmdb-check => { root.tmdb-check(); }
+                tmdb-remove => { root.tmdb-remove(); }
                 open-about => { root.page = "about"; }
             }
             if root.shown == "about": AboutPage {
@@ -783,15 +1041,15 @@ export component AppWindow inherits Window {
                 quit => { root.quit(); }
             }
         }
-        if root.shown == "library": HorizontalLayout {
+        if root.shown == "library" || root.shown == "discover": HorizontalLayout {
             Rectangle {
                 width: 1px;
                 background: Theme.border;
             }
             DetailPane {
                 width: 360px;
-                item: root.detail;
-                has-item: root.selected-row >= 0;
+                item: root.shown == "discover" ? root.discover-detail : root.detail;
+                has-item: root.shown == "discover" ? root.discover-selected-row >= 0 : root.selected-row >= 0;
             }
         }
     }

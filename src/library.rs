@@ -4,7 +4,7 @@
 use crate::database::Database;
 use crate::error::{AppError, ErrorKind};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum MediaType {
     Movie,
     Tv,
@@ -15,6 +15,14 @@ impl MediaType {
         match self {
             MediaType::Movie => "Movie",
             MediaType::Tv => "TV",
+        }
+    }
+
+    /// The stored and wire form: `media.media_type`, and TMDB's path segment.
+    pub fn key(self) -> &'static str {
+        match self {
+            MediaType::Movie => "movie",
+            MediaType::Tv => "tv",
         }
     }
 }

@@ -22,6 +22,7 @@ pub mod r4_latency;
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
+use std::sync::Arc;
 
 use library::MediaItem;
 use poster::PosterCache;
@@ -92,6 +93,17 @@ pub fn start(window: &AppWindow) {
         log_file: "stderr only".into(),
         database: database.into(),
         schema: "unversioned R2 spike schema".into(),
+    });
+    // No network, threads or credential store in the benchmark workload.
+    let off = "Not available in the benchmark fixture";
+    window.set_tmdb(crate::TmdbView {
+        status: off.into(),
+        ..Default::default()
+    });
+    window.set_discover(crate::DiscoverView {
+        state: "message".into(),
+        title: off.into(),
+        ..Default::default()
     });
     match open_library() {
         Ok(view) => connect(window, Rc::new(view)),
@@ -181,7 +193,7 @@ fn open_library() -> Result<LibraryView, AppError> {
 /// `view::connect`, plus F12 in the list to print the poster cache counters
 /// (R3 debug aid; no polling, nothing leaves the process).
 fn connect(window: &AppWindow, view: Rc<LibraryView>) {
-    view::connect(window, view.clone(), Rc::new(Log::stderr_only()));
+    view::connect(window, view.clone(), Arc::new(Log::stderr_only()));
     window.on_debug_dump(move || eprintln!("{}", view.library.posters.borrow()));
 }
 
@@ -209,7 +221,7 @@ mod tests {
     use crate::error::ErrorKind;
     use crate::paths::{AppPaths, TestDir};
     use crate::settings::Settings;
-    use slint::Model;
+    use slint::{ComponentHandle, Model};
 
     fn memory_view() -> LibraryView {
         LibraryView::new(FixtureLibrary::new(
@@ -299,11 +311,12 @@ mod tests {
     /// shared cache.
     #[test]
     fn only_visible_posters_load_and_the_cache_stays_bounded() {
-        let (app, mut draw) = crate::tests::headless(1280, 800);
+        let mut ui = crate::tests::Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
         let view = Rc::new(memory_view());
         connect(&app, view.clone());
         let mut render = || {
-            draw();
+            ui.render();
             view.library.posters.borrow().stats
         };
 
