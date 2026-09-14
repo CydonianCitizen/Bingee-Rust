@@ -1,0 +1,2 @@
+"commit","sample","pid","startup_proxy_ms","valid","reason"
+"95feb454864907a29bcf84f629278dc861e10336","1","8984","725.0611","False","Graceful exit failed; forced exit invalidates run."

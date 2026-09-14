@@ -1,0 +1,15 @@
+Pre-measurement harness check: cargo check --features r4-measurement, exit 1.
+E0425: library::search was test-only.
+E0596: operation closure needed a mutable binding.
+Fixed by exposing the existing oracle under the measurement feature and
+making the local closure mutable. No measurement ran with this failed check.
+
+Read-only shell discovery errors before measurements:
+- rg .claude/commands: directory absent, exit 2 from rg (shell exit 1).
+- PowerShell inventory parser: empty pipe element after foreach; corrected.
+- rg registry glob as literal path: invalid Windows path, corrected using
+  Get-ChildItem to resolve the registry directory.
+
+Sandbox Cargo warning retained in gate logs:
+warn: could not canonicalize path C:\Users\thoma
+Successful Cargo exit codes are recorded separately; warning was not hidden.

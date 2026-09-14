@@ -7,6 +7,20 @@ CODEX_*_PROMPT.md
 # Rust
 /target/
 
+# Portable packages built by scripts/package-windows.ps1
+/dist/
+
+# Local runtime data: the spike database is generated on first launch
+bingee-spike.db
+bingee-spike.db-journal
+bingee-spike.db-wal
+bingee-spike.db-shm
+
+# Transient logs and profiler traces; raw measurement evidence stays tracked
+*.log
+*.etl
+!docs/measurements/**/raw/**
+
 # IDE
 .idea/
 .vscode/

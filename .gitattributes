@@ -1,0 +1,4 @@
+# Measurement evidence and the poster manifest are verified by SHA-256 over
+# their exact bytes. Never convert their line endings on commit or checkout.
+docs/measurements/**/raw/** -text
+benchmark/assets/posters/SHA256SUMS -text

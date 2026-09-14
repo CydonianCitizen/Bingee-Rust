@@ -267,7 +267,7 @@ fn generated_record(k: usize) -> RecordFields {
 ///
 /// The R1 in-memory search. Since R2 the app searches with `db::search`; this
 /// stays as the reference oracle its tests compare against.
-#[cfg(test)]
+#[cfg(any(test, feature = "r4-measurement"))]
 pub fn search(items: &[MediaItem], query: &str) -> Vec<usize> {
     let query = query.trim().to_lowercase();
     items

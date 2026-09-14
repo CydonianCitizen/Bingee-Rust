@@ -1,0 +1,9 @@
+{
+  "mode": "refresh_lazy,console",
+  "focus": "not changed or independently observed",
+  "observation": "stderr only; no visual verification",
+  "exe_sha256": "AEAF7F294E5D829CF2F693E768F79BC8AF6A1BB0416954296965F78218B9F35E",
+  "idle_end_utc": "2026-09-11T19:31:51.5778776Z",
+  "commit": "95feb454864907a29bcf84f629278dc861e10336",
+  "idle_start_utc": "2026-09-11T19:31:21.5615741Z"
+}

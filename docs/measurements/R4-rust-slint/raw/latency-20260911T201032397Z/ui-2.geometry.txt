@@ -1,0 +1,5 @@
+physical_width=1280
+physical_height=800
+scale_factor=1
+logical_width=1280
+logical_height=800

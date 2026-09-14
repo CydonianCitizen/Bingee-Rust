@@ -6,6 +6,10 @@ mod db;
 mod library;
 mod poster;
 
+#[cfg(feature = "r4-measurement")]
+#[path = "../benchmark/r4_latency.rs"]
+mod r4_latency;
+
 use std::cell::{Cell, RefCell};
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -18,7 +22,19 @@ use slint::{Color, Image, Model, ModelNotify, ModelRc, ModelTracker};
 slint::include_modules!();
 
 fn main() -> Result<(), slint::PlatformError> {
+    #[cfg(feature = "r4-measurement")]
+    if std::env::args().nth(1).as_deref() == Some("--r4-latency") {
+        if let Err(error) = r4_latency::run() {
+            eprintln!("R4 measurement failed: {error}");
+            std::process::exit(1);
+        }
+        return Ok(());
+    }
     let window = AppWindow::new()?;
+    // Wayland app_id / X11 WM_CLASS, matching the executable name. Must be set
+    // after the platform exists and before the window is shown. A no-op on
+    // Windows and macOS.
+    slint::set_xdg_app_id("bingee-desktop")?;
     match open_library() {
         Ok(view) => connect(&window, Rc::new(view)),
         Err(message) => show_error(&window, message),
@@ -26,17 +42,53 @@ fn main() -> Result<(), slint::PlatformError> {
     window.run()
 }
 
-/// Spike database location: next to the executable, so under the git-ignored
-/// `target/` directory during development and removed by `cargo clean`. This is
-/// spike behavior, not the production data location.
-fn database_path() -> std::io::Result<PathBuf> {
-    Ok(std::env::current_exe()?.with_file_name("bingee-spike.db"))
+/// The portable-spike package root: the directory holding the executable. All
+/// paths derive from it, never from the current working directory:
+///
+/// ```text
+/// <root>/bingee-desktop[.exe]
+/// <root>/assets/posters/poster-001.jpg …
+/// <root>/data/bingee-spike.db        (created on first launch)
+/// ```
+///
+/// A portable-spike packaging policy, not the production data directory.
+fn package_root() -> std::io::Result<PathBuf> {
+    let exe = std::env::current_exe()?;
+    exe.parent()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| std::io::Error::other("the executable has no parent directory"))
 }
 
-/// Spike poster location: the shared benchmark assets in the checkout this
-/// binary was built from. Not a packaging decision (R5).
+/// `<root>/data/bingee-spike.db`, creating `data/` if needed. During
+/// development the root is `target/debug/` or `target/release/`.
+fn database_path() -> std::io::Result<PathBuf> {
+    database_path_in(&package_root()?)
+}
+
+fn database_path_in(root: &Path) -> std::io::Result<PathBuf> {
+    let dir = root.join("data");
+    std::fs::create_dir_all(&dir)?;
+    Ok(dir.join("bingee-spike.db"))
+}
+
+/// The package's `assets/posters`. A build-tree binary (`cargo run`, tests)
+/// has none, so it falls back to the benchmark posters in the checkout it was
+/// built from.
 fn poster_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("benchmark/assets/posters")
+    let checkout = Path::new(env!("CARGO_MANIFEST_DIR")).join("benchmark/assets/posters");
+    match package_root() {
+        Ok(root) => poster_dir_in(&root, checkout),
+        Err(_) => checkout,
+    }
+}
+
+fn poster_dir_in(root: &Path, fallback: PathBuf) -> PathBuf {
+    let packaged = root.join("assets").join("posters");
+    if packaged.is_dir() {
+        packaged
+    } else {
+        fallback
+    }
 }
 
 /// Loads a poster with Slint's own loader, which reads and decodes the file
@@ -64,8 +116,8 @@ fn slint_poster_loader(dir: PathBuf) -> poster::Loader<Image> {
 }
 
 fn open_library() -> Result<LibraryView, String> {
-    let path =
-        database_path().map_err(|err| format!("Could not locate the library database: {err}"))?;
+    let path = database_path()
+        .map_err(|err| format!("Could not prepare the library database folder: {err}"))?;
     db::open(&path)
         .and_then(LibraryView::new)
         .map_err(|err| format!("Could not load the library from {}: {err}", path.display()))
@@ -476,6 +528,34 @@ mod tests {
             .map(|i| time(&mut || drop(cache.get(1 + i % 36).unwrap())))
             .collect();
         report("PosterCache hit (36 entries)", ours);
+    }
+
+    #[test]
+    fn package_paths_derive_from_the_executable_directory() {
+        // Under `cargo test` the working directory is the checkout, while the
+        // executable sits in target/*/deps: the root must follow the latter.
+        let exe = std::env::current_exe().unwrap();
+        assert_eq!(package_root().unwrap(), exe.parent().unwrap());
+        assert_ne!(package_root().unwrap(), std::env::current_dir().unwrap());
+
+        let root = std::env::temp_dir().join(format!("bingee-package-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(&root).unwrap();
+        let checkout = PathBuf::from("checkout/benchmark/assets/posters");
+
+        // No packaged assets (a build tree): the checkout fallback.
+        assert_eq!(poster_dir_in(&root, checkout.clone()), checkout);
+        // Packaged assets win.
+        std::fs::create_dir_all(root.join("assets").join("posters")).unwrap();
+        let packaged = root.join("assets").join("posters");
+        assert_eq!(poster_dir_in(&root, checkout), packaged);
+
+        // The database lives in <root>/data, created on demand, and opens.
+        let path = database_path_in(&root).unwrap();
+        assert_eq!(path, root.join("data").join("bingee-spike.db"));
+        drop(db::open(&path).unwrap());
+        assert!(path.is_file());
+        std::fs::remove_dir_all(&root).unwrap();
     }
 
     #[test]

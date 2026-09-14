@@ -1,0 +1,6 @@
+{
+  "core_runner_sha256": "630F3E7D1ADC809997EA3E5DD686CD39FDE260611DF6869F3FFAFB535B22C925",
+  "diagnostics_runner_sha256": "BF6D533A3B4D3D8F1932704BE01CE3CB1A8109F923CF53BB170F682199EAF379",
+  "summary_runner_sha256": "DFA3E31C5B311E81E867CE1FE4999ACD1CEC0C40A167253D1A02FC4A99A7C0FF",
+  "endpoint_note": "Valid core run requires exact Bingee Desktop title in addition to input-idle/responsiveness; older environment endpoint string omits title detail. See retained runner.ps1."
+}

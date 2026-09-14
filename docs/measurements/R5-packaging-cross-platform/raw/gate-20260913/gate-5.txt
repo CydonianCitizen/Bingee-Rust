@@ -1,0 +1,2 @@
+    Checking bingee-desktop v0.1.0 (C:\Users\thoma\Documents\Projects\bingee-rust)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.80s

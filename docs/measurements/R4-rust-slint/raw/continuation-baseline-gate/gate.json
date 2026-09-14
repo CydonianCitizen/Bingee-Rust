@@ -1,0 +1,27 @@
+[
+  {
+    "command": "cargo fmt --check",
+    "exit_code": 0,
+    "log": "gate-0.txt"
+  },
+  {
+    "command": "cargo check",
+    "exit_code": 0,
+    "log": "gate-1.txt"
+  },
+  {
+    "command": "cargo test",
+    "exit_code": 0,
+    "log": "gate-2.txt"
+  },
+  {
+    "command": "cargo clippy --all-targets --all-features -- -D warnings",
+    "exit_code": 0,
+    "log": "gate-3.txt"
+  },
+  {
+    "command": "cargo build --release",
+    "exit_code": 0,
+    "log": "gate-4.txt"
+  }
+]

@@ -1,0 +1,2 @@
+Error loading image from C:\Users\thoma\AppData\Local\Temp\claude\C--Users-thoma-Documents-Projects-bingee-rust\0b98b928-53e0-4d41-99c1-051ddff8f8c0\scratchpad\smoke\package-copy\assets\posters\poster-001.jpg: The system cannot find the file specified. (os error 2)
+Poster could not be loaded, showing placeholder: C:\Users\thoma\AppData\Local\Temp\claude\C--Users-thoma-Documents-Projects-bingee-rust\0b98b928-53e0-4d41-99c1-051ddff8f8c0\scratchpad\smoke\package-copy\assets\posters\poster-001.jpg

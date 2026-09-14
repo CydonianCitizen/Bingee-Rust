@@ -1,0 +1,38 @@
+{
+  "utc": "2026-09-13T22:11:12.6678598Z",
+  "package": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\dist\\bingee-desktop-windows-x64",
+  "executable_sha256": "D65E7E5E381D5E5A8253A5E50B6DCEE2B3E46A79C28BD75420F35B4A3A7C8801",
+  "database": {
+    "path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\dist\\bingee-desktop-windows-x64\\data\\bingee-spike.db",
+    "bytes": 196608,
+    "sha256": "61918DB3B71A4B0F77154ABB498268F8D7F327469355B569AAD993B58C69FEC3"
+  },
+  "runs": [
+    {
+      "label": "package",
+      "exe": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\dist\\bingee-desktop-windows-x64\\bingee-desktop.exe",
+      "working_directory": "C:\\Users\\thoma\\AppData\\Local\\Temp\\claude\\C--Users-thoma-Documents-Projects-bingee-rust\\0b98b928-53e0-4d41-99c1-051ddff8f8c0\\scratchpad\\smoke",
+      "pid": 22548,
+      "window_ready_ms": 1304.0,
+      "working_set_bytes": 142864384,
+      "private_bytes": 175472640,
+      "exit_code": 0,
+      "stderr": []
+    },
+    {
+      "label": "package-copy-without-poster-001",
+      "exe": "C:\\Users\\thoma\\AppData\\Local\\Temp\\claude\\C--Users-thoma-Documents-Projects-bingee-rust\\0b98b928-53e0-4d41-99c1-051ddff8f8c0\\scratchpad\\smoke\\package-copy\\bingee-desktop.exe",
+      "working_directory": "C:\\Users\\thoma\\AppData\\Local\\Temp\\claude\\C--Users-thoma-Documents-Projects-bingee-rust\\0b98b928-53e0-4d41-99c1-051ddff8f8c0\\scratchpad\\smoke",
+      "pid": 13888,
+      "window_ready_ms": 1319.0,
+      "working_set_bytes": 142086144,
+      "private_bytes": 171982848,
+      "exit_code": 0,
+      "stderr": [
+        "Error loading image from C:\\Users\\thoma\\AppData\\Local\\Temp\\claude\\C--Users-thoma-Documents-Projects-bingee-rust\\0b98b928-53e0-4d41-99c1-051ddff8f8c0\\scratchpad\\smoke\\package-copy\\assets\\posters\\poster-001.jpg: The system cannot find the file specified. (os error 2)",
+        "Poster could not be loaded, showing placeholder: C:\\Users\\thoma\\AppData\\Local\\Temp\\claude\\C--Users-thoma-Documents-Projects-bingee-rust\\0b98b928-53e0-4d41-99c1-051ddff8f8c0\\scratchpad\\smoke\\package-copy\\assets\\posters\\poster-001.jpg"
+      ]
+    }
+  ],
+  "verdict": "package launched from an unrelated working directory; database created in package data\\; posters resolved from package assets\\; graceful exit"
+}

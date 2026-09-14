@@ -46,13 +46,13 @@ Each item should eventually include:
 - rating/progress-like lightweight fields;
 - deterministic searchable text.
 
-When image testing begins, both branches must use the same local poster assets and dimensions.
+When image testing begins, both implementations must use the same local poster assets and dimensions.
 
 Do not use live TMDB responses for performance comparison.
 
 ## Shared UI workload
 
-Both branches should eventually expose:
+Both implementations should eventually expose:
 
 - sidebar;
 - library pane;

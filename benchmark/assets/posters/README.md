@@ -1,9 +1,9 @@
 # Shared benchmark posters
 
 Synthetic poster art made for the Bingee Desktop spikes. It is not derived from
-any real movie or TV poster. Both the Rust + Slint and the C# + Avalonia
-branches use these files unchanged (`BENCHMARK_SPEC.md`, "Same poster
-assets").
+any real movie or TV poster. Both the Rust + Slint implementation (this
+repository) and the C# + Avalonia spike (a separate repository) use these
+files unchanged (`BENCHMARK_SPEC.md`, "Same poster assets").
 
 | | |
 | --- | --- |

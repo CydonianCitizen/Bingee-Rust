@@ -1,0 +1,36 @@
+Slint: Build config: release; Backend: FemtoVG renderer with OpenGL backend
+average frames per second: 4 details from last frame: [0 layers created]
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 
+average frames per second: 0 

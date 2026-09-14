@@ -1,0 +1,352 @@
+[
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\dependencies-all.txt",
+    "bytes": 20427,
+    "sha256": "9335F0A6E7D7AF5D981E4A7B935110B28413D7325A40F17AF1318764CFCEC1A5"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\dependencies-runtime-build.txt",
+    "bytes": 20408,
+    "sha256": "9536C49FEDC26932F24D45C78718C5DBCE76A93B6C3D8525673C6C433A744FB5"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\environment.json",
+    "bytes": 3072,
+    "sha256": "9A08832FC912502374C0992DBFEDEC439A14659C2F002C43E126515C7E880E1E"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\failure.json",
+    "bytes": 150,
+    "sha256": "1961ACB245C2121DA7A63CBD4F4D602E443AA12180BC7B702ECE78DEFF7DE9A7"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate-0.txt",
+    "bytes": 37,
+    "sha256": "E48582D8E3C042FAE1655B4067ABF2AC02B11DF8A2B6501719E10A08D29588BA"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate-1.txt",
+    "bytes": 37,
+    "sha256": "9B49DBA8D2BABEEE49C10F53AD9060FCDFADB5E9D2A0FEAB5C168DB1005CCBA1"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate-2.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate-3.txt",
+    "bytes": 73,
+    "sha256": "2E85C1345965BC8FF43C14C75D6F34B2EDB6532D52F9D4585470C43462E729D1"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate-4.txt",
+    "bytes": 2751,
+    "sha256": "A453A265C4D2D53B115B88F58D0C0C22E94EF38E3B3F1344FA9566E0E71300D4"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate-5.txt",
+    "bytes": 73,
+    "sha256": "5C33DFCC802E463E9EBAF7E8BF5E35F1CF0ED780B6766B4B9E682D59AEBE1D2F"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate-6.txt",
+    "bytes": 63,
+    "sha256": "D9B908043A3474C45E188F110C6A1CE261252482EFF53C164AF5E48E817EC0B3"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\gate.json",
+    "bytes": 689,
+    "sha256": "C5D1B5CFBA6DB417FE274084B6D97830E32491A17C9EB0159245A7344AB1B90D"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\git-status.txt",
+    "bytes": 55,
+    "sha256": "BC941C921BB9AF1F6F07F0286090133DEAFF960E29A56DC04717743F2A47C178"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\slint-features.txt",
+    "bytes": 951,
+    "sha256": "503521A67764942C08F71A21D1F7C1CF4367BAF60FF9FA634204E6BF187E3528"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\startup-1-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192512956Z\\startup.csv",
+    "bytes": 188,
+    "sha256": "56351E2151613C58D9DD1D8B6514DEA3CFFA3F2B56D493647938C1F3E19AFEFD"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\completion.json",
+    "bytes": 186,
+    "sha256": "30E1BA2C6D0B473971E7C13C1172D33E24409BD60AD7F3502120FE2A5A5E9659"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\dependencies-all.txt",
+    "bytes": 20427,
+    "sha256": "9335F0A6E7D7AF5D981E4A7B935110B28413D7325A40F17AF1318764CFCEC1A5"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\dependencies-runtime-build.txt",
+    "bytes": 20408,
+    "sha256": "9536C49FEDC26932F24D45C78718C5DBCE76A93B6C3D8525673C6C433A744FB5"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\environment.json",
+    "bytes": 3072,
+    "sha256": "43D2785862FC92D82EF5D0A8AEAA3B5B1FF262854F6D857CE84AED665BE05C76"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate-0.txt",
+    "bytes": 37,
+    "sha256": "E48582D8E3C042FAE1655B4067ABF2AC02B11DF8A2B6501719E10A08D29588BA"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate-1.txt",
+    "bytes": 37,
+    "sha256": "9B49DBA8D2BABEEE49C10F53AD9060FCDFADB5E9D2A0FEAB5C168DB1005CCBA1"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate-2.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate-3.txt",
+    "bytes": 73,
+    "sha256": "2E85C1345965BC8FF43C14C75D6F34B2EDB6532D52F9D4585470C43462E729D1"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate-4.txt",
+    "bytes": 2751,
+    "sha256": "7C5570501FD6BC7A609D3C12166C481420D59113D6897E42344AA770BD2B16B2"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate-5.txt",
+    "bytes": 73,
+    "sha256": "9F26685680FECADB0B7BFC495EC6E979B82B2670450555CCBAF43DE5A1076709"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate-6.txt",
+    "bytes": 63,
+    "sha256": "E21DC7381CD6C4F69126DC5C59AD3BB0F2AF68677376A449A155BE7B92E15B8A"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\gate.json",
+    "bytes": 689,
+    "sha256": "C5D1B5CFBA6DB417FE274084B6D97830E32491A17C9EB0159245A7344AB1B90D"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\git-status.txt",
+    "bytes": 92,
+    "sha256": "A1761D9463E2A8B8D2B6F9DAD30AAADFCA22D32112CE8423A6BACEA6CA88A76F"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle-1-modules.csv",
+    "bytes": 2327,
+    "sha256": "CE045B1683711938266DFD678A72ECA3C0679078230C9F1BDD3BB5D0188FE2C8"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle-1-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle-2-modules.csv",
+    "bytes": 2327,
+    "sha256": "9DBDAA5690D8A4AADA594A222081AD62DE9E6CC2C11E2C31FF7F7BEAE008F81A"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle-2-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle-3-modules.csv",
+    "bytes": 2327,
+    "sha256": "5F6C1B9FDBA5CD11B3EB34EF7395AE7255EB202B035268E8F0483D02B0226C2F"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle-3-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle-samples.csv",
+    "bytes": 9496,
+    "sha256": "A13833387D557932E000B6C004D7E62AB515A6BD7EA074B54B4F7CB5D35DD148"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\idle.csv",
+    "bytes": 594,
+    "sha256": "F2DCFC68EA2D9A127368B82A27EF52C86CB6BDD1593731DB5EABA51F5A90C86D"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\runner-provenance.json",
+    "bytes": 489,
+    "sha256": "4ADE888578343B22D3CAA4A18DC0C9D100837E3B9D8A74D32F2B95892F27B226"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\runner.ps1",
+    "bytes": 11706,
+    "sha256": "630F3E7D1ADC809997EA3E5DD686CD39FDE260611DF6869F3FFAFB535B22C925"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\slint-features.txt",
+    "bytes": 951,
+    "sha256": "503521A67764942C08F71A21D1F7C1CF4367BAF60FF9FA634204E6BF187E3528"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-1-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-10-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-11-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-12-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-13-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-14-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-15-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-16-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-17-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-18-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-19-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-2-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-20-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-3-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-4-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-5-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-6-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-7-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-8-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup-9-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\startup.csv",
+    "bytes": 1604,
+    "sha256": "EF822FF43043C23E8EFAD0EC6351409C4B80C8E035C6DC7F01326C9CEFC3A514"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\statistics.json",
+    "bytes": 1457,
+    "sha256": "7031B1E090B30325BD27DF2C3A441A181CD1B551DBAF09E14417B4573A0AF45D"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\lazy-20260911T193115911Z\\interval.json",
+    "bytes": 396,
+    "sha256": "333FDD91C56A7382DA939D618AAA5A9B418B9855625B1B165D02815C5E728288"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\20260911T192701561Z\\lazy-20260911T193115911Z\\stderr.txt",
+    "bytes": 1169,
+    "sha256": "8628539720B0F85B8CF2B5AC13F5F57988438FB52B7D7E20944BCA9A1FD59306"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-0.txt",
+    "bytes": 50,
+    "sha256": "383C5D4FF7B99423C3C1E1247F79B65092F2B8CFBDDC7CCF94832717277E6932"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-1.txt",
+    "bytes": 123,
+    "sha256": "A15D53FC6BD4677691687A978273F47D4B42950A4D9BEE3B831E21CCF817130D"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-2.txt",
+    "bytes": 2799,
+    "sha256": "550312A6D8729006CFAAFD66F85EBFD427E42B8A5A9A3A7C2DC8AF8CF11DD04E"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-3.txt",
+    "bytes": 123,
+    "sha256": "38C33E23F3729EF9786A79D7E533E7F9DA390F7B33B7C896819436811A2CEA69"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-4.txt",
+    "bytes": 113,
+    "sha256": "4E870AC028A20586E2FE1B06DA3D4806317E7F09E6D96F57AC6113923EF2CB39"
+  },
+  {
+    "path": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate.json",
+    "bytes": 805,
+    "sha256": "26D7B6533005405774348D9C71ED7F2690762079CD611F1BF1E803137FD96465"
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "mode": "sqlite",
+    "run": 1,
+    "pid": 11152,
+    "started_utc": "2026-09-11T20:10:37.7285372Z",
+    "ended_utc": "2026-09-11T20:10:38.6805647Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "sqlite",
+    "run": 2,
+    "pid": 7140,
+    "started_utc": "2026-09-11T20:10:38.6858099Z",
+    "ended_utc": "2026-09-11T20:10:38.9977694Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "sqlite",
+    "run": 3,
+    "pid": 12612,
+    "started_utc": "2026-09-11T20:10:38.9999375Z",
+    "ended_utc": "2026-09-11T20:10:39.3495301Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "posters",
+    "run": 1,
+    "pid": 19692,
+    "started_utc": "2026-09-11T20:10:39.3515705Z",
+    "ended_utc": "2026-09-11T20:10:44.3821729Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "posters",
+    "run": 2,
+    "pid": 25964,
+    "started_utc": "2026-09-11T20:10:44.3889706Z",
+    "ended_utc": "2026-09-11T20:10:49.2573996Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "posters",
+    "run": 3,
+    "pid": 13020,
+    "started_utc": "2026-09-11T20:10:49.2593213Z",
+    "ended_utc": "2026-09-11T20:10:54.2025935Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "ui",
+    "run": 1,
+    "pid": 23664,
+    "started_utc": "2026-09-11T20:10:54.2045617Z",
+    "ended_utc": "2026-09-11T20:11:31.7673393Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "ui",
+    "run": 2,
+    "pid": 2212,
+    "started_utc": "2026-09-11T20:11:31.7697237Z",
+    "ended_utc": "2026-09-11T20:12:09.2195190Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  },
+  {
+    "mode": "ui",
+    "run": 3,
+    "pid": 4600,
+    "started_utc": "2026-09-11T20:12:09.2214376Z",
+    "ended_utc": "2026-09-11T20:12:46.5482065Z",
+    "exit_code": 0,
+    "valid": true,
+    "reason": ""
+  }
+]

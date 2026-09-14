@@ -1,0 +1,46 @@
+{
+  "startup_proxy_ms": {
+    "n": 20,
+    "median": 654.5962,
+    "p95": 672.214,
+    "min": 635.9026,
+    "max": 712.7205
+  },
+  "excluded_startup": [],
+  "idle": [
+    {
+      "commit": "95feb454864907a29bcf84f629278dc861e10336",
+      "run": "1",
+      "elapsed_s": "30.3954454",
+      "cpu_s": "0.0625",
+      "percent_one_core": "0.20562291217486156",
+      "percent_machine": "0.017135242681238463",
+      "private_start_bytes": "175038464",
+      "private_end_bytes": "174997504",
+      "working_set_end_bytes": "131502080"
+    },
+    {
+      "commit": "95feb454864907a29bcf84f629278dc861e10336",
+      "run": "2",
+      "elapsed_s": "30.3600891",
+      "cpu_s": "0.015625",
+      "percent_one_core": "0.05146559336019867",
+      "percent_machine": "0.004288799446683223",
+      "private_start_bytes": "175763456",
+      "private_end_bytes": "175722496",
+      "working_set_end_bytes": "131416064"
+    },
+    {
+      "commit": "95feb454864907a29bcf84f629278dc861e10336",
+      "run": "3",
+      "elapsed_s": "30.3749885",
+      "cpu_s": "0.03125",
+      "percent_one_core": "0.10288069738693069",
+      "percent_machine": "0.00857339144891089",
+      "private_start_bytes": "176185344",
+      "private_end_bytes": "176144384",
+      "working_set_end_bytes": "131727360"
+    }
+  ],
+  "percentile_method": "Nearest rank: ceil(p*n)-1, zero-based; median averages the two middle observations for even n."
+}

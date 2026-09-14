@@ -1,15 +1,18 @@
-# Bingee Desktop — Technology Spike
+# Bingee Desktop — Rust + Slint
 
-This repository starts as a controlled comparison between two independent
-desktop implementations of Bingee:
+This repository contains only the Rust + Slint implementation of Bingee
+Desktop, implemented with a coding agent. `main` is its only development
+branch.
 
-- `spike/rust-slint` — Rust + Slint, implemented with a coding agent.
-- `spike/csharp-avalonia` — C# + Avalonia, implemented manually with assisted
-  guidance.
+It is one side of a controlled comparison between two independent desktop
+implementations. The other side, C# + Avalonia (implemented manually with
+assisted guidance), lives in a separate repository.
 
 The spike is **not** the production application. Its purpose is to compare the
 two stacks on the same UX slice, dataset, and benchmark protocol before
-choosing the production stack.
+choosing the production stack. The shared contract (`BENCHMARK_SPEC.md`,
+`benchmark/R4-workload.md`, and the posters in `benchmark/assets/posters/`)
+stays in this repository for the Avalonia side to reproduce.
 
 ## Product constraints
 
@@ -67,7 +70,10 @@ the rule deliberately rather than working around it in a session.
 ## Rust spike
 
 See `IMPLEMENTATION_PLAN.md` for the full roadmap and `docs/milestones/` for
-milestone briefs. R0, R1, R2, and R3 are implemented.
+milestone briefs. R0–R3 are implemented. The R4 baseline is frozen as partial
+(interactive checks blocked by the environment; see
+`docs/measurements/R4-rust-slint/STATUS.md`). R5 added the portable package
+and cross-platform CI (`docs/milestones/R5.md`).
 
 ### Prerequisites
 
@@ -75,16 +81,17 @@ milestone briefs. R0, R1, R2, and R3 are implemented.
 - A C compiler, because SQLite is compiled from source (`rusqlite`'s `bundled`
   feature). The platform toolchains below already provide one.
 - Windows: the MSVC C++ build tools (Visual Studio Build Tools, "Desktop
-  development with C++").
-- Linux: the system libraries Slint's winit/femtovg backend needs (fontconfig,
-  xkbcommon, Wayland/X11 development packages) and gcc or clang. Not yet
-  verified on this branch.
-- macOS: Xcode command line tools. Not yet verified on this branch.
+  development with C++"). Built, tested and packaged locally.
+- Linux: gcc or clang, `pkg-config`, and the fontconfig development package
+  (`libfontconfig-dev` on Debian/Ubuntu). That is the only system library
+  needed at build time: Wayland, X11, xkbcommon and EGL/GL are loaded at run
+  time, so a desktop session needs them installed. Checked by CI only.
+- macOS: Xcode command line tools. Checked by CI only.
 
 ### Run
 
 ```bash
-cargo run            # debug build
+cargo run            # debug build, with a console for stderr
 cargo run --release  # release build (no console window on Windows)
 ```
 
@@ -97,9 +104,27 @@ cargo test
 cargo clippy --all-targets --all-features -- -D warnings
 ```
 
-### Current scope: R3
+`.github/workflows/cross-platform.yml` runs these, plus `cargo build
+--release`, on Windows, Ubuntu and macOS.
 
-A desktop shell with three panes over a 1,000-record library stored in SQLite,
+### Portable Windows package (R5)
+
+```powershell
+pwsh -NoProfile -File scripts/package-windows.ps1        # -> dist/bingee-desktop-windows-x64/
+pwsh -NoProfile -File scripts/smoke-windows-package.ps1 -WorkDir $env:TEMP\bingee-smoke
+```
+
+The package holds `bingee-desktop.exe`, `assets/posters/`, an empty `data/`,
+`THIRD_PARTY_NOTICES.txt`, `README.txt` and `SHA256SUMS.txt`, and runs from
+any folder and any working directory. It needs the Visual C++ 2015–2022
+Redistributable (x64) for `VCRUNTIME140.dll`. It is not an installer and must
+not be shared outside the team until the Slint attribution condition is met
+(see below). See `docs/adr/0005-portable-package-layout.md` and
+`docs/measurements/R5-packaging-cross-platform/summary.md`.
+
+### Current scope: R3 features, R5 packaging
+
+R4 and R5 added no user-visible features. A desktop shell with three panes over a 1,000-record library stored in SQLite,
 with local synthetic posters behind a bounded cache:
 
 - **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings.
@@ -124,13 +149,17 @@ Code layout:
   tests. No Slint types.
 - `src/poster.rs`: the id → poster mapping and `PosterCache`, a byte-budgeted
   LRU generic over the loaded value, with its tests. No Slint types.
-- `src/main.rs`: the database and poster paths, the Slint poster loader,
-  `LibraryView` (a `slint::Model` over the current results that owns the
-  connection and the poster cache), and the window callbacks.
+- `src/main.rs`: the package-root, database and poster paths, the Slint
+  poster loader, `LibraryView` (a `slint::Model` over the current results that
+  owns the connection and the poster cache), and the window callbacks.
 - `ui/app-window.slint`: layout, visuals, and keyboard handling.
 - `benchmark/assets/posters/`: the shared synthetic posters (see their
   README); `examples/generate_posters.rs` recreates them.
-- `benchmark/scripts/r3-memory.ps1`: the informal R3 memory script (Windows).
+- `benchmark/`: the frozen R4 workload contract (`R4-workload.md`), the opt-in
+  R4 latency harness (`r4_latency.rs`, feature `r4-measurement`), and the
+  benchmark scripts (`scripts/`, Windows PowerShell only by design).
+- `scripts/`: the Windows packaging and package smoke-test scripts (R5).
+- `.github/workflows/cross-platform.yml`: CI on Windows, Ubuntu and macOS.
 
 #### Database (spike only)
 
@@ -139,11 +168,15 @@ workload. See `docs/adr/0002-sqlite-via-rusqlite-bundled.md`.
 
 - **Crate**: `rusqlite` 0.40 with the `bundled` feature, which compiles SQLite
   3.53.2 into the executable. No ORM, migrations, pool, or async runtime.
-- **Location**: `bingee-spike.db` next to the executable, so
-  `target/debug/` or `target/release/` during development. That directory is
-  git-ignored and removed by `cargo clean`. Debug and release builds therefore
-  keep separate, identically seeded databases. Delete the file to reseed. This
-  location is spike behavior, not the production data directory.
+- **Location** (since R5, ADR-0005): `data/bingee-spike.db` inside the
+  directory that holds the executable, created on first launch. That is the
+  package's own `data/` folder, and `target/debug/data/` or
+  `target/release/data/` during development (git-ignored, removed by `cargo
+  clean`). The working directory never matters. Debug and release builds keep
+  separate, identically seeded databases. Delete the file to reseed. This is a
+  portable-spike policy, not the production data directory. The frozen R4
+  database at `target/release/bingee-spike.db` is used only by the retained R4
+  executables.
 - **Schema**: one `media` table: `local_id` (the stable R1 id), `title`,
   `original_title`, `year`, `media_type` (`'Movie'`/`'TV'`), `progress_state`
   (`'planned'`/`'watched'`/`'episodes'`), `progress_value`/`progress_total`
@@ -237,9 +270,11 @@ See `docs/adr/0003-poster-pipeline-and-bounded-cache.md` and
   `(local_id − 1) % 100 + 1`; the number is printed on the poster. For example,
   Severance (id 1) shows 001, Pale Harbor (id 11) shows 011, and Lost Canyon
   (id 1000) shows 100. Nothing poster-related is stored in SQLite.
-- **Location**: read from the checkout the binary was built from
-  (`CARGO_MANIFEST_DIR`). A copied executable finds no posters and shows
-  placeholders. Packaging decides the real location (R5).
+- **Location** (since R5, ADR-0005): `assets/posters/` beside the executable,
+  as in the portable package. A build-tree binary (`cargo run`, tests) has no
+  such folder and reads the checkout it was built from instead
+  (`CARGO_MANIFEST_DIR`). An executable copied without its `assets/` folder
+  shows placeholders.
 - **Loading**: `slint::Image::load_from_path`, synchronously on the UI thread,
   only from `Model::row_data` (the rows the ListView instantiates) and for the
   detail row. It decodes immediately (JPEG → RGB8, about 1.1 ms in release).
@@ -276,8 +311,9 @@ outline on the selected row.
 
 **Not implemented yet:** the production database schema, migrations, TMDB or
 any network access, remote images or a disk image cache, sidebar navigation,
-and benchmarking (R4). The only numbers so far are the informal R2 SQL timings
-and R3 poster observations, which make no comparative claims.
+an About screen, and an installer. Measurements: informal R2/R3 observations
+and the partial R4 baseline (`docs/measurements/`). None of them makes a
+Rust-versus-Avalonia claim.
 
 ### Slint licensing (spike assumption only)
 
@@ -287,7 +323,14 @@ is an internal, undistributed evaluation and assumes the Royalty-free 2.0 terms
 for evaluation purposes only. That license's attribution condition applies on
 distribution: show the `AboutSlint` widget in an About screen, or put the
 "Made with Slint" badge on the download page. Any build shared outside the
-team must do one of these first.
+team must do one of these first. The R5 package does neither: it has no About
+screen and is not published.
+
+`THIRD_PARTY_NOTICES.txt` records this assumption, SQLite (public domain), the
+direct dependencies and their licenses. The packaging script appends the full
+list of linked crates with their license expressions. Full license texts of the
+permissive crates are not bundled yet. That is required before any external
+distribution.
 
 This is **not** a decision about the Bingee Desktop product license, which
 remains open (see `docs/adr/0001-rust-slint-spike.md`).

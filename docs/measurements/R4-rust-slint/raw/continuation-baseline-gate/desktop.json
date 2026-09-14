@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-11",
+  "attempts": 3,
+  "recovery": "initial list_apps, retry, JavaScript reset plus reinitialize and list_apps",
+  "error": "Computer Use native pipe is unavailable: failed to connect native pipe: The system cannot find the file specified. (os error 2)",
+  "interaction_runs_started": 0,
+  "motion_observed": false,
+  "status": "A-F, keyboard soak, and continuous visual observation unavailable; not waived"
+}

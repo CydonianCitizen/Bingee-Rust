@@ -1,0 +1,10 @@
+{
+  "utc": "2026-09-11T20:19:50.050Z",
+  "valid_processes": 9,
+  "total_csv_samples": 16050,
+  "timing_groups": 20,
+  "statistics_match": true,
+  "preserved_prior_files": 70,
+  "prior_files_unchanged": true,
+  "measurement_sources_unchanged": true
+}

@@ -1,0 +1,95 @@
+{
+  "utc": "2026-09-11T19:25:32.4402557Z",
+  "commit": "95feb454864907a29bcf84f629278dc861e10336",
+  "os": {
+    "Caption": "Microsoft Windows 11 Home",
+    "Version": "10.0.26200",
+    "BuildNumber": "26200",
+    "OSArchitecture": "64-bit"
+  },
+  "cpu": {
+    "Name": "Intel(R) Core(TM) i5-10500H CPU @ 2.50GHz",
+    "NumberOfCores": 6,
+    "NumberOfLogicalProcessors": 12
+  },
+  "ram": {
+    "TotalPhysicalMemory": 25582931968
+  },
+  "gpu": [
+    {
+      "Name": "Intel(R) UHD Graphics",
+      "DriverVersion": "31.0.101.2141",
+      "CurrentHorizontalResolution": 1920,
+      "CurrentVerticalResolution": 1080,
+      "CurrentRefreshRate": 60
+    },
+    {
+      "Name": "NVIDIA GeForce GTX 1650 with Max-Q Design",
+      "DriverVersion": "32.0.16.1692",
+      "CurrentHorizontalResolution": null,
+      "CurrentVerticalResolution": null,
+      "CurrentRefreshRate": null
+    }
+  ],
+  "battery": {
+    "BatteryStatus": 2,
+    "EstimatedChargeRemaining": 57
+  },
+  "ac": {
+    "PowerOnline": true,
+    "Charging": true,
+    "Discharging": false
+  },
+  "defender": {
+    "AntivirusEnabled": true,
+    "RealTimeProtectionEnabled": true
+  },
+  "power_scheme": "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+  "display_registry": {
+    "LogPixels": null,
+    "Win8DpiScaling": 0
+  },
+  "per_monitor_dpi": [
+    {
+      "PSChildName": "CMN15E70_2C_07E4_4E^041604F854EC1F42FFC87BD8C21ECF14",
+      "DpiValue": 4294967295
+    },
+    {
+      "PSChildName": "SNY480316843009_01_07DE_8A^20C8500A416A0534A53E62146314E3D4",
+      "DpiValue": 4294967294
+    }
+  ],
+  "debugger": "Launched directly by Start-Process; no debugger attached by this suite; external attachment not independently detected.",
+  "profile": "cargo build --release; unchanged Cargo default release profile",
+  "runtime_overrides": "SLINT_BACKEND, SLINT_DEBUG_PERFORMANCE, SLINT_SCALE_FACTOR, RUSTFLAGS, CARGO_ENCODED_RUSTFLAGS absent",
+  "tools": {
+    "Name": "wpr.exe",
+    "Source": "C:\\WINDOWS\\system32\\wpr.exe"
+  },
+  "exe": {
+    "bytes": 16927232,
+    "sha256": "AEAF7F294E5D829CF2F693E768F79BC8AF6A1BB0416954296965F78218B9F35E",
+    "path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\release\\bingee-desktop.exe"
+  },
+  "database": {
+    "bytes": 196608,
+    "sha256": "61918DB3B71A4B0F77154ABB498268F8D7F327469355B569AAD993B58C69FEC3"
+  },
+  "posters": {
+    "max_bytes": 23500.0,
+    "min_bytes": 20496.0,
+    "manifest_sha256": "4BE13BC484B971585C04CA4322629CECC837DB3BB823715FE72F69C1AFD0978C",
+    "bytes": 2188318.0,
+    "count": 100
+  },
+  "procedure": {
+    "startup_endpoint": "WaitForInputIdle plus nonzero MainWindowHandle and Process.Responding; not paint completion",
+    "polling_ms": 10,
+    "startup_samples": 20,
+    "cache_state": "warm OS caches; fresh process",
+    "idle_runs": 3,
+    "window": "unchanged preferred 1280x800 logical pixels; actual bounds not verified by this core suite",
+    "settle_seconds": 5,
+    "idle_seconds": 30
+  }
+}

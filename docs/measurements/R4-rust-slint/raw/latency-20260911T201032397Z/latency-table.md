@@ -1,0 +1,22 @@
+| Category | Case | n | Median ms | p95 ms | Max ms |
+| --- | --- | ---: | ---: | ---: | ---: |
+| overhead | timer_pair | 9000 | 0.000000 | 0.000100 | 0.000100 |
+| poster | explicit_hit | 1500 | 0.000100 | 0.000200 | 0.001000 |
+| poster | first_path_decode | 300 | 1.050650 | 1.225100 | 1.596800 |
+| poster | forced_decode | 1500 | 0.917000 | 1.197000 | 1.764800 |
+| poster | nine_new_images | 150 | 7.429050 | 8.197500 | 11.029100 |
+| poster | slint_internal_hit | 1500 | 0.036900 | 0.054300 | 0.107400 |
+| search | clear | 150 | 1.293300 | 1.750600 | 2.391400 |
+| search | HARBOR | 150 | 0.728350 | 1.256300 | 2.202300 |
+| search | NÖRDLICHE | 150 | 0.634300 | 1.105600 | 1.873500 |
+| search | restore | 150 | 1.611050 | 2.377700 | 4.304100 |
+| search | zzzz | 150 | 0.481550 | 0.760800 | 1.063400 |
+| selection | after_HARBOR | 150 | 0.040450 | 0.120300 | 0.181600 |
+| selection | after_navigation | 150 | 0.045700 | 0.153100 | 1.298100 |
+| selection | cached | 150 | 0.009600 | 0.015000 | 0.040900 |
+| selection | explicit_miss | 150 | 0.860800 | 0.931900 | 1.255100 |
+| sqlite | all | 150 | 1.225300 | 1.348600 | 1.565700 |
+| sqlite | existing_open | 150 | 0.686050 | 0.851200 | 1.569000 |
+| sqlite | HARBOR | 150 | 0.216450 | 0.398400 | 0.419000 |
+| sqlite | NÖRDLICHE | 150 | 0.243650 | 0.462700 | 0.497000 |
+| sqlite | zzzz | 150 | 0.181850 | 0.333600 | 0.352500 |

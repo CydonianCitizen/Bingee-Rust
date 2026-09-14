@@ -18,6 +18,12 @@ Build a bounded Rust + Slint spike on `spike/rust-slint`.
 
 This decision authorizes an evaluation only. It does not select Rust + Slint as the final production stack.
 
+Amendment, 2026-09-13: the Rust + Slint implementation lives in its own
+repository (`bingee-rust`) with `main` as the only development branch. The
+`spike/rust-slint` branch was merged into `main` and deleted. The C# + Avalonia
+spike is a separate repository. The evaluation scope and constraints below are
+unchanged.
+
 ## Constraints
 
 - Safe Rust by default.

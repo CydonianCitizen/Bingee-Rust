@@ -1,0 +1,7 @@
+gate-0.txt  exit=0  rustc --version
+gate-1.txt  exit=0  cargo --version
+gate-2.txt  exit=0  cargo fmt --check
+gate-3.txt  exit=0  cargo check
+gate-4.txt  exit=0  cargo test
+gate-5.txt  exit=0  cargo clippy --all-targets --all-features -- -D warnings
+gate-6.txt  exit=0  cargo build --release

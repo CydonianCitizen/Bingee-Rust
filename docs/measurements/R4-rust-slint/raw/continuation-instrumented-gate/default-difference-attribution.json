@@ -1,0 +1,51 @@
+{
+  "source_locations": [
+    {
+      "offset": 10094968,
+      "file": "src\\main.rs",
+      "before_line": 171,
+      "after_line": 183
+    },
+    {
+      "offset": 10094992,
+      "file": "src\\main.rs",
+      "before_line": 179,
+      "after_line": 191
+    },
+    {
+      "offset": 10095016,
+      "file": "src\\main.rs",
+      "before_line": 155,
+      "after_line": 167
+    },
+    {
+      "offset": 10095040,
+      "file": "src\\main.rs",
+      "before_line": 165,
+      "after_line": 177
+    },
+    {
+      "offset": 10096040,
+      "file": "src\\main.rs",
+      "before_line": 194,
+      "after_line": 206
+    },
+    {
+      "offset": 10096064,
+      "file": "src\\main.rs",
+      "before_line": 190,
+      "after_line": 202
+    },
+    {
+      "offset": 10099024,
+      "file": "src\\main.rs",
+      "before_line": 112,
+      "after_line": 124
+    }
+  ],
+  "coff_timestamp_offset": 256,
+  "debug_directory_offset": 15423152,
+  "debug_directory_size": 84,
+  "codeview_signature": "RSDS",
+  "codeview_guid_offset": 15424184
+}

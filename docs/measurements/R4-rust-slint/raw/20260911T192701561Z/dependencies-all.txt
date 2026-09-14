@@ -1,0 +1,990 @@
+bingee-desktop v0.1.0 (C:\Users\thoma\Documents\Projects\bingee-rust)
+rusqlite v0.40.2
+bitflags v2.13.2
+serde_core v1.0.229
+fallible-iterator v0.3.0
+fallible-streaming-iterator v0.1.9
+hashlink v0.12.2
+hashbrown v0.17.1
+foldhash v0.2.0
+libsqlite3-sys v0.38.2
+cc v1.4.5
+find-msvc-tools v0.1.12
+shlex v2.0.1
+pkg-config v0.3.34
+vcpkg v0.2.15
+smallvec v1.16.0
+slint v1.17.1
+const-field-offset v0.2.1
+const-field-offset-macro v0.2.1 (proc-macro)
+proc-macro2 v1.0.107
+unicode-ident v1.0.24
+quote v1.0.47
+proc-macro2 v1.0.107 (*)
+syn v3.0.5
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+unicode-ident v1.0.24
+field-offset v0.3.6
+memoffset v0.9.1
+autocfg v1.5.1
+rustc_version v0.4.1
+semver v1.0.28
+i-slint-backend-selector v1.17.1
+cfg-if v1.0.4
+i-slint-backend-winit v1.17.1
+accesskit v0.24.1
+uuid v1.26.1
+accesskit_winit v0.33.2
+accesskit v0.24.1 (*)
+accesskit_windows v0.34.0
+accesskit v0.24.1 (*)
+accesskit_consumer v0.38.0
+accesskit v0.24.1 (*)
+hashbrown v0.16.1
+allocator-api2 v0.2.21
+equivalent v1.0.2
+foldhash v0.2.0
+hashbrown v0.16.1 (*)
+static_assertions v1.1.0
+windows v0.62.2
+windows-collections v0.3.2
+windows-core v0.62.2
+windows-implement v0.60.2 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+unicode-ident v1.0.24
+windows-interface v0.59.3 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+windows-link v0.2.1
+windows-result v0.4.1
+windows-link v0.2.1
+windows-strings v0.5.1
+windows-link v0.2.1
+windows-core v0.62.2 (*)
+windows-future v0.3.2
+windows-core v0.62.2 (*)
+windows-link v0.2.1
+windows-threading v0.2.1
+windows-link v0.2.1
+windows-numerics v0.3.1
+windows-core v0.62.2 (*)
+windows-link v0.2.1
+windows-core v0.62.2 (*)
+raw-window-handle v0.6.2
+winit v0.30.13
+bitflags v2.13.2 (*)
+cursor-icon v1.2.0
+dpi v0.1.2
+raw-window-handle v0.6.2
+smol_str v0.2.2
+tracing v0.1.44
+pin-project-lite v0.2.17
+tracing-core v0.1.36
+unicode-segmentation v1.13.3
+windows-sys v0.52.0
+windows-targets v0.52.6
+windows_x86_64_msvc v0.52.6
+cfg_aliases v0.2.2
+bytemuck v1.25.2
+bytemuck_derive v1.12.0 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.5 (*)
+cfg-if v1.0.4
+copypasta v0.10.2
+clipboard-win v5.4.1
+error-code v3.4.0
+derive_more v2.1.1
+derive_more-impl v2.1.1 (proc-macro)
+convert_case v0.10.0
+unicode-segmentation v1.13.3
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+unicode-xid v0.2.6
+rustc_version v0.4.1 (*)
+glutin v0.32.3
+bitflags v2.13.2 (*)
+glutin_egl_sys v0.7.1
+windows-sys v0.52.0 (*)
+gl_generator v0.14.0
+khronos_api v3.1.0
+log v0.4.34
+xml-rs v0.8.29
+glutin_wgl_sys v0.6.1
+gl_generator v0.14.0 (*)
+libloading v0.8.9
+windows-link v0.2.1
+once_cell v1.21.4
+critical-section v1.2.0
+portable-atomic v1.15.0
+critical-section v1.2.0
+raw-window-handle v0.6.2
+windows-sys v0.52.0 (*)
+cfg_aliases v0.2.2
+glutin-winit v0.5.0
+glutin v0.32.3 (*)
+raw-window-handle v0.6.2
+winit v0.30.13 (*)
+cfg_aliases v0.2.2
+i-slint-common v1.17.1
+derive_more v2.1.1 (*)
+fontique v0.10.0
+hashbrown v0.17.1 (*)
+linebender_resource_handle v0.1.1
+memmap2 v0.9.11
+parlance v0.1.0
+read-fonts v0.39.2
+bytemuck v1.25.2 (*)
+font-types v0.11.3
+bytemuck v1.25.2 (*)
+smallvec v1.16.0
+windows v0.62.2 (*)
+windows-core v0.62.2 (*)
+htmlparser v0.2.1
+icu_decimal v2.3.0
+displaydoc v0.2.7 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.5 (*)
+fixed_decimal v0.7.2
+displaydoc v0.2.7 (proc-macro) (*)
+smallvec v1.16.0
+writeable v0.6.4
+icu_decimal_data v2.3.0
+icu_locale_core v2.3.0
+displaydoc v0.2.7 (proc-macro) (*)
+litemap v0.8.3
+tinystr v0.8.4
+displaydoc v0.2.7 (proc-macro) (*)
+zerovec v0.11.8
+yoke v0.8.3
+stable_deref_trait v1.2.1
+yoke-derive v0.8.2 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+synstructure v0.13.2
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+zerofrom v0.1.8
+zerofrom-derive v0.1.7 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+synstructure v0.13.2 (*)
+zerofrom v0.1.8 (*)
+zerovec-derive v0.11.6 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.5 (*)
+writeable v0.6.4
+zerovec v0.11.8 (*)
+icu_locale_fallback v2.3.0
+icu_locale_core v2.3.0 (*)
+icu_locale_fallback_data v2.3.0
+icu_provider v2.3.1
+displaydoc v0.2.7 (proc-macro) (*)
+icu_locale_core v2.3.0 (*)
+stable_deref_trait v1.2.1
+writeable v0.6.4
+yoke v0.8.3 (*)
+zerofrom v0.1.8 (*)
+zerotrie v0.2.5
+displaydoc v0.2.7 (proc-macro) (*)
+yoke v0.8.3 (*)
+zerofrom v0.1.8 (*)
+zerovec v0.11.8 (*)
+potential_utf v0.1.6
+writeable v0.6.4
+zerovec v0.11.8 (*)
+tinystr v0.8.4 (*)
+zerovec v0.11.8 (*)
+icu_provider v2.3.1 (*)
+writeable v0.6.4
+zerovec v0.11.8 (*)
+icu_locale_core v2.3.0 (*)
+icu_provider v2.3.1 (*)
+pulldown-cmark v0.13.4
+bitflags v2.13.2 (*)
+getopts v0.2.24
+unicode-width v0.2.2
+memchr v2.8.3
+pulldown-cmark-escape v0.11.0
+unicase v2.9.0
+resvg v0.47.0
+gif v0.14.2
+color_quant v1.1.0
+weezl v0.1.12
+image-webp v0.2.4
+byteorder-lite v0.1.0
+quick-error v2.0.1
+log v0.4.34
+pico-args v0.5.0
+rgb v0.8.53
+bytemuck v1.25.2 (*)
+svgtypes v0.16.1
+kurbo v0.13.1
+arrayvec v0.7.8
+polycool v0.4.0
+arrayvec v0.7.8
+smallvec v1.16.0
+siphasher v1.0.3
+tiny-skia v0.12.0
+arrayref v0.3.9
+arrayvec v0.7.8
+bytemuck v1.25.2 (*)
+cfg-if v1.0.4
+log v0.4.34
+png v0.18.1
+bitflags v2.13.2 (*)
+crc32fast v1.5.1
+cfg-if v1.0.4
+fdeflate v0.3.7
+simd-adler32 v0.3.10
+flate2 v1.1.10
+crc32fast v1.5.1 (*)
+miniz_oxide v0.9.1
+adler2 v2.0.1
+simd-adler32 v0.3.10
+miniz_oxide v0.8.9
+adler2 v2.0.1
+simd-adler32 v0.3.10
+tiny-skia-path v0.12.0
+arrayref v0.3.9
+bytemuck v1.25.2 (*)
+strict-num v0.1.1
+float-cmp v0.9.0
+usvg v0.47.0
+base64 v0.22.1
+data-url v0.3.2
+flate2 v1.1.10 (*)
+fontdb v0.23.0
+log v0.4.34
+slotmap v1.1.1
+version_check v0.9.5
+tinyvec v1.13.2
+tinyvec_macros v0.1.1
+ttf-parser v0.25.1
+core_maths v0.1.1
+libm v0.2.16
+imagesize v0.14.0
+kurbo v0.13.1 (*)
+log v0.4.34
+pico-args v0.5.0
+roxmltree v0.21.1
+memchr v2.8.3
+rustybuzz v0.20.1
+bitflags v2.13.2 (*)
+bytemuck v1.25.2 (*)
+core_maths v0.1.1 (*)
+log v0.4.34
+smallvec v1.16.0
+ttf-parser v0.25.1 (*)
+unicode-bidi-mirroring v0.4.0
+unicode-ccc v0.4.0
+unicode-properties v0.1.4
+unicode-script v0.5.8
+simplecss v0.2.2
+log v0.4.34
+siphasher v1.0.3
+strict-num v0.1.1 (*)
+svgtypes v0.16.1 (*)
+tiny-skia-path v0.12.0 (*)
+ttf-parser v0.25.1 (*)
+unicode-bidi v0.3.18
+unicode-script v0.5.8
+unicode-vo v0.1.0
+xmlwriter v0.1.0
+zune-jpeg v0.5.15
+zune-core v0.5.3
+skrifa v0.42.1
+bytemuck v1.25.2 (*)
+read-fonts v0.39.2 (*)
+i-slint-core v1.17.1
+auto_enums v0.8.10 (proc-macro)
+derive_utils v0.16.0
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.5 (*)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.5 (*)
+bitflags v2.13.2 (*)
+cfg-if v1.0.4
+chrono v0.4.45
+num-traits v0.2.19
+libm v0.2.16
+autocfg v1.5.1
+windows-link v0.2.1
+clru v0.6.3
+hashbrown v0.16.1 (*)
+const-field-offset v0.2.1 (*)
+derive_more v2.1.1 (*)
+euclid v0.22.14
+num-traits v0.2.19 (*)
+i-slint-common v1.17.1 (*)
+i-slint-core-macros v1.17.1 (proc-macro)
+quote v1.0.47 (*)
+serde_json v1.0.151
+itoa v1.0.18
+memchr v2.8.3
+serde_core v1.0.229
+zmij v1.0.23
+syn v2.0.119 (*)
+icu_normalizer v2.3.0
+icu_collections v2.3.0
+displaydoc v0.2.7 (proc-macro) (*)
+potential_utf v0.1.6 (*)
+utf8_iter v1.0.4
+yoke v0.8.3 (*)
+zerofrom v0.1.8 (*)
+zerovec v0.11.8 (*)
+icu_normalizer_data v2.3.0
+icu_provider v2.3.1 (*)
+smallvec v1.16.0
+zerovec v0.11.8 (*)
+image v0.25.10
+bytemuck v1.25.2 (*)
+byteorder-lite v0.1.0
+moxcms v0.8.1
+num-traits v0.2.19 (*)
+pxfm v0.1.30
+num-traits v0.2.19 (*)
+png v0.18.1 (*)
+zune-core v0.5.3
+zune-jpeg v0.5.15 (*)
+lyon_algorithms v1.0.21
+lyon_path v1.0.19
+lyon_geom v1.0.19
+arrayvec v0.7.8
+euclid v0.22.14 (*)
+num-traits v0.2.19 (*)
+num-traits v0.2.19 (*)
+num-traits v0.2.19 (*)
+lyon_extra v1.1.0
+lyon_path v1.0.19 (*)
+thiserror v2.0.20
+thiserror-impl v2.0.20 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.5 (*)
+lyon_geom v1.0.19 (*)
+lyon_path v1.0.19 (*)
+num-traits v0.2.19 (*)
+once_cell v1.21.4 (*)
+parley v0.10.0
+fontique v0.10.0 (*)
+harfrust v0.8.4
+bitflags v2.13.2 (*)
+bytemuck v1.25.2 (*)
+read-fonts v0.39.2 (*)
+smallvec v1.16.0
+hashbrown v0.17.1 (*)
+icu_normalizer v2.3.0 (*)
+icu_properties v2.3.0
+displaydoc v0.2.7 (proc-macro) (*)
+icu_collections v2.3.0 (*)
+icu_locale_core v2.3.0 (*)
+icu_properties_data v2.3.0
+icu_provider v2.3.1 (*)
+zerotrie v0.2.5 (*)
+zerovec v0.11.8 (*)
+icu_segmenter v2.3.0
+icu_collections v2.3.0 (*)
+icu_locale_fallback v2.3.0 (*)
+icu_provider v2.3.1 (*)
+icu_segmenter_data v2.3.0
+potential_utf v0.1.6 (*)
+smallvec v1.16.0
+utf8_iter v1.0.4
+zerovec v0.11.8 (*)
+linebender_resource_handle v0.1.1
+parlance v0.1.0
+parley_data v0.10.0
+icu_properties v2.3.0 (*)
+skrifa v0.42.1 (*)
+pin-project v1.1.13
+pin-project-internal v1.1.13 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+pin-weak v1.1.0
+portable-atomic v1.15.0 (*)
+resvg v0.47.0 (*)
+rgb v0.8.53 (*)
+scopeguard v1.2.0
+skrifa v0.42.1 (*)
+slab v0.4.12
+strum v0.28.0
+strum_macros v0.28.0 (proc-macro)
+heck v0.5.0
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+swash v0.2.10
+skrifa v0.44.0
+bytemuck v1.25.2 (*)
+read-fonts v0.41.0
+bytemuck v1.25.2 (*)
+font-types v0.12.5
+bytemuck v1.25.2 (*)
+once_cell v1.21.4 (*)
+yazi v0.2.1
+zeno v0.3.3
+sys-locale v0.3.2
+taffy v0.10.1
+arrayvec v0.7.8
+slotmap v1.1.1 (*)
+unicode-linebreak v0.1.5
+unicode-script v0.5.8
+unicode-segmentation v1.13.3
+vtable v0.4.0
+const-field-offset v0.2.1 (*)
+portable-atomic v1.15.0 (*)
+stable_deref_trait v1.2.1
+vtable-macro v0.4.0 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+windows v0.62.2 (*)
+i-slint-core-macros v1.17.1 (proc-macro) (*)
+i-slint-renderer-femtovg v1.17.1
+cfg-if v1.0.4
+const-field-offset v0.2.1 (*)
+derive_more v2.1.1 (*)
+femtovg v0.25.1
+bitflags v2.13.2 (*)
+bytemuck v1.25.2 (*)
+fnv v1.0.7
+glow v0.17.0
+imgref v1.12.3
+itertools v0.14.0
+either v1.18.0
+log v0.4.34
+rgb v0.8.53 (*)
+slotmap v1.1.1 (*)
+swash v0.2.10 (*)
+glow v0.17.0
+i-slint-common v1.17.1 (*)
+i-slint-core v1.17.1 (*)
+i-slint-core-macros v1.17.1 (proc-macro) (*)
+imgref v1.12.3
+lyon_path v1.0.19 (*)
+pin-weak v1.1.0
+rgb v0.8.53 (*)
+i-slint-renderer-software v1.17.1
+bytemuck v1.25.2 (*)
+clru v0.6.3 (*)
+derive_more v2.1.1 (*)
+euclid v0.22.14 (*)
+i-slint-common v1.17.1 (*)
+i-slint-core v1.17.1 (*)
+integer-sqrt v0.1.5
+num-traits v0.2.19 (*)
+lyon_path v1.0.19 (*)
+num-traits v0.2.19 (*)
+skrifa v0.42.1 (*)
+swash v0.2.10 (*)
+zeno v0.3.3
+imgref v1.12.3
+lyon_path v1.0.19 (*)
+muda v0.19.3
+crossbeam-channel v0.5.17
+crossbeam-utils v0.8.23
+dpi v0.1.2
+keyboard-types v0.7.0
+bitflags v2.13.2 (*)
+serde v1.0.229
+serde_core v1.0.229
+serde_derive v1.0.229 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v3.0.5 (*)
+unicode-segmentation v1.13.3
+once_cell v1.21.4 (*)
+thiserror v2.0.20 (*)
+windows-sys v0.61.2
+windows-link v0.2.1
+pin-weak v1.1.0
+raw-window-handle v0.6.2
+rgb v0.8.53 (*)
+scoped-tls-hkt v0.1.5
+scopeguard v1.2.0
+softbuffer v0.4.8
+raw-window-handle v0.6.2
+tracing v0.1.44 (*)
+windows-sys v0.61.2 (*)
+strum v0.28.0 (*)
+vtable v0.4.0 (*)
+webbrowser v1.2.4
+log v0.4.34
+url v2.5.8
+form_urlencoded v1.2.2
+percent-encoding v2.3.2
+idna v1.1.0
+idna_adapter v1.2.2
+icu_normalizer v2.3.0 (*)
+icu_properties v2.3.0 (*)
+smallvec v1.16.0
+utf8_iter v1.0.4
+percent-encoding v2.3.2
+windows v0.62.2 (*)
+winit v0.30.13 (*)
+cfg_aliases v0.2.2
+i-slint-core v1.17.1 (*)
+i-slint-core-macros v1.17.1 (proc-macro) (*)
+i-slint-renderer-femtovg v1.17.1 (*)
+cfg_aliases v0.2.2
+i-slint-common v1.17.1
+derive_more v2.1.1
+derive_more-impl v2.1.1 (proc-macro) (*)
+fontique v0.10.0
+hashbrown v0.17.1
+foldhash v0.2.0
+linebender_resource_handle v0.1.1
+memmap2 v0.9.11
+parlance v0.1.0
+read-fonts v0.39.2
+bytemuck v1.25.2
+bytemuck_derive v1.12.0 (proc-macro) (*)
+font-types v0.11.3
+bytemuck v1.25.2 (*)
+smallvec v1.16.0
+windows v0.62.2
+windows-collections v0.3.2
+windows-core v0.62.2
+windows-implement v0.60.2 (proc-macro) (*)
+windows-interface v0.59.3 (proc-macro) (*)
+windows-link v0.2.1
+windows-result v0.4.1
+windows-link v0.2.1
+windows-strings v0.5.1
+windows-link v0.2.1
+windows-core v0.62.2 (*)
+windows-future v0.3.2
+windows-core v0.62.2 (*)
+windows-link v0.2.1
+windows-threading v0.2.1
+windows-link v0.2.1
+windows-numerics v0.3.1
+windows-core v0.62.2 (*)
+windows-link v0.2.1
+windows-core v0.62.2 (*)
+htmlparser v0.2.1
+icu_decimal v2.3.0
+displaydoc v0.2.7 (proc-macro) (*)
+fixed_decimal v0.7.2
+displaydoc v0.2.7 (proc-macro) (*)
+smallvec v1.16.0
+writeable v0.6.4
+icu_decimal_data v2.3.0
+icu_locale_core v2.3.0
+displaydoc v0.2.7 (proc-macro) (*)
+litemap v0.8.3
+tinystr v0.8.4
+displaydoc v0.2.7 (proc-macro) (*)
+zerovec v0.11.8
+yoke v0.8.3
+stable_deref_trait v1.2.1
+yoke-derive v0.8.2 (proc-macro) (*)
+zerofrom v0.1.8
+zerofrom-derive v0.1.7 (proc-macro) (*)
+zerofrom v0.1.8 (*)
+zerovec-derive v0.11.6 (proc-macro) (*)
+writeable v0.6.4
+zerovec v0.11.8 (*)
+icu_locale_fallback v2.3.0
+icu_locale_core v2.3.0 (*)
+icu_locale_fallback_data v2.3.0
+icu_provider v2.3.1
+displaydoc v0.2.7 (proc-macro) (*)
+icu_locale_core v2.3.0 (*)
+stable_deref_trait v1.2.1
+writeable v0.6.4
+yoke v0.8.3 (*)
+zerofrom v0.1.8 (*)
+zerotrie v0.2.5
+displaydoc v0.2.7 (proc-macro) (*)
+yoke v0.8.3 (*)
+zerofrom v0.1.8 (*)
+zerovec v0.11.8 (*)
+potential_utf v0.1.6
+writeable v0.6.4
+zerovec v0.11.8 (*)
+tinystr v0.8.4 (*)
+zerovec v0.11.8 (*)
+icu_provider v2.3.1 (*)
+writeable v0.6.4
+zerovec v0.11.8 (*)
+icu_locale_core v2.3.0 (*)
+icu_provider v2.3.1 (*)
+pulldown-cmark v0.13.4
+bitflags v2.13.2
+getopts v0.2.24
+unicode-width v0.2.2
+memchr v2.8.3
+pulldown-cmark-escape v0.11.0
+unicase v2.9.0
+resvg v0.47.0
+gif v0.14.2
+color_quant v1.1.0
+weezl v0.1.12
+image-webp v0.2.4
+byteorder-lite v0.1.0
+quick-error v2.0.1
+log v0.4.34
+pico-args v0.5.0
+rgb v0.8.53
+bytemuck v1.25.2 (*)
+svgtypes v0.16.1
+kurbo v0.13.1
+arrayvec v0.7.8
+polycool v0.4.0
+arrayvec v0.7.8
+smallvec v1.16.0
+siphasher v1.0.3
+tiny-skia v0.12.0
+arrayref v0.3.9
+arrayvec v0.7.8
+bytemuck v1.25.2 (*)
+cfg-if v1.0.4
+log v0.4.34
+png v0.18.1
+bitflags v2.13.2
+crc32fast v1.5.1
+cfg-if v1.0.4
+fdeflate v0.3.7
+simd-adler32 v0.3.10
+flate2 v1.1.10
+crc32fast v1.5.1 (*)
+miniz_oxide v0.9.1
+adler2 v2.0.1
+simd-adler32 v0.3.10
+miniz_oxide v0.8.9
+adler2 v2.0.1
+simd-adler32 v0.3.10
+tiny-skia-path v0.12.0
+arrayref v0.3.9
+bytemuck v1.25.2 (*)
+strict-num v0.1.1
+float-cmp v0.9.0
+usvg v0.47.0
+base64 v0.22.1
+data-url v0.3.2
+flate2 v1.1.10 (*)
+fontdb v0.23.0
+log v0.4.34
+slotmap v1.1.1
+version_check v0.9.5
+tinyvec v1.13.2
+tinyvec_macros v0.1.1
+ttf-parser v0.25.1
+core_maths v0.1.1
+libm v0.2.16
+imagesize v0.14.0
+kurbo v0.13.1 (*)
+log v0.4.34
+pico-args v0.5.0
+roxmltree v0.21.1
+memchr v2.8.3
+rustybuzz v0.20.1
+bitflags v2.13.2
+bytemuck v1.25.2 (*)
+core_maths v0.1.1 (*)
+log v0.4.34
+smallvec v1.16.0
+ttf-parser v0.25.1 (*)
+unicode-bidi-mirroring v0.4.0
+unicode-ccc v0.4.0
+unicode-properties v0.1.4
+unicode-script v0.5.8
+simplecss v0.2.2
+log v0.4.34
+siphasher v1.0.3
+strict-num v0.1.1 (*)
+svgtypes v0.16.1 (*)
+tiny-skia-path v0.12.0 (*)
+ttf-parser v0.25.1 (*)
+unicode-bidi v0.3.18
+unicode-script v0.5.8
+unicode-vo v0.1.0
+xmlwriter v0.1.0
+zune-jpeg v0.5.15
+zune-core v0.5.3
+skrifa v0.42.1
+bytemuck v1.25.2 (*)
+read-fonts v0.39.2 (*)
+i-slint-common v1.17.1 (*)
+i-slint-core v1.17.1 (*)
+i-slint-core-macros v1.17.1 (proc-macro) (*)
+i-slint-renderer-femtovg v1.17.1 (*)
+i-slint-renderer-software v1.17.1 (*)
+num-traits v0.2.19 (*)
+once_cell v1.21.4 (*)
+pin-weak v1.1.0
+slint-macros v1.17.1 (proc-macro)
+i-slint-compiler v1.17.1
+annotate-snippets v0.12.16
+anstyle v1.0.14
+unicode-width v0.2.2
+by_address v1.2.1
+data-url v0.3.2
+derive_more v2.1.1 (*)
+i-slint-common v1.17.1 (*)
+icu_normalizer v2.3.0
+icu_collections v2.3.0
+displaydoc v0.2.7 (proc-macro) (*)
+potential_utf v0.1.6 (*)
+utf8_iter v1.0.4
+yoke v0.8.3 (*)
+zerofrom v0.1.8 (*)
+zerovec v0.11.8 (*)
+icu_normalizer_data v2.3.0
+icu_provider v2.3.1 (*)
+smallvec v1.16.0
+zerovec v0.11.8 (*)
+image v0.25.10
+bytemuck v1.25.2 (*)
+byteorder-lite v0.1.0
+color_quant v1.1.0
+exr v1.74.2
+bit_field v0.10.3
+half v2.7.1
+cfg-if v1.0.4
+zerocopy v0.8.57
+zerocopy-derive v0.8.57 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+lebe v0.5.3
+miniz_oxide v0.8.9 (*)
+num-complex v0.4.6
+bytemuck v1.25.2 (*)
+num-traits v0.2.19
+libm v0.2.16
+autocfg v1.5.1
+pulp v0.22.3
+bytemuck v1.25.2 (*)
+cfg-if v1.0.4
+libm v0.2.16
+num-complex v0.4.6 (*)
+paste v1.0.15 (proc-macro)
+pulp-wasm-simd-flag v0.1.1
+raw-cpuid v11.6.0
+bitflags v2.13.2
+reborrow v0.5.5
+version_check v0.9.5
+rayon-core v1.13.0
+crossbeam-deque v0.8.8
+crossbeam-epoch v0.9.21
+crossbeam-utils v0.8.23
+crossbeam-utils v0.8.23
+crossbeam-utils v0.8.23
+smallvec v1.16.0
+zune-inflate v0.2.54
+simd-adler32 v0.3.10
+gif v0.14.2 (*)
+image-webp v0.2.4 (*)
+moxcms v0.8.1
+num-traits v0.2.19 (*)
+pxfm v0.1.30
+num-traits v0.2.19 (*)
+png v0.18.1 (*)
+qoi v0.4.1
+bytemuck v1.25.2 (*)
+ravif v0.13.0
+avif-serialize v0.8.9
+arrayvec v0.7.8
+imgref v1.12.3
+loop9 v0.1.5
+imgref v1.12.3
+quick-error v2.0.1
+rav1e v0.8.1
+aligned-vec v0.6.4
+equator v0.4.2
+equator-macro v0.4.2 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+arg_enum_proc_macro v0.3.4 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+arrayvec v0.7.8
+av-scenechange v0.14.1
+aligned v0.4.3
+as-slice v0.2.1
+stable_deref_trait v1.2.1
+anyhow v1.0.104
+arg_enum_proc_macro v0.3.4 (proc-macro) (*)
+arrayvec v0.7.8
+log v0.4.34
+num-rational v0.4.2
+num-bigint v0.4.8
+num-integer v0.1.47
+num-traits v0.2.19 (*)
+num-traits v0.2.19 (*)
+num-integer v0.1.47 (*)
+num-traits v0.2.19 (*)
+num-traits v0.2.19 (*)
+pastey v0.1.1 (proc-macro)
+rayon v1.12.0
+either v1.18.0
+rayon-core v1.13.0 (*)
+thiserror v2.0.20
+thiserror-impl v2.0.20 (proc-macro) (*)
+v_frame v0.3.9
+aligned-vec v0.6.4 (*)
+num-traits v0.2.19 (*)
+y4m v0.8.0
+av1-grain v0.2.5
+anyhow v1.0.104
+arrayvec v0.7.8
+log v0.4.34
+nom v8.0.0
+memchr v2.8.3
+num-rational v0.4.2 (*)
+v_frame v0.3.9 (*)
+bitstream-io v4.10.0
+no_std_io2 v0.9.4
+memchr v2.8.3
+cfg-if v1.0.4
+itertools v0.14.0
+either v1.18.0
+libc v0.2.189
+log v0.4.34
+maybe-rayon v0.1.1
+cfg-if v1.0.4
+rayon v1.12.0 (*)
+new_debug_unreachable v1.0.6
+noop_proc_macro v0.3.0 (proc-macro)
+num-derive v0.4.2 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+num-traits v0.2.19 (*)
+paste v1.0.15 (proc-macro)
+profiling v1.0.18
+profiling-procmacros v1.0.18 (proc-macro)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+simd_helpers v0.1.0 (proc-macro)
+quote v1.0.47 (*)
+thiserror v2.0.20 (*)
+v_frame v0.3.9 (*)
+built v0.8.1
+rayon v1.12.0 (*)
+rgb v0.8.53 (*)
+rayon v1.12.0 (*)
+rgb v0.8.53 (*)
+tiff v0.11.3
+fax v0.2.7
+flate2 v1.1.10 (*)
+half v2.7.1 (*)
+quick-error v2.0.1
+weezl v0.1.12
+zune-jpeg v0.5.15 (*)
+zune-core v0.5.3
+zune-jpeg v0.5.15 (*)
+itertools v0.14.0 (*)
+linked_hash_set v0.1.6
+linked-hash-map v0.5.6
+lyon_extra v1.1.0
+lyon_path v1.0.19
+lyon_geom v1.0.19
+arrayvec v0.7.8
+euclid v0.22.14
+num-traits v0.2.19 (*)
+num-traits v0.2.19 (*)
+num-traits v0.2.19 (*)
+thiserror v2.0.20 (*)
+lyon_path v1.0.19 (*)
+num_enum v0.7.6
+num_enum_derive v0.7.6 (proc-macro)
+proc-macro-crate v3.5.0
+toml_edit v0.25.15+spec-1.1.0
+indexmap v2.14.2
+equivalent v1.0.2
+hashbrown v0.17.1 (*)
+toml_datetime v1.1.1+spec-1.1.0
+toml_parser v1.1.3+spec-1.1.0
+winnow v1.0.4
+toml_writer v1.1.2+spec-1.1.0
+winnow v1.0.4
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+rustversion v1.0.23 (proc-macro)
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+rayon v1.12.0 (*)
+resvg v0.47.0 (*)
+rowan v0.16.1
+countme v3.0.1
+hashbrown v0.14.5
+rustc-hash v1.1.0
+text-size v1.1.1
+rspolib v0.1.2
+lazy_static v1.5.0
+natord v1.0.9
+snafu v0.8.9
+snafu-derive v0.8.9 (proc-macro)
+heck v0.5.0
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+syn v2.0.119 (*)
+unicode-linebreak v0.1.5
+unicode-width v0.2.2
+skrifa v0.42.1 (*)
+smol_str v0.3.6
+strum v0.28.0
+strum_macros v0.28.0 (proc-macro) (*)
+swash v0.2.10
+skrifa v0.44.0
+bytemuck v1.25.2 (*)
+read-fonts v0.41.0
+bytemuck v1.25.2 (*)
+font-types v0.12.5
+bytemuck v1.25.2 (*)
+once_cell v1.21.4
+yazi v0.2.1
+zeno v0.3.3
+typed-index-collections v3.5.0
+unicode-segmentation v1.13.3
+url v2.5.8
+form_urlencoded v1.2.2
+percent-encoding v2.3.2
+idna v1.1.0
+idna_adapter v1.2.2
+icu_normalizer v2.3.0 (*)
+icu_properties v2.3.0
+displaydoc v0.2.7 (proc-macro) (*)
+icu_collections v2.3.0 (*)
+icu_locale_core v2.3.0 (*)
+icu_properties_data v2.3.0
+icu_provider v2.3.1 (*)
+zerotrie v0.2.5 (*)
+zerovec v0.11.8 (*)
+smallvec v1.16.0
+utf8_iter v1.0.4
+percent-encoding v2.3.2
+proc-macro2 v1.0.107 (*)
+quote v1.0.47 (*)
+spin_on v0.1.1
+pin-utils v0.1.0
+unicode-segmentation v1.13.3
+vtable v0.4.0 (*)
+slint-build v1.17.1
+derive_more v2.1.1 (*)
+i-slint-compiler v1.17.1 (*)
+spin_on v0.1.1 (*)
+toml_edit v0.25.15+spec-1.1.0 (*)
+image v0.25.10 (*)

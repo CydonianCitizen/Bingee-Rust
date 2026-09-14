@@ -1,0 +1,27 @@
+[
+  {
+    "command": "cargo fmt --check",
+    "log": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-0.txt",
+    "exit_code": 0
+  },
+  {
+    "command": "cargo check",
+    "log": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-1.txt",
+    "exit_code": 0
+  },
+  {
+    "command": "cargo test",
+    "log": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-2.txt",
+    "exit_code": 0
+  },
+  {
+    "command": "cargo clippy --all-targets --all-features -- -D warnings",
+    "log": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-3.txt",
+    "exit_code": 0
+  },
+  {
+    "command": "cargo build --release",
+    "log": "docs\\measurements\\R4-rust-slint\\raw\\final-verification\\gate-4.txt",
+    "exit_code": 0
+  }
+]

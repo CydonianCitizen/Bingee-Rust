@@ -1,0 +1,77 @@
+{
+  "utc": "2026-09-11T20:10:32.4204974Z",
+  "commit": "95feb454864907a29bcf84f629278dc861e10336",
+  "executable": "DB1CFDEB8A47CCD4AB28B89A4ACC59DF15DC63FE1300E751F71CDB39D6DE67E3",
+  "executable_bytes": 17000960,
+  "frozen_executable": "AEAF7F294E5D829CF2F693E768F79BC8AF6A1BB0416954296965F78218B9F35E",
+  "database": "61918DB3B71A4B0F77154ABB498268F8D7F327469355B569AAD993B58C69FEC3",
+  "inputs": [
+    {
+      "path": "Cargo.toml",
+      "sha256": "12A1705725795BE3F0777689B7F01DF4FB28A8F282A808A994A90E19C017CC68"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "3CEACEC4E06D70EE1B582DD57BE67D9C3DE8F80811AA858D1A08596D7598B967"
+    },
+    {
+      "path": "build.rs",
+      "sha256": "CBBE38E0C4FF1F9D463B1A0EE89A3D3210FD4D7346764B0A695D93785E7659B0"
+    },
+    {
+      "path": "src/main.rs",
+      "sha256": "3F16E160B6CC98F7C3B7D019488D2BD942FA33FE12B80DAF7FC89402DC7FF15E"
+    },
+    {
+      "path": "src/library.rs",
+      "sha256": "FFAE870CA6A54E5646A59EEA32B7DEA11218220B5F70637385FA05D8AAE6CA12"
+    },
+    {
+      "path": "src/db.rs",
+      "sha256": "6A9CC242CCF5196C2CA3CF024456FBEB6BD459BE426E3E58A2A6C443A91A8285"
+    },
+    {
+      "path": "src/poster.rs",
+      "sha256": "C21AA76113F23103F2486BBF098ECB6378C584B091476FC9688AA441AAD37DD1"
+    },
+    {
+      "path": "ui/app-window.slint",
+      "sha256": "BCB099A48A7B0272958DDDE9FB410F43039750CAB2379D2B1AEA63933D86A35E"
+    },
+    {
+      "path": "benchmark/r4_latency.rs",
+      "sha256": "7245D64FA01265C02A340DB4F5A7B2F02BE187776D5731D5C63248083A512CAB"
+    },
+    {
+      "path": "benchmark/scripts/r4-latency.ps1",
+      "sha256": "06BFE6EFCDC8FAF9A88F96AE1CE8D16DF8228A8EAABB6459CAEA378D53590CEF"
+    }
+  ],
+  "os": {
+    "Caption": "Microsoft Windows 11 Home",
+    "Version": "10.0.26200",
+    "BuildNumber": "26200",
+    "OSArchitecture": "64-bit"
+  },
+  "cpu": {
+    "Name": "Intel(R) Core(TM) i5-10500H CPU @ 2.50GHz",
+    "NumberOfCores": 6,
+    "NumberOfLogicalProcessors": 12
+  },
+  "ac": {
+    "PowerOnline": true,
+    "Charging": false,
+    "Discharging": false
+  },
+  "defender": {
+    "AntivirusEnabled": true,
+    "RealTimeProtectionEnabled": true
+  },
+  "power_scheme": "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+  "rust": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+  "profile": "release, r4-measurement feature; original Slint/default dependency features",
+  "cache_state": "OS file caches warm; separate processes; SQLite page cache warmed by existing open count transaction",
+  "profiler": "none attached by runner",
+  "debugger": "none attached by runner"
+}

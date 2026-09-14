@@ -68,7 +68,7 @@ draws the image, and drops unused textures after each frame.
   (inflate of long runs). TMDB serves JPEG, so JPEG decode work is closer to
   the product.
 - **Hand-written encoder or a Python/.NET generator script**: an uncompressed
-  PNG is 26 MB for 100 posters. Python and .NET are off-limits on this branch.
+  PNG is 26 MB for 100 posters. Python and .NET are off-limits in this repository.
 
 ## Consequences
 
@@ -94,6 +94,7 @@ draws the image, and drops unused textures after each frame.
 - A failed poster is not retried until the app restarts.
 - The spike reads posters from the checkout it was built from
   (`CARGO_MANIFEST_DIR`). Packaging (R5) must decide the real asset location.
+  (Decided in R5: `<package root>/assets/posters`, see ADR-0005.)
 
 ## Validation
 

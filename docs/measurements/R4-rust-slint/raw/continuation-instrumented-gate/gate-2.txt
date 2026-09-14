@@ -1,0 +1,43 @@
+warn: could not canonicalize path C:\Users\thoma
+   Compiling bingee-desktop v0.1.0 (C:\Users\thoma\Documents\Projects\bingee-rust)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 25.94s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-402f5a726a4809a1.exe)
+
+running 32 tests
+test db::tests::informal_query_timings ... ignored
+test library::tests::initials_skip_punctuation_and_handle_non_ascii ... ok
+test db::tests::failures_surface_as_errors ... ok
+test library::tests::progress_labels_and_fractions ... ok
+test library::tests::blank_query_returns_all_records_in_order ... ok
+test library::tests::generates_exactly_1000_records_with_unique_sequential_ids ... ok
+test library::tests::original_title_search_matches ... ok
+test library::tests::mixes_movies_and_tv_with_plausible_fields ... ok
+test poster::tests::eviction_releases_the_value_once_no_one_else_holds_it ... ok
+test library::tests::generation_is_deterministic_and_pinned ... ok
+test poster::tests::evicts_least_recently_used_and_stays_within_budget ... ok
+test poster::tests::failed_load_is_not_cached_and_not_retried ... ok
+test poster::tests::miss_loads_once_then_hits ... ok
+test poster::tests::mixed_sizes_evict_until_the_new_entry_fits ... ok
+test poster::tests::mapping_is_deterministic_and_covers_the_pool ... ok
+test poster::tests::value_larger_than_the_budget_is_returned_but_not_cached ... ok
+test tests::informal_poster_timings ... ignored
+test library::tests::title_search_is_case_insensitive ... ok
+test library::tests::reselect_keeps_visible_selection_else_first_result_else_none ... ok
+test library::tests::unmatched_query_returns_nothing ... ok
+test library::tests::results_are_ordered_and_match_a_brute_force_filter ... ok
+Error loading image from C:\Users\thoma\AppData\Local\Temp\bingee-posters-5980\poster-001.jpg: The system cannot find the file specified. (os error 2)
+Error loading image from C:\Users\thoma\AppData\Local\Temp\bingee-posters-5980\poster-002.jpg: Format error decoding Jpeg: Error parsing image. Illegal start bytes:6E6F
+test tests::missing_or_corrupt_poster_falls_back_to_the_placeholder ... ok
+test db::tests::unknown_enum_values_are_errors ... ok
+test db::tests::open_creates_schema_and_seeds_exactly_1000_records ... ok
+test db::tests::search_cases ... ok
+test db::tests::reopening_keeps_data_without_reseeding ... ok
+test db::tests::movie_and_tv_round_trip ... ok
+test db::tests::sql_search_matches_the_r1_reference ... ok
+test tests::failed_search_keeps_previous_results ... ok
+test tests::selection_tracks_stable_id_and_never_leaves_the_results ... ok
+test tests::rows_and_detail_show_the_poster_mapped_from_the_id ... ok
+test tests::only_visible_posters_load_and_the_cache_stays_bounded ... ok
+
+test result: ok. 30 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 17.07s
+

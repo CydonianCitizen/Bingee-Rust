@@ -107,7 +107,7 @@ Test the resource-intensive part most likely to dominate a media application.
 
 - Scrolling does not decode the whole poster set.
 - Memory does not grow without bound during repeated navigation.
-- Same asset set can be used by the Avalonia branch.
+- Same asset set can be used by the Avalonia spike.
 
 ---
 
@@ -136,6 +136,12 @@ Measurements defined by `BENCHMARK_SPEC.md` for:
 - Results are reproducible.
 - No Rust-vs-C# conclusion is made from mismatched workloads.
 
+### Status
+
+Partial / environment-blocked (13 September 2026). The non-interactive
+baseline is frozen. The interactive memory checkpoints, soak, and motion
+verification remain required. See `docs/measurements/R4-rust-slint/STATUS.md`.
+
 ---
 
 ## Milestone R5 — Packaging and cross-platform sanity
@@ -155,6 +161,12 @@ Ensure the architecture is genuinely desktop cross-platform rather than accident
 
 - No core design depends on a Windows-only API.
 - Remaining cross-platform risks are explicit.
+
+### Status
+
+PASS locally / cross-platform CI pending (13 September 2026). Windows is
+built, tested, packaged and launch-checked. The CI workflow for macOS and
+Linux has not run yet. See `docs/milestones/R5.md`.
 
 ---
 

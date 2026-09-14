@@ -1,0 +1,21 @@
+slint v1.17.1
+├── slint feature "accessibility"
+│   └── slint feature "default"
+│       └── bingee-desktop v0.1.0 (C:\Users\thoma\Documents\Projects\bingee-rust)
+│           └── bingee-desktop feature "default" (command-line)
+├── slint feature "backend-default"
+│   └── slint feature "default" (*)
+├── slint feature "compat-1-2"
+│   └── slint feature "default" (*)
+├── slint feature "default" (*)
+├── slint feature "i-slint-renderer-femtovg"
+│   └── slint feature "renderer-femtovg"
+│       └── slint feature "default" (*)
+├── slint feature "renderer-femtovg" (*)
+├── slint feature "renderer-software"
+│   └── slint feature "default" (*)
+├── slint feature "std"
+│   ├── slint feature "default" (*)
+│   └── slint feature "renderer-femtovg" (*)
+└── slint feature "system-tray"
+    └── slint feature "default" (*)

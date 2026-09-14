@@ -1,0 +1,113 @@
+[
+  {
+    "path": "target/release/bingee-r4-frozen.exe",
+    "coff_timestamp": 1789130569,
+    "sha256": "AEAF7F294E5D829CF2F693E768F79BC8AF6A1BB0416954296965F78218B9F35E",
+    "sections": [
+      {
+        "name": ".text",
+        "length": 10025984,
+        "offset": 1024,
+        "sha256": "72E67D7AE1C2E41E5088EE8FC4382456AFDA85C6AF34F47492CF7DFBF6B3AB04"
+      },
+      {
+        "name": ".rdata",
+        "length": 6474752,
+        "offset": 10027008,
+        "sha256": "6BEB9F97FE559144E4CAC869E3313D51099C5707E071EDC546E78652CA796B03"
+      },
+      {
+        "name": ".data",
+        "length": 28672,
+        "offset": 16501760,
+        "sha256": "86F093CF3B9812A848F8D2D6DDE9EA5B84EACBE735DB4EA171249A29D17FE578"
+      },
+      {
+        "name": ".pdata",
+        "length": 353280,
+        "offset": 16530432,
+        "sha256": "356038AECFCBCAEFE6CF34B8DEC5B346AEB3AD5F6DF7DD21835E07568307DFE1"
+      },
+      {
+        "name": ".reloc",
+        "length": 43520,
+        "offset": 16883712,
+        "sha256": "AE01AE591176A4A2FD8640B0340FBC8F308FEA48FCE8F6B8F043D534AF1B1FCB"
+      }
+    ]
+  },
+  {
+    "path": "target/release/bingee-r4-default.exe",
+    "coff_timestamp": 1789157242,
+    "sha256": "DB4A35DE850C353C97E05FCBC30BD55AB604D7CA70C6673D2646CB61E624BCB7",
+    "sections": [
+      {
+        "name": ".text",
+        "length": 10025984,
+        "offset": 1024,
+        "sha256": "72E67D7AE1C2E41E5088EE8FC4382456AFDA85C6AF34F47492CF7DFBF6B3AB04"
+      },
+      {
+        "name": ".rdata",
+        "length": 6474752,
+        "offset": 10027008,
+        "sha256": "3DBCAF6C813F54766AB84565AB3B9EA79C61E3CABDF235EE0A60DC365716B453"
+      },
+      {
+        "name": ".data",
+        "length": 28672,
+        "offset": 16501760,
+        "sha256": "86F093CF3B9812A848F8D2D6DDE9EA5B84EACBE735DB4EA171249A29D17FE578"
+      },
+      {
+        "name": ".pdata",
+        "length": 353280,
+        "offset": 16530432,
+        "sha256": "356038AECFCBCAEFE6CF34B8DEC5B346AEB3AD5F6DF7DD21835E07568307DFE1"
+      },
+      {
+        "name": ".reloc",
+        "length": 43520,
+        "offset": 16883712,
+        "sha256": "AE01AE591176A4A2FD8640B0340FBC8F308FEA48FCE8F6B8F043D534AF1B1FCB"
+      }
+    ]
+  },
+  {
+    "path": "target/release/bingee-desktop.exe",
+    "coff_timestamp": 1789157635,
+    "sha256": "4A12F3863BE136A1F78C62C3670EB3278E1C879C64CA26D65835ACC34DD90D1F",
+    "sections": [
+      {
+        "name": ".text",
+        "length": 10025984,
+        "offset": 1024,
+        "sha256": "72E67D7AE1C2E41E5088EE8FC4382456AFDA85C6AF34F47492CF7DFBF6B3AB04"
+      },
+      {
+        "name": ".rdata",
+        "length": 6474752,
+        "offset": 10027008,
+        "sha256": "BAB68A99963FBDDEACA44F6BA593B86CEFA39E4D34763ED4EA2835F985A43C03"
+      },
+      {
+        "name": ".data",
+        "length": 28672,
+        "offset": 16501760,
+        "sha256": "86F093CF3B9812A848F8D2D6DDE9EA5B84EACBE735DB4EA171249A29D17FE578"
+      },
+      {
+        "name": ".pdata",
+        "length": 353280,
+        "offset": 16530432,
+        "sha256": "356038AECFCBCAEFE6CF34B8DEC5B346AEB3AD5F6DF7DD21835E07568307DFE1"
+      },
+      {
+        "name": ".reloc",
+        "length": 43520,
+        "offset": 16883712,
+        "sha256": "AE01AE591176A4A2FD8640B0340FBC8F308FEA48FCE8F6B8F043D534AF1B1FCB"
+      }
+    ]
+  }
+]
