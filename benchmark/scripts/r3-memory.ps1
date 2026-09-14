@@ -30,7 +30,10 @@ $ErrorActionPreference = 'Stop'
 
 $log = Join-Path $env:TEMP "bingee-r3-stderr-$PID.log"
 if ($Fps) { $env:SLINT_DEBUG_PERFORMANCE = 'refresh_full_speed,console' }
-$app = Start-Process -FilePath $Exe -PassThru -RedirectStandardError $log
+# Since R6: build with `cargo build --release --features benchmark-fixture`.
+# A default (production) build refuses the flag and exits, so the run fails
+# instead of measuring an empty library.
+$app = Start-Process -FilePath $Exe -ArgumentList '--benchmark-fixture' -PassThru -RedirectStandardError $log
 Remove-Item Env:SLINT_DEBUG_PERFORMANCE -ErrorAction SilentlyContinue
 $launched = Get-Date
 while ($app.MainWindowHandle -eq 0) {

@@ -1,16 +1,16 @@
 <#
 .SYNOPSIS
-Builds the portable Windows x64 spike package: dist/bingee-desktop-windows-x64/.
+Builds the portable Windows x64 package: dist/bingee-desktop-windows-x64/.
 
 .DESCRIPTION
 PowerShell 7 on Windows x64, from any working directory. It builds the release
-executable, recreates the package directory from scratch, copies the executable,
-the checksum-verified benchmark posters, the notices and a README, creates the
-empty data/ folder, writes SHA256SUMS.txt, and prints the sizes.
+executable (default features, so no benchmark fixture), recreates the package
+directory from scratch, copies the executable, the notices and a README,
+writes SHA256SUMS.txt, and prints the sizes.
 
-The application resolves assets/ and data/ from its own directory, so the
-package runs from anywhere. This is a portable-spike layout, not an installer
-and not the production data-directory policy. Nothing is signed or zipped.
+The package holds no writable data: the application keeps its library in the
+per-user folders (ADR-0006), so the package folder may be read-only. It is not
+an installer, and nothing is signed or zipped.
 
 .EXAMPLE
 pwsh -NoProfile -File scripts/package-windows.ps1
@@ -31,20 +31,8 @@ try {
 
     $package = Join-Path $root 'dist/bingee-desktop-windows-x64'
     if (Test-Path $package) { Remove-Item -LiteralPath $package -Recurse -Force }
-    $posters = Join-Path $package 'assets/posters'
-    New-Item -ItemType Directory -Path $posters, (Join-Path $package 'data') | Out-Null
-
+    New-Item -ItemType Directory -Path $package | Out-Null
     Copy-Item 'target/release/bingee-desktop.exe' $package
-    $source = 'benchmark/assets/posters'
-    $manifest = @(Get-Content (Join-Path $source 'SHA256SUMS'))
-    foreach ($line in $manifest) {
-        if ($line -notmatch '^([a-fA-F0-9]{64})\s+\*?(.+)$') { throw "Bad poster manifest line: $line" }
-        $file = Join-Path $source $Matches[2]
-        if ((Get-FileHash $file).Hash -ne $Matches[1].ToUpper()) { throw "Poster checksum mismatch: $file" }
-        Copy-Item $file $posters
-    }
-    if ($manifest.Count -ne 100) { throw "Expected 100 posters, found $($manifest.Count)." }
-    Copy-Item (Join-Path $source 'SHA256SUMS') $posters
 
     # Notices: the curated header plus every crate linked for this target,
     # read from Cargo.lock (normal dependencies, proc-macros excluded).
@@ -72,30 +60,35 @@ try {
     $commit = (git rev-parse HEAD).Trim()
     $dirty = if (git status --porcelain) { ' plus uncommitted changes' } else { '' }
     $rust = (rustc --version).Trim()
+    $version = ($meta.packages | Where-Object { $_.id -eq $meta.resolve.root }).version
     @"
-Bingee Desktop - portable Windows x64 spike package
-====================================================
+Bingee Desktop $version - portable Windows x64 package
+=====================================================
 
-Internal technology-evaluation build of the Rust + Slint implementation.
-Not a product release. Do not distribute outside the team (see
-THIRD_PARTY_NOTICES.txt, Slint attribution).
+Bingee Desktop is a local-first desktop tracker for movies and TV series,
+built with Rust and Slint. This is a development build, not a public release.
+The license of Bingee Desktop itself is not decided yet; third-party licenses
+are in THIRD_PARTY_NOTICES.txt and in the app's About page.
 
 Run
-  Start bingee-desktop.exe from this folder: double-click it, or run it from
-  any shell and any working directory. No installation and no console window.
+  Start bingee-desktop.exe: double-click it, or run it from any shell and any
+  working directory. No installation and no console window. The first start
+  shows an empty library.
 
 Layout
   bingee-desktop.exe      the application
-  assets\posters\         100 synthetic benchmark posters (read-only)
-  data\                   the library database, bingee-spike.db, created and
-                          seeded with 1,000 records on first launch
   THIRD_PARTY_NOTICES.txt licenses and attribution
   SHA256SUMS.txt          checksums of the files as packaged
 
-Data policy
-  Everything stays inside this folder, so the folder must be writable.
-  Delete data\bingee-spike.db to reseed. This is a portable-spike policy,
-  not the production data-directory policy.
+Your data
+  Nothing is written to this folder. The library is
+    %LOCALAPPDATA%\Bingee Desktop\data\bingee.db
+  and the log is
+    %LOCALAPPDATA%\Bingee Desktop\logs\bingee-desktop.log
+  Settings and About show the exact paths. Set BINGEE_HOME to an absolute
+  folder to keep data, cache and logs there instead (for testing).
+  If the database cannot be opened, the app says so and leaves the file
+  untouched. It never deletes or recreates it.
 
 Requirements
   Windows 10 or 11, x64.
@@ -103,7 +96,7 @@ Requirements
   Most machines already have it.
   OpenGL 2.0 or newer (default FemtoVG renderer). If the window stays blank,
   for example in a VM or over Remote Desktop, set SLINT_BACKEND=winit-software
-  to try Slint's software renderer (not tested for this spike).
+  to try Slint's software renderer (not tested).
 
 Build
   Source commit $commit$dirty
@@ -116,14 +109,12 @@ Build
     } | Set-Content (Join-Path $package 'SHA256SUMS.txt') -Encoding utf8NoBOM
 
     $exe = Get-Item (Join-Path $package 'bingee-desktop.exe')
-    $posterBytes = (Get-ChildItem $posters -File | Measure-Object Length -Sum).Sum
     $total = (Get-ChildItem $package -Recurse -File | Measure-Object Length -Sum).Sum
     Write-Output "Package:     $package"
     Write-Output "Source:      $commit$dirty"
     Write-Output "Executable:  $($exe.Length) bytes, SHA-256 $((Get-FileHash $exe.FullName).Hash)"
-    Write-Output "Posters:     $posterBytes bytes (100 JPEG + SHA256SUMS)"
     Write-Output "Crates:      $($crates.Count) listed in THIRD_PARTY_NOTICES.txt"
-    Write-Output "Total:       $total bytes in $(@(Get-ChildItem $package -Recurse -File).Count) files (data\ empty until first launch)"
+    Write-Output "Total:       $total bytes in $(@(Get-ChildItem $package -Recurse -File).Count) files"
 } finally {
     Pop-Location
 }

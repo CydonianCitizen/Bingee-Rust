@@ -1,4 +1,4 @@
-//! SQLite persistence for the R2 spike: one `media` table, seeded once from
+//! Benchmark fixture database (the R2 spike schema): one `media` table, seeded once from
 //! the deterministic R1 dataset, and the SQL version of `library::search`.
 //!
 //! This is a spike schema, not the Bingee schema, and it has no migrations.
@@ -9,7 +9,7 @@ use std::path::Path;
 use rusqlite::types::Type;
 use rusqlite::{Connection, Row, params};
 
-use crate::library::{self, MediaItem, MediaKind, Progress};
+use super::library::{self, MediaItem, MediaKind, Progress};
 
 const SCHEMA: &str = "
 CREATE TABLE IF NOT EXISTS media (

@@ -41,4 +41,8 @@ jobs:
       - run: cargo check --locked
       - run: cargo test --locked
       - run: cargo clippy --locked --all-targets --all-features -- -D warnings
+      # Dead code differs by feature set: the production build has no
+      # benchmark fixture, the fixture build has no R4 harness.
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings
       - run: cargo build --release --locked

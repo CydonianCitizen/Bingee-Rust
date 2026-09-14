@@ -2,7 +2,7 @@
 //! of loaded posters bounded by their estimated decoded size.
 //!
 //! No Slint types. The cache is generic over the loaded value, so it is tested
-//! with plain values; `main.rs` plugs in `slint::Image`. See
+//! with plain values; `fixture/mod.rs` plugs in `slint::Image`. See
 //! `docs/adr/0003-poster-pipeline-and-bounded-cache.md`.
 
 use std::collections::HashSet;

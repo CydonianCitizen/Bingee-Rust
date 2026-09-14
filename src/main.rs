@@ -2,390 +2,227 @@
 // in Windows release builds. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod db;
+mod database;
+mod diagnostics;
+mod error;
+#[cfg(any(test, feature = "benchmark-fixture"))]
+mod fixture;
 mod library;
-mod poster;
+mod paths;
+mod settings;
+mod view;
 
-#[cfg(feature = "r4-measurement")]
-#[path = "../benchmark/r4_latency.rs"]
-mod r4_latency;
-
-use std::cell::{Cell, RefCell};
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::process::ExitCode;
 use std::rc::Rc;
 
-use library::MediaItem;
-use poster::PosterCache;
-use rusqlite::Connection;
-use slint::{Color, Image, Model, ModelNotify, ModelRc, ModelTracker};
+use database::Database;
+use diagnostics::Log;
+use error::AppError;
+use paths::AppPaths;
+use settings::Settings;
+use slint::{ComponentHandle, Model, SharedString};
+use view::LibraryView;
 
 slint::include_modules!();
 
-fn main() -> Result<(), slint::PlatformError> {
-    #[cfg(feature = "r4-measurement")]
-    if std::env::args().nth(1).as_deref() == Some("--r4-latency") {
-        if let Err(error) = r4_latency::run() {
-            eprintln!("R4 measurement failed: {error}");
-            std::process::exit(1);
+/// Display name: window title, About, and the Windows/macOS folder names.
+pub const APP_NAME: &str = "Bingee Desktop";
+/// Technical id, the Cargo package name: executable, Linux app id and folder
+/// names, log file name.
+pub const APP_ID: &str = env!("CARGO_PKG_NAME");
+pub const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+fn main() -> ExitCode {
+    match std::env::args().nth(1).as_deref() {
+        Some("--benchmark-fixture") => return run_fixture(),
+        #[cfg(feature = "r4-measurement")]
+        Some("--r4-latency") => {
+            return match fixture::r4_latency::run() {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(error) => {
+                    eprintln!("R4 measurement failed: {error}");
+                    ExitCode::FAILURE
+                }
+            };
         }
-        return Ok(());
+        _ => {}
     }
-    let window = AppWindow::new()?;
+    run()
+}
+
+/// Normal startup: the user's own library, from the per-user folders.
+fn run() -> ExitCode {
+    let paths = AppPaths::from_env(&Settings::from_env());
+    // The log folder first, so every later failure reaches the log file.
+    let log = Rc::new(match &paths {
+        Ok(paths) => match std::fs::create_dir_all(&paths.logs) {
+            Ok(()) => Log::open(&paths.log_file()),
+            Err(err) => {
+                eprintln!(
+                    "The log folder {} cannot be created: {err}",
+                    paths.logs.display()
+                );
+                Log::stderr_only()
+            }
+        },
+        Err(_) => Log::stderr_only(),
+    });
+    log.record_panics();
+    log.info(format_args!(
+        "{APP_NAME} {APP_VERSION} starting ({APP_ID}, {} {})",
+        std::env::consts::OS,
+        std::env::consts::ARCH
+    ));
+
+    let window = match AppWindow::new() {
+        Ok(window) => window,
+        Err(err) => {
+            log.error(format_args!("The window could not be created: {err}"));
+            return ExitCode::FAILURE;
+        }
+    };
     // Wayland app_id / X11 WM_CLASS, matching the executable name. Must be set
     // after the platform exists and before the window is shown. A no-op on
     // Windows and macOS.
-    slint::set_xdg_app_id("bingee-desktop")?;
-    match open_library() {
-        Ok(view) => connect(&window, Rc::new(view)),
-        Err(message) => show_error(&window, message),
+    if let Err(err) = slint::set_xdg_app_id(APP_ID) {
+        log.error(format_args!("The application id could not be set: {err}"));
     }
-    window.run()
+    start(&window, paths, log.clone());
+    finish(window.run(), &log)
 }
 
-/// The portable-spike package root: the directory holding the executable. All
-/// paths derive from it, never from the current working directory:
-///
-/// ```text
-/// <root>/bingee-desktop[.exe]
-/// <root>/assets/posters/poster-001.jpg …
-/// <root>/data/bingee-spike.db        (created on first launch)
-/// ```
-///
-/// A portable-spike packaging policy, not the production data directory.
-fn package_root() -> std::io::Result<PathBuf> {
-    let exe = std::env::current_exe()?;
-    exe.parent()
-        .map(Path::to_path_buf)
-        .ok_or_else(|| std::io::Error::other("the executable has no parent directory"))
-}
-
-/// `<root>/data/bingee-spike.db`, creating `data/` if needed. During
-/// development the root is `target/debug/` or `target/release/`.
-fn database_path() -> std::io::Result<PathBuf> {
-    database_path_in(&package_root()?)
-}
-
-fn database_path_in(root: &Path) -> std::io::Result<PathBuf> {
-    let dir = root.join("data");
-    std::fs::create_dir_all(&dir)?;
-    Ok(dir.join("bingee-spike.db"))
-}
-
-/// The package's `assets/posters`. A build-tree binary (`cargo run`, tests)
-/// has none, so it falls back to the benchmark posters in the checkout it was
-/// built from.
-fn poster_dir() -> PathBuf {
-    let checkout = Path::new(env!("CARGO_MANIFEST_DIR")).join("benchmark/assets/posters");
-    match package_root() {
-        Ok(root) => poster_dir_in(&root, checkout),
-        Err(_) => checkout,
-    }
-}
-
-fn poster_dir_in(root: &Path, fallback: PathBuf) -> PathBuf {
-    let packaged = root.join("assets").join("posters");
-    if packaged.is_dir() {
-        packaged
-    } else {
-        fallback
-    }
-}
-
-/// Loads a poster with Slint's own loader, which reads and decodes the file
-/// immediately (JPEG → RGB8). A failure is logged here once; the cache never
-/// retries it, and the row shows the placeholder instead.
-fn slint_poster_loader(dir: PathBuf) -> poster::Loader<Image> {
-    Box::new(move |number| {
-        let path = dir.join(poster::file_name(number));
-        match Image::load_from_path(&path) {
-            Ok(image) => {
-                let size = image.size();
-                // Budget estimate at 4 bytes/pixel; JPEGs actually decode to
-                // 3 (RGB8), so this over-counts.
-                Some((image, size.width as usize * size.height as usize * 4))
-            }
-            Err(_) => {
-                eprintln!(
-                    "Poster could not be loaded, showing placeholder: {}",
-                    path.display()
-                );
-                None
-            }
+#[cfg(feature = "benchmark-fixture")]
+fn run_fixture() -> ExitCode {
+    let log = Log::stderr_only();
+    let window = match AppWindow::new() {
+        Ok(window) => window,
+        Err(err) => {
+            log.error(format_args!("The window could not be created: {err}"));
+            return ExitCode::FAILURE;
         }
-    })
+    };
+    set_app_info(&window);
+    fixture::start(&window);
+    finish(window.run(), &log)
 }
 
-fn open_library() -> Result<LibraryView, String> {
-    let path = database_path()
-        .map_err(|err| format!("Could not prepare the library database folder: {err}"))?;
-    db::open(&path)
-        .and_then(LibraryView::new)
-        .map_err(|err| format!("Could not load the library from {}: {err}", path.display()))
+#[cfg(not(feature = "benchmark-fixture"))]
+fn run_fixture() -> ExitCode {
+    eprintln!("This build has no benchmark fixture. Rebuild with `--features benchmark-fixture`.");
+    ExitCode::FAILURE
 }
 
-fn connect(window: &AppWindow, view: Rc<LibraryView>) {
-    window.set_results(ModelRc::from(view.clone()));
-    window.set_total_count(view.row_count() as i32);
-    show_selection(window, &view);
+fn finish(result: Result<(), slint::PlatformError>, log: &Log) -> ExitCode {
+    match result {
+        Ok(()) => {
+            log.info(format_args!("{APP_NAME} closed"));
+            ExitCode::SUCCESS
+        }
+        Err(err) => {
+            log.error(format_args!("The event loop failed: {err}"));
+            ExitCode::FAILURE
+        }
+    }
+}
 
-    window.on_query_changed({
-        let (view, window) = (view.clone(), window.as_weak());
-        move |query| {
-            let Some(window) = window.upgrade() else {
-                return;
-            };
-            // Synchronous on the UI thread: in release builds even the
-            // 1,000-row query takes a few milliseconds, well inside a frame
-            // (docs/measurements/R2-sqlite-informal.md).
-            match view.set_query(&query) {
-                Ok(()) => {
-                    window.set_error("".into());
-                    show_selection(&window, &view);
-                    window.invoke_reveal_row(window.get_selected_row());
-                }
-                Err(err) => show_error(&window, format!("Search failed: {err}")),
+fn set_app_info(window: &AppWindow) {
+    let info = window.global::<AppInfo>();
+    info.set_name(APP_NAME.into());
+    info.set_version(APP_VERSION.into());
+}
+
+/// Fills `window` with the library, or with the startup error page, and
+/// wires Try again and Quit.
+fn start(window: &AppWindow, paths: Result<AppPaths, AppError>, log: Rc<Log>) {
+    set_app_info(window);
+    let paths = Rc::new(paths);
+    load_library(window, &paths, &log);
+    window.on_retry({
+        let window = window.as_weak();
+        move || {
+            if let Some(window) = window.upgrade() {
+                log.info("Retrying");
+                load_library(&window, &paths, &log);
             }
         }
     });
-    window.on_row_selected({
-        let (view, window) = (view.clone(), window.as_weak());
-        move |row| {
-            let Some(window) = window.upgrade() else {
-                return;
-            };
-            if let Ok(row) = usize::try_from(row) {
-                view.select_row(row);
-                show_selection(&window, &view);
-            }
-        }
+    window.on_quit(|| {
+        let _ = slint::quit_event_loop();
     });
-    // Debug aid for the R3 memory observation: print the cache counters on
-    // request. No polling, and nothing leaves the process.
-    window.on_debug_dump(move || eprintln!("{}", view.posters.borrow()));
 }
 
-/// Shows a data failure in the library pane (and on stderr in debug builds),
-/// so it never looks like an empty library.
-fn show_error(window: &AppWindow, message: String) {
-    eprintln!("{message}");
-    window.set_error(message.into());
-}
-
-/// Library pane state: the connection that owns the data, the records matching
-/// the current search, the selected item's stable id, and the poster cache
-/// shared by the list rows and the detail pane.
-///
-/// Implements `slint::Model`, so the ListView asks only for the rows it is
-/// about to show and `MediaRow`s are built on demand, never for all 1,000.
-/// Posters are therefore loaded only for those rows and the selection.
-struct LibraryView {
-    conn: Connection,
-    results: RefCell<Vec<MediaItem>>,
-    selected: Cell<Option<u32>>,
-    notify: ModelNotify,
-    posters: RefCell<PosterCache<Image>>,
-}
-
-impl LibraryView {
-    fn new(conn: Connection) -> rusqlite::Result<Self> {
-        let results = db::search(&conn, "")?;
-        Ok(Self {
-            selected: Cell::new(results.first().map(|item| item.id)),
-            results: RefCell::new(results),
-            conn,
-            notify: ModelNotify::default(),
-            posters: RefCell::new(PosterCache::new(
-                poster::BUDGET_BYTES,
-                slint_poster_loader(poster_dir()),
-            )),
-        })
-    }
-
-    fn to_row(&self, item: &MediaItem) -> MediaRow {
-        let poster = self
-            .posters
-            .borrow_mut()
-            .get(poster::poster_number(item.id));
-        to_row(item, poster)
-    }
-
-    /// Runs the search. On failure the previous results and selection stay.
-    fn set_query(&self, query: &str) -> rusqlite::Result<()> {
-        let results = db::search(&self.conn, query)?;
-        self.selected
-            .set(library::reselect(&results, self.selected.get()));
-        *self.results.borrow_mut() = results;
-        self.notify.reset();
-        Ok(())
-    }
-
-    fn select_row(&self, row: usize) {
-        if let Some(item) = self.results.borrow().get(row) {
-            self.selected.set(Some(item.id));
+fn load_library(window: &AppWindow, paths: &Result<AppPaths, AppError>, log: &Rc<Log>) {
+    let opened = match paths {
+        Ok(paths) => open_production(paths, log),
+        Err(err) => Err(AppError::new(err.kind, err.message.clone())),
+    };
+    match opened {
+        Ok((view, schema)) => {
+            window.set_storage(storage(paths, log, Some(schema)));
+            window.set_startup_error(SharedString::new());
+            view::connect(window, Rc::new(view), log.clone());
         }
-    }
-
-    /// The selected item's row in the results and its UI data.
-    fn selected_row(&self) -> Option<(usize, MediaRow)> {
-        let id = self.selected.get()?;
-        let results = self.results.borrow();
-        // ponytail: linear scan of the results (≤ 1,000); keep a position index if the list grows.
-        let row = results.iter().position(|item| item.id == id)?;
-        Some((row, self.to_row(&results[row])))
-    }
-}
-
-impl Model for LibraryView {
-    type Data = MediaRow;
-
-    fn row_count(&self) -> usize {
-        self.results.borrow().len()
-    }
-
-    fn row_data(&self, row: usize) -> Option<MediaRow> {
-        self.results.borrow().get(row).map(|item| self.to_row(item))
-    }
-
-    fn model_tracker(&self) -> &dyn ModelTracker {
-        &self.notify
-    }
-}
-
-/// Pushes the selection to the UI. The detail row is rebuilt from the item
-/// with the selected id, so it cannot outlive a search that removed it.
-fn show_selection(window: &AppWindow, view: &LibraryView) {
-    match view.selected_row() {
-        Some((row, detail)) => {
-            window.set_selected_id(detail.id);
-            window.set_selected_row(row as i32);
-            window.set_detail(detail);
-        }
-        None => {
-            window.set_selected_id(-1);
-            window.set_selected_row(-1);
-            window.set_detail(MediaRow::default());
+        // Never an empty library, and never a deleted or recreated file:
+        // the error page explains and offers Try again.
+        Err(err) => {
+            log.error(format_args!("Startup failed: {err}"));
+            window.set_storage(storage(paths, log, None));
+            window.set_startup_error(err.message.into());
         }
     }
 }
 
-/// Muted placeholder tints, picked deterministically per item. The
-/// placeholder shows only when the poster cannot be loaded.
-const TINTS: [(u8, u8, u8); 6] = [
-    (0x5b, 0x6e, 0xae),
-    (0x8a, 0x5a, 0x9e),
-    (0x3f, 0x8f, 0x86),
-    (0xa8, 0x6a, 0x4a),
-    (0x6d, 0x86, 0x4a),
-    (0xa0, 0x4e, 0x62),
-];
+fn open_production(paths: &AppPaths, log: &Log) -> Result<(LibraryView<Database>, u32), AppError> {
+    paths.create_dirs()?;
+    let path = paths.database();
+    log.info(format_args!("Database {}", path.display()));
+    let db = Database::open(&path, log)?;
+    let schema = db.schema_version()?;
+    let view = LibraryView::new(db)?;
+    log.info(format_args!(
+        "Library opened: schema version {schema}, {} titles",
+        view.row_count()
+    ));
+    Ok((view, schema))
+}
 
-/// UI data for one item. `poster` comes from the poster cache; `None` (not
-/// loadable) leaves the image empty, so the placeholder shows.
-fn to_row(item: &MediaItem, poster: Option<Image>) -> MediaRow {
-    let (r, g, b) = TINTS[item.id as usize % TINTS.len()];
-    MediaRow {
-        id: item.id as i32,
-        title: item.title.as_str().into(),
-        original_title: item.original_title.as_str().into(),
-        year: item.year.into(),
-        kind: item.kind.label().into(),
-        initials: item.initials().into(),
-        status: item.progress.label().into(),
-        progress: item.progress.fraction(),
-        overview: item.overview.as_str().into(),
-        tint: Color::from_rgb_u8(r, g, b),
-        poster: poster.unwrap_or_default(),
+fn storage(paths: &Result<AppPaths, AppError>, log: &Log, schema: Option<u32>) -> Storage {
+    let show = |path: &Path| SharedString::from(path.display().to_string());
+    let Ok(paths) = paths else {
+        let unknown = SharedString::from("Unknown (see the message above)");
+        return Storage {
+            data: unknown.clone(),
+            cache: unknown.clone(),
+            log_file: "Not written (no log folder)".into(),
+            database: unknown.clone(),
+            schema: unknown,
+        };
+    };
+    Storage {
+        data: show(&paths.data),
+        cache: show(&paths.cache),
+        log_file: log.path().map_or_else(
+            || "Not written (the log file could not be opened)".into(),
+            show,
+        ),
+        database: show(&paths.database()),
+        schema: match schema {
+            Some(version) => version.to_string().into(),
+            None => "Unknown (the database is not open)".into(),
+        },
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
+    use crate::error::ErrorKind;
+    use crate::paths::TestDir;
 
-    /// Selected (row, id), checked against the row the list would render.
-    fn selection(view: &LibraryView) -> Option<(usize, u32)> {
-        let (row, detail) = view.selected_row()?;
-        assert_eq!(view.row_data(row).map(|r| r.id), Some(detail.id));
-        Some((row, detail.id as u32))
-    }
-
-    #[test]
-    fn selection_tracks_stable_id_and_never_leaves_the_results() {
-        let view = LibraryView::new(db::open(Path::new(":memory:")).unwrap()).unwrap();
-        assert_eq!(selection(&view), Some((0, 1)));
-
-        view.select_row(999);
-        assert_eq!(selection(&view), Some((999, 1000)), "Lost Canyon");
-
-        // Still a match: same id, new row.
-        view.set_query("CANYON").unwrap();
-        let (row, id) = selection(&view).unwrap();
-        assert_eq!((id, row + 1), (1000, view.row_count()));
-
-        // Filtered out: falls back to the first result.
-        view.set_query("harbor").unwrap();
-        let first = view.row_data(0).unwrap().id as u32;
-        assert_eq!(selection(&view), Some((0, first)));
-
-        view.set_query("zzzz").unwrap();
-        assert_eq!((view.row_count(), selection(&view)), (0, None));
-
-        view.set_query("").unwrap();
-        assert_eq!((view.row_count(), selection(&view)), (1000, Some((0, 1))));
-    }
-
-    #[test]
-    fn rows_and_detail_show_the_poster_mapped_from_the_id() {
-        let view = LibraryView::new(db::open(Path::new(":memory:")).unwrap()).unwrap();
-        let expected = |id: u32| poster_dir().join(poster::file_name(poster::poster_number(id)));
-        for row in [0, 9, 99, 100, 236, 999] {
-            let data = view.row_data(row).unwrap();
-            assert_eq!(data.poster.path(), Some(expected(data.id as u32).as_path()));
-            let size = data.poster.size();
-            assert_eq!((size.width, size.height), (240, 360));
-        }
-        view.select_row(236);
-        let (_, detail) = view.selected_row().unwrap();
-        assert_eq!(detail.id, 237);
-        assert_eq!(
-            detail.poster.path(),
-            Some(expected(237).as_path()),
-            "poster-037"
-        );
-        // The detail pane went through the same cache: poster 37 was a hit.
-        let stats = view.posters.borrow().stats;
-        // Posters 1, 10, 100, 37: ids 101 and 1000 reuse 1 and 100.
-        assert_eq!((stats.misses, stats.failures), (4, 0));
-    }
-
-    #[test]
-    fn missing_or_corrupt_poster_falls_back_to_the_placeholder() {
-        let dir = std::env::temp_dir().join(format!("bingee-posters-{}", std::process::id()));
-        std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(dir.join(poster::file_name(2)), b"not a jpeg").unwrap();
-        let mut cache = PosterCache::new(poster::BUDGET_BYTES, slint_poster_loader(dir.clone()));
-        let item = |id| library::generate_library().swap_remove(id as usize - 1);
-
-        // Poster 1 is missing, poster 2 is corrupt: empty image, row intact.
-        for id in [1, 2, 101] {
-            let row = to_row(&item(id), cache.get(poster::poster_number(id)));
-            assert_eq!(row.poster.size().width, 0);
-            assert_eq!(row.id, id as i32);
-            assert!(!row.title.is_empty() && !row.initials.is_empty());
-        }
-        assert_eq!(
-            (cache.stats.misses, cache.stats.failures, cache.len()),
-            (2, 2, 0)
-        );
-        std::fs::remove_dir_all(&dir).unwrap();
-    }
-
-    /// Renders the real `AppWindow` headlessly with Slint's software renderer
-    /// at the default 1280×800 size, and counts poster loads through the
-    /// shared cache.
-    #[test]
-    fn only_visible_posters_load_and_the_cache_stays_bounded() {
+    /// A real `AppWindow` on Slint's software renderer, without a display.
+    /// The closure draws a frame if one is needed.
+    pub fn headless(width: u32, height: u32) -> (AppWindow, impl FnMut()) {
         use slint::platform::software_renderer::{
             MinimalSoftwareWindow, RepaintBufferType, Rgb565Pixel,
         };
@@ -398,173 +235,123 @@ mod tests {
             }
         }
 
-        let (width, height) = (1280, 800);
         let window = MinimalSoftwareWindow::new(RepaintBufferType::NewBuffer);
         // The Slint platform is per thread, and each test runs on its own thread.
         slint::platform::set_platform(Box::new(Headless(window.clone()))).unwrap();
         window.set_size(slint::PhysicalSize::new(width, height));
         let app = AppWindow::new().unwrap();
-        let view = Rc::new(LibraryView::new(db::open(Path::new(":memory:")).unwrap()).unwrap());
-        connect(&app, view.clone());
         app.show().unwrap();
         let mut buffer = vec![Rgb565Pixel::default(); (width * height) as usize];
-        let mut render = || {
+        let render = move || {
             window.draw_if_needed(|renderer| {
                 renderer.render(&mut buffer, width as usize);
             });
-            view.posters.borrow().stats
         };
-
-        // Startup: the detail poster plus the rows in view, not 1,000.
-        let start = render();
-        assert!((8..=12).contains(&start.misses), "{start:?}");
-        assert_eq!(start.failures, 0);
-
-        // Model reset showing the same rows: served from the cache.
-        app.invoke_query_changed("".into());
-        let reset = render();
-        assert_eq!(reset.misses, start.misses, "no reload after a reset");
-        assert!(reset.hits > start.hits);
-
-        // A search and clearing it: only the harbor rows' posters are new.
-        app.invoke_query_changed("harbor".into());
-        let harbor = render();
-        assert!(harbor.misses - reset.misses <= 12, "{harbor:?}");
-        // Clearing keeps the selected harbor title and scrolls to it, so at
-        // most one screen of its neighbours is new.
-        app.invoke_query_changed("".into());
-        let cleared = render();
-        assert!(cleared.misses - harbor.misses <= 12, "{cleared:?}");
-        // Same search again, same rows: every poster is a hit.
-        app.invoke_query_changed("harbor".into());
-        let again = render();
-        assert_eq!(again.misses, cleared.misses, "no reload after a reset");
-        assert!(again.hits > cleared.hits);
-        assert_eq!(again.evictions, 0, "{again:?}");
-
-        // Long scroll, one screen at a time: each screen loads at most its own
-        // rows' posters, the cache evicts, and it never exceeds the budget.
-        // 450 rows: ~12× the cache capacity, and quick in a debug build.
-        app.invoke_query_changed("".into());
-        let mut previous = render().misses;
-        for row in (0..450).step_by(9) {
-            app.invoke_reveal_row(row);
-            let misses = render().misses;
-            assert!(
-                misses - previous <= 12,
-                "row {row}: {} loads",
-                misses - previous
-            );
-            previous = misses;
-            let cache = view.posters.borrow();
-            assert!(cache.used_bytes() <= poster::BUDGET_BYTES);
-            assert!(cache.len() <= poster::BUDGET_BYTES / (240 * 360 * 4));
-        }
-        let scrolled = view.posters.borrow().stats;
-        assert!(scrolled.evictions > 350, "{scrolled:?}");
-
-        // Back to the top: posters 1-10 were evicted by the scroll, so they
-        // reload.
-        app.invoke_reveal_row(0);
-        let back = render();
-        assert!(back.misses > scrolled.misses, "{back:?}");
-        assert!(view.posters.borrow().used_bytes() <= poster::BUDGET_BYTES);
-        for (label, s) in [("start", start), ("reset", reset), ("harbor", harbor)] {
-            println!("{label}: misses={} hits={}", s.misses, s.hits);
-        }
-        println!("scrolled: {scrolled:?}\nback: {}", view.posters.borrow());
+        (app, render)
     }
 
-    /// Informal R3 observation, not the R4 benchmark. Run with
-    /// `cargo test --release informal_poster_timings -- --ignored --nocapture`.
-    #[test]
-    #[ignore]
-    fn informal_poster_timings() {
-        use std::time::{Duration, Instant};
-        let dir = poster_dir();
-        let path = |n| dir.join(poster::file_name(n));
-        let time = |f: &mut dyn FnMut()| {
-            let start = Instant::now();
-            f();
-            start.elapsed()
+    fn test_paths(dir: &TestDir) -> AppPaths {
+        let settings = Settings {
+            home_override: Some(dir.0.clone()),
         };
-        let report = |label: &str, mut samples: Vec<Duration>| {
-            samples.sort();
-            let us = |d: Duration| d.as_secs_f64() * 1e6;
-            let n = samples.len();
-            println!(
-                "{label:<34} n={n:4} min={:7.1} median={:7.1} p95={:7.1} max={:7.1} us",
-                us(samples[0]),
-                us(samples[n / 2]),
-                us(samples[n * 95 / 100]),
-                us(samples[n - 1])
-            );
-        };
-
-        // First load of each file in this process: read + JPEG decode.
-        let cold = (1..=poster::POOL_SIZE)
-            .map(|n| time(&mut || drop(Image::load_from_path(&path(n)).unwrap())))
-            .collect();
-        report("cold load_from_path (decode)", cold);
-        // Cycling 100 posters (~25 MB of RGB8) through Slint's 5 MiB
-        // internal cache misses every time: a forced re-decode.
-        let forced = (1..=poster::POOL_SIZE)
-            .cycle()
-            .take(500)
-            .map(|n| time(&mut || drop(Image::load_from_path(&path(n)).unwrap())))
-            .collect();
-        report("repeated load_from_path (decode)", forced);
-        // The same path again straight away: Slint's internal cache (stat).
-        let slint_hit = (0..500)
-            .map(|_| time(&mut || drop(Image::load_from_path(&path(1)).unwrap())))
-            .collect();
-        report("load_from_path, Slint cache hit", slint_hit);
-        // Our cache, full (36 entries), hit on the oldest entry: worst scan.
-        let mut cache = PosterCache::new(poster::BUDGET_BYTES, slint_poster_loader(dir.clone()));
-        for n in 1..=36 {
-            cache.get(n);
-        }
-        let ours = (0..500)
-            .map(|i| time(&mut || drop(cache.get(1 + i % 36).unwrap())))
-            .collect();
-        report("PosterCache hit (36 entries)", ours);
+        AppPaths::from_env(&settings).unwrap()
     }
 
     #[test]
-    fn package_paths_derive_from_the_executable_directory() {
-        // Under `cargo test` the working directory is the checkout, while the
-        // executable sits in target/*/deps: the root must follow the latter.
-        let exe = std::env::current_exe().unwrap();
-        assert_eq!(package_root().unwrap(), exe.parent().unwrap());
-        assert_ne!(package_root().unwrap(), std::env::current_dir().unwrap());
+    fn fresh_start_shows_an_empty_library_and_creates_v1() {
+        let dir = TestDir::new("start-fresh");
+        let paths = test_paths(&dir);
+        let (app, mut render) = headless(1280, 800);
+        let log = Rc::new(Log::stderr_only());
+        start(&app, Ok(paths.clone()), log);
+        render();
+        assert_eq!(app.get_startup_error(), "");
+        assert_eq!(
+            (app.get_total_count(), app.get_results().row_count()),
+            (0, 0)
+        );
+        assert_eq!(app.get_selected_row(), -1);
+        assert_eq!(app.get_page(), "library");
+        let storage = app.get_storage();
+        assert_eq!(storage.schema, "1");
+        assert_eq!(storage.database, paths.database().display().to_string());
+        assert!(paths.database().is_file() && paths.cache.is_dir());
+        assert_eq!(app.global::<AppInfo>().get_version(), APP_VERSION);
 
-        let root = std::env::temp_dir().join(format!("bingee-package-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&root);
-        std::fs::create_dir_all(&root).unwrap();
-        let checkout = PathBuf::from("checkout/benchmark/assets/posters");
-
-        // No packaged assets (a build tree): the checkout fallback.
-        assert_eq!(poster_dir_in(&root, checkout.clone()), checkout);
-        // Packaged assets win.
-        std::fs::create_dir_all(root.join("assets").join("posters")).unwrap();
-        let packaged = root.join("assets").join("posters");
-        assert_eq!(poster_dir_in(&root, checkout), packaged);
-
-        // The database lives in <root>/data, created on demand, and opens.
-        let path = database_path_in(&root).unwrap();
-        assert_eq!(path, root.join("data").join("bingee-spike.db"));
-        drop(db::open(&path).unwrap());
-        assert!(path.is_file());
-        std::fs::remove_dir_all(&root).unwrap();
+        // Every page renders.
+        for page in [
+            "home",
+            "discover",
+            "calendar",
+            "statistics",
+            "settings",
+            "about",
+            "library",
+        ] {
+            app.set_page(page.into());
+            render();
+        }
     }
 
     #[test]
-    fn failed_search_keeps_previous_results() {
-        let view = LibraryView::new(db::open(Path::new(":memory:")).unwrap()).unwrap();
-        view.set_query("harbor").unwrap();
-        let before = (view.row_count(), selection(&view));
-        view.conn.execute_batch("DROP TABLE media").unwrap();
-        assert!(view.set_query("dark").is_err());
-        assert_eq!((view.row_count(), selection(&view)), before);
+    fn startup_failure_shows_the_error_page_keeps_the_file_and_can_retry() {
+        let dir = TestDir::new("start-corrupt");
+        let paths = test_paths(&dir);
+        paths.create_dirs().unwrap();
+        let garbage = vec![0x5a_u8; 8192];
+        std::fs::write(paths.database(), &garbage).unwrap();
+        let log = Rc::new(Log::open(&paths.log_file()));
+        let (app, mut render) = headless(1280, 800);
+
+        start(&app, Ok(paths.clone()), log);
+        render();
+        let message = app.get_startup_error();
+        assert!(message.contains("damaged"), "{message}");
+        assert!(!message.to_lowercase().contains("sqlite"), "{message}");
+        assert_eq!(
+            app.get_storage().database,
+            paths.database().display().to_string()
+        );
+        assert_eq!(
+            std::fs::read(paths.database()).unwrap(),
+            garbage,
+            "file kept"
+        );
+        let logged = std::fs::read_to_string(paths.log_file()).unwrap();
+        assert!(
+            logged.contains("ERROR Startup failed: InvalidData error"),
+            "{logged}"
+        );
+        assert!(logged.contains("Cause: file is not a database"), "{logged}");
+
+        // Retrying changes nothing while the file is still damaged...
+        app.invoke_retry();
+        assert_eq!(app.get_startup_error(), message);
+        assert_eq!(std::fs::read(paths.database()).unwrap(), garbage);
+        // ...and opens the library once the user has dealt with it.
+        std::fs::rename(paths.database(), dir.0.join("damaged.db")).unwrap();
+        app.invoke_retry();
+        render();
+        assert_eq!(app.get_startup_error(), "");
+        assert_eq!(app.get_storage().schema, "1");
+    }
+
+    #[test]
+    fn configuration_error_is_shown_without_touching_any_folder() {
+        let (app, mut render) = headless(1280, 800);
+        let error = AppError::new(ErrorKind::Configuration, "No data folder.");
+        start(&app, Err(error), Rc::new(Log::stderr_only()));
+        render();
+        assert_eq!(app.get_startup_error(), "No data folder.");
+        assert!(app.get_storage().database.starts_with("Unknown"));
+        app.set_page("about".into());
+        render();
+    }
+
+    #[test]
+    fn identity_comes_from_cargo() {
+        assert_eq!(APP_ID, "bingee-desktop");
+        assert_eq!(APP_VERSION, env!("CARGO_PKG_VERSION"));
+        assert!(!APP_VERSION.is_empty());
     }
 }

@@ -4,10 +4,15 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-r4-measurement = []
+# The R4 benchmark fixture (1,000 fake titles, spike database, synthetic
+# posters), started with `--benchmark-fixture`. Never in a default build.
+benchmark-fixture = []
+# The opt-in R4 latency harness (`--r4-latency`, ADR-0004).
+r4-measurement = ["benchmark-fixture"]
 
 [dependencies]
-rusqlite = { version = "0.40.2", features = ["bundled"] }
+# "functions": the Unicode case-folding SQL function used by library search.
+rusqlite = { version = "0.40.2", features = ["bundled", "functions"] }
 slint = "1.17.1"
 
 [build-dependencies]

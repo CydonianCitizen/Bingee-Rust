@@ -1,19 +1,39 @@
-import { LineEdit, ListView } from "std-widgets.slint";
+import { AboutSlint, Button, LineEdit, ListView, ScrollView } from "std-widgets.slint";
 
-// One library entry as prepared by Rust (`to_row` in src/main.rs).
+// One library entry as prepared by Rust (`Library::row` in src/view.rs and
+// src/fixture/mod.rs).
 export struct MediaRow {
     id: int,
     title: string,
+    // Empty when unknown.
     original-title: string,
-    year: int,
-    kind: string,
+    // Media type and year, for example "Movie · 2024".
+    meta: string,
     initials: string,
+    // Progress label; empty when the title has no tracked progress.
     status: string,
     progress: float,
     overview: string,
     tint: color,
-    // From the bounded poster cache; empty if the poster could not be loaded.
+    // Empty if there is no poster (or it could not be loaded).
     poster: image,
+}
+
+// Where this build keeps its files, as resolved by Rust.
+export struct Storage {
+    data: string,
+    cache: string,
+    log-file: string,
+    database: string,
+    schema: string,
+}
+
+// Application identity, set from Rust (Cargo package metadata).
+export global AppInfo {
+    in property <string> name;
+    in property <string> version;
+    // Empty for the normal app; "Benchmark fixture" for the R4 fixture build.
+    in property <string> mode;
 }
 
 global Theme {
@@ -26,10 +46,11 @@ global Theme {
     out property <color> text-muted: #9aa1ab;
     out property <color> text-faint: #6a717c;
     out property <color> accent: #6ea8fe;
+    out property <color> error: #f28b82;
 }
 
 // Poster image (decoded and cached in Rust), drawn over a gradient-and-initials
-// placeholder that stays visible when the poster is missing or unreadable.
+// placeholder that stays visible when there is no poster.
 component Poster inherits Rectangle {
     in property <image> source;
     in property <string> initials;
@@ -72,9 +93,13 @@ component ProgressTrack inherits Rectangle {
 component NavItem inherits Rectangle {
     in property <string> label;
     in property <bool> active;
+    callback clicked;
     height: 34px;
     border-radius: 6px;
-    background: root.active ? Theme.selected-bg : transparent;
+    background: root.active ? Theme.selected-bg : touch.has-hover ? Theme.hover-bg : transparent;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
     HorizontalLayout {
         padding-right: 12px;
         spacing: 10px;
@@ -91,9 +116,13 @@ component NavItem inherits Rectangle {
             color: root.active ? Theme.text : Theme.text-muted;
         }
     }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
 }
 
 component Sidebar inherits Rectangle {
+    in-out property <string> page;
     background: Theme.panel-bg;
     VerticalLayout {
         padding: 16px;
@@ -124,14 +153,25 @@ component Sidebar inherits Rectangle {
                 color: Theme.text-faint;
             }
         }
-        // Navigation is visual only; Library is the only real view.
-        for label in ["Home", "Library", "Discover", "Calendar", "Statistics", "Settings"]: NavItem {
-            label: label;
-            active: label == "Library";
+        for item in [
+            { id: "home", label: "Home" },
+            { id: "library", label: "Library" },
+            { id: "discover", label: "Discover" },
+            { id: "calendar", label: "Calendar" },
+            { id: "statistics", label: "Statistics" },
+        ]: NavItem {
+            label: item.label;
+            active: root.page == item.id;
+            clicked => { root.page = item.id; }
         }
         Rectangle { }
+        for item in [{ id: "settings", label: "Settings" }, { id: "about", label: "About" }]: NavItem {
+            label: item.label;
+            active: root.page == item.id;
+            clicked => { root.page = item.id; }
+        }
         Text {
-            text: "R3 spike · SQLite + local posters";
+            text: AppInfo.mode == "" ? "Version \{AppInfo.version}" : "\{AppInfo.mode} · \{AppInfo.version}";
             font-size: 11px;
             color: Theme.text-faint;
         }
@@ -180,15 +220,15 @@ component LibraryRow inherits Rectangle {
                     overflow: elide;
                 }
                 Text {
-                    text: root.item.original-title == root.item.title
-                        ? "\{root.item.kind} · \{root.item.year}"
-                        : "\{root.item.kind} · \{root.item.year} · \{root.item.original-title}";
+                    text: root.item.original-title == "" || root.item.original-title == root.item.title
+                        ? root.item.meta
+                        : "\{root.item.meta} · \{root.item.original-title}";
                     font-size: 12px;
                     color: Theme.text-muted;
                     overflow: elide;
                 }
             }
-            VerticalLayout {
+            if root.item.status != "": VerticalLayout {
                 // Shrinks first so titles stay readable at the minimum window width.
                 width: clamp(root.width * 0.28, 96px, 170px);
                 alignment: center;
@@ -210,6 +250,12 @@ component LibraryRow inherits Rectangle {
     touch := TouchArea {
         clicked => { root.clicked(); }
     }
+}
+
+component SectionTitle inherits Text {
+    font-size: 11px;
+    font-weight: 600;
+    color: Theme.text-faint;
 }
 
 component DetailPane inherits Rectangle {
@@ -246,24 +292,21 @@ component DetailPane inherits Rectangle {
             wrap: word-wrap;
         }
         Text {
-            text: "\{root.item.kind} · \{root.item.year}";
+            text: root.item.meta;
             font-size: 13px;
             color: Theme.text-muted;
         }
-        if root.item.original-title != root.item.title: Text {
+        if root.item.original-title != "" && root.item.original-title != root.item.title: Text {
             text: "Original title: \{root.item.original-title}";
             font-size: 13px;
             color: Theme.text-muted;
             wrap: word-wrap;
         }
-        VerticalLayout {
+        if root.item.status != "": VerticalLayout {
             padding-top: 6px;
             spacing: 8px;
-            Text {
+            SectionTitle {
                 text: "PROGRESS";
-                font-size: 11px;
-                font-weight: 600;
-                color: Theme.text-faint;
             }
             Text {
                 text: root.item.status;
@@ -274,14 +317,11 @@ component DetailPane inherits Rectangle {
                 progress: root.item.progress;
             }
         }
-        VerticalLayout {
+        if root.item.overview != "": VerticalLayout {
             padding-top: 6px;
             spacing: 8px;
-            Text {
+            SectionTitle {
                 text: "OVERVIEW";
-                font-size: 11px;
-                font-weight: 600;
-                color: Theme.text-faint;
             }
             Text {
                 text: root.item.overview;
@@ -293,24 +333,248 @@ component DetailPane inherits Rectangle {
     }
 }
 
+component PageTitle inherits Text {
+    font-size: 24px;
+    font-weight: 700;
+    color: Theme.text;
+}
+
+component Paragraph inherits Text {
+    font-size: 13px;
+    color: Theme.text-muted;
+    wrap: word-wrap;
+}
+
+// A label over a value the user can select and copy (paths).
+component InfoRow {
+    in property <string> label;
+    in property <string> value;
+    VerticalLayout {
+        spacing: 3px;
+        Text {
+            text: root.label;
+            font-size: 12px;
+            color: Theme.text-faint;
+        }
+        TextInput {
+            text: root.value;
+            read-only: true;
+            single-line: false;
+            wrap: word-wrap;
+            font-size: 13px;
+            color: Theme.text;
+        }
+    }
+}
+
+component StorageRows {
+    in property <Storage> storage;
+    VerticalLayout {
+        spacing: 10px;
+        InfoRow {
+            label: "Database";
+            value: root.storage.database;
+        }
+        InfoRow {
+            label: "Database schema";
+            value: root.storage.schema;
+        }
+        InfoRow {
+            label: "Data folder";
+            value: root.storage.data;
+        }
+        InfoRow {
+            label: "Cache folder";
+            value: root.storage.cache;
+        }
+        InfoRow {
+            label: "Log file";
+            value: root.storage.log-file;
+        }
+    }
+}
+
+component Placeholder {
+    in property <string> title;
+    in property <string> body;
+    VerticalLayout {
+        padding: 24px;
+        spacing: 10px;
+        alignment: start;
+        PageTitle {
+            text: root.title;
+        }
+        Paragraph {
+            text: root.body;
+        }
+    }
+}
+
+component SettingsPage {
+    in property <Storage> storage;
+    callback open-about();
+    ScrollView {
+        width: 100%;
+        height: 100%;
+        VerticalLayout {
+            padding: 24px;
+            spacing: 14px;
+            alignment: start;
+            PageTitle {
+                text: "Settings";
+            }
+            SectionTitle {
+                text: "LOCAL DATA";
+            }
+            Paragraph {
+                text: "Your library is stored on this computer, in these locations.";
+            }
+            StorageRows {
+                storage: root.storage;
+            }
+            SectionTitle {
+                text: "ABOUT";
+            }
+            HorizontalLayout {
+                alignment: start;
+                Button {
+                    text: "About \{AppInfo.name}";
+                    clicked => { root.open-about(); }
+                }
+            }
+        }
+    }
+}
+
+component AboutPage {
+    in property <Storage> storage;
+    ScrollView {
+        width: 100%;
+        height: 100%;
+        VerticalLayout {
+            padding: 24px;
+            spacing: 14px;
+            alignment: start;
+            PageTitle {
+                text: AppInfo.name;
+            }
+            Paragraph {
+                text: AppInfo.mode == "" ? "Version \{AppInfo.version}" : "Version \{AppInfo.version} · \{AppInfo.mode}";
+            }
+            Paragraph {
+                text: "A local-first desktop tracker for the movies and TV series you watch.";
+            }
+            SectionTitle {
+                text: "BUILT WITH";
+            }
+            Paragraph {
+                text: "Rust and the Slint GUI toolkit. Your library is stored with SQLite (public domain) through the rusqlite crate (MIT).";
+            }
+            HorizontalLayout {
+                alignment: start;
+                AboutSlint {
+                    width: 280px;
+                    height: self.min-height;
+                }
+            }
+            Paragraph {
+                text: "Slint is used under the Slint Royalty-free Desktop, Mobile, and Web Applications License 2.0 (https://slint.dev).";
+            }
+            SectionTitle {
+                text: "LICENSE";
+            }
+            Paragraph {
+                text: "The license of \{AppInfo.name} itself has not been decided yet. Third-party components and their licenses are listed in THIRD_PARTY_NOTICES.txt, which is distributed with the application.";
+            }
+            SectionTitle {
+                text: "LOCAL DATA";
+            }
+            StorageRows {
+                storage: root.storage;
+            }
+        }
+    }
+}
+
+// Shown instead of the library when the database cannot be opened, so a
+// failure never looks like an empty library.
+component StartupErrorPage {
+    in property <string> message;
+    in property <Storage> storage;
+    callback retry();
+    callback quit();
+    ScrollView {
+        width: 100%;
+        height: 100%;
+        VerticalLayout {
+            padding: 48px;
+            spacing: 14px;
+            alignment: start;
+            PageTitle {
+                text: "Your library could not be opened";
+                wrap: word-wrap;
+            }
+            Text {
+                text: root.message;
+                font-size: 14px;
+                color: Theme.error;
+                wrap: word-wrap;
+            }
+            Paragraph {
+                text: "\{AppInfo.name} did not delete or replace any of your files. Technical details are in the log file below. Fix the cause, or restore the database file from a backup, then try again.";
+            }
+            InfoRow {
+                label: "Database";
+                value: root.storage.database;
+            }
+            InfoRow {
+                label: "Log file";
+                value: root.storage.log-file;
+            }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 10px;
+                padding-top: 6px;
+                Button {
+                    text: "Try again";
+                    primary: true;
+                    clicked => { root.retry(); }
+                }
+                Button {
+                    text: "Quit";
+                    clicked => { root.quit(); }
+                }
+            }
+        }
+    }
+}
+
 export component AppWindow inherits Window {
     // Current search results; rows are pulled lazily from Rust.
     in property <[MediaRow]> results;
+    // Titles in the library, before any search.
     in property <int> total-count;
-    // Selection is owned by Rust: the stable id drives the highlight, the row
-    // (position in `results`) drives keyboard movement and scrolling.
+    // Selection is owned by Rust: the row (position in `results`) drives the
+    // highlight, keyboard movement and scrolling; the id is informational.
     in property <int> selected-id: -1;
     in property <int> selected-row: -1;
     in property <MediaRow> detail;
-    // A database failure to show instead of pretending the library is empty.
+    // A search failure, shown above the list.
     in property <string> error;
+    // Why the library could not be opened; replaces the library page.
+    in property <string> startup-error;
+    in property <Storage> storage;
+    in-out property <string> page: "library";
 
     callback query-changed(query: string);
     callback row-selected(row: int);
-    // F12 in the list: print poster cache counters to stderr (R3 debug aid).
+    // F12 in the list: print poster cache counters to stderr (fixture only).
     callback debug-dump();
+    callback retry();
+    callback quit();
 
     private property <length> row-height: 80px;
+    private property <string> shown: root.startup-error != "" && root.page != "settings" && root.page != "about" ? "error" : root.page;
 
     // Scroll so `row` is fully visible, keeping the offset on a row boundary:
     // ListView snaps long jumps (> 1.5 screens) down to a boundary, which would
@@ -344,7 +608,7 @@ export component AppWindow inherits Window {
         root.query-changed("");
     }
 
-    title: "Bingee Desktop";
+    title: AppInfo.name;
     preferred-width: 1280px;
     preferred-height: 800px;
     min-width: 960px;
@@ -354,126 +618,181 @@ export component AppWindow inherits Window {
     HorizontalLayout {
         Sidebar {
             width: 220px;
+            page <=> root.page;
         }
         Rectangle {
             width: 1px;
             background: Theme.border;
         }
-        VerticalLayout {
+        Rectangle {
             horizontal-stretch: 1;
-            padding: 24px;
-            padding-right: 16px;
-            spacing: 16px;
-            HorizontalLayout {
-                spacing: 12px;
-                Text {
-                    text: "Library";
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: Theme.text;
-                }
-                Text {
-                    text: root.results.length == root.total-count
-                        ? "\{root.total-count} titles"
-                        : "\{root.results.length} of \{root.total-count} titles";
-                    font-size: 13px;
-                    vertical-alignment: bottom;
-                    horizontal-stretch: 1;
-                    color: Theme.text-faint;
-                }
-            }
-            search := LineEdit {
-                placeholder-text: "Search titles or original titles";
-                edited(text) => { root.query-changed(text); }
-                accepted => { list-focus.focus(); }
-                key-pressed(event) => {
-                    if event.text == Key.Escape {
-                        root.clear-search();
-                        return accept;
-                    }
-                    if event.text == Key.DownArrow {
-                        list-focus.focus();
-                        return accept;
-                    }
-                    return reject;
-                }
-            }
-            if root.error != "": Text {
-                text: root.error;
-                wrap: word-wrap;
-                font-size: 13px;
-                color: #f28b82;
-            }
+            // The library stays alive while other pages show, so returning to
+            // it keeps the search, selection and scroll position.
             Rectangle {
-                // Owns keyboard navigation for the list; rows stay plain.
-                list-focus := FocusScope {
-                    key-pressed(event) => {
-                        if event.text == Key.UpArrow {
-                            root.select-row(root.selected-row - 1);
-                        } else if event.text == Key.DownArrow {
-                            root.select-row(root.selected-row + 1);
-                        } else if event.text == Key.PageUp {
-                            root.select-row(root.selected-row - max(1, floor(list.visible-height / root.row-height)));
-                        } else if event.text == Key.PageDown {
-                            root.select-row(root.selected-row + max(1, floor(list.visible-height / root.row-height)));
-                        } else if event.text == Key.Home {
-                            root.select-row(0);
-                        } else if event.text == Key.End {
-                            root.select-row(root.results.length - 1);
-                        } else if event.text == Key.Escape {
-                            root.clear-search();
-                        } else if event.text == Key.F12 {
-                            root.debug-dump();
-                        } else {
+                width: 100%;
+                height: 100%;
+                visible: root.shown == "library";
+                VerticalLayout {
+                    padding: 24px;
+                    padding-right: 16px;
+                    spacing: 16px;
+                    HorizontalLayout {
+                        spacing: 12px;
+                        PageTitle {
+                            text: "Library";
+                        }
+                        Text {
+                            text: root.total-count == 0 ? "" : root.results.length == root.total-count
+                                ? "\{root.total-count} titles"
+                                : "\{root.results.length} of \{root.total-count} titles";
+                            font-size: 13px;
+                            vertical-alignment: bottom;
+                            horizontal-stretch: 1;
+                            color: Theme.text-faint;
+                        }
+                    }
+                    search := LineEdit {
+                        enabled: root.total-count > 0;
+                        placeholder-text: "Search titles or original titles";
+                        edited(text) => { root.query-changed(text); }
+                        accepted => { list-focus.focus(); }
+                        key-pressed(event) => {
+                            if event.text == Key.Escape {
+                                root.clear-search();
+                                return accept;
+                            }
+                            if event.text == Key.DownArrow {
+                                list-focus.focus();
+                                return accept;
+                            }
                             return reject;
                         }
-                        return accept;
                     }
+                    if root.error != "": Text {
+                        text: root.error;
+                        wrap: word-wrap;
+                        font-size: 13px;
+                        color: Theme.error;
+                    }
+                    Rectangle {
+                        // Owns keyboard navigation for the list; rows stay plain.
+                        list-focus := FocusScope {
+                            key-pressed(event) => {
+                                if event.text == Key.UpArrow {
+                                    root.select-row(root.selected-row - 1);
+                                } else if event.text == Key.DownArrow {
+                                    root.select-row(root.selected-row + 1);
+                                } else if event.text == Key.PageUp {
+                                    root.select-row(root.selected-row - max(1, floor(list.visible-height / root.row-height)));
+                                } else if event.text == Key.PageDown {
+                                    root.select-row(root.selected-row + max(1, floor(list.visible-height / root.row-height)));
+                                } else if event.text == Key.Home {
+                                    root.select-row(0);
+                                } else if event.text == Key.End {
+                                    root.select-row(root.results.length - 1);
+                                } else if event.text == Key.Escape {
+                                    root.clear-search();
+                                } else if event.text == Key.F12 {
+                                    root.debug-dump();
+                                } else {
+                                    return reject;
+                                }
+                                return accept;
+                            }
 
-                    list := ListView {
-                        width: 100%;
-                        height: 100%;
-                        for item[index] in root.results: LibraryRow {
-                            height: root.row-height;
-                            item: item;
-                            selected: item.id == root.selected-id;
-                            focused: self.selected && list-focus.has-focus;
-                            clicked => {
-                                root.row-selected(index);
-                                list-focus.focus();
+                            list := ListView {
+                                width: 100%;
+                                height: 100%;
+                                for item[index] in root.results: LibraryRow {
+                                    height: root.row-height;
+                                    item: item;
+                                    selected: index == root.selected-row;
+                                    focused: self.selected && list-focus.has-focus;
+                                    clicked => {
+                                        root.row-selected(index);
+                                        list-focus.focus();
+                                    }
+                                }
+                            }
+                        }
+
+                        if root.results.length == 0 && root.error == "": VerticalLayout {
+                            alignment: center;
+                            spacing: 6px;
+                            Text {
+                                text: root.total-count == 0 ? "Your library is empty" : "No titles found";
+                                horizontal-alignment: center;
+                                font-size: 16px;
+                                font-weight: 600;
+                                color: Theme.text;
+                            }
+                            Text {
+                                text: root.total-count == 0
+                                    ? "Search for a movie or TV series to get started."
+                                    : "Nothing matches “\{search.text}”. Try another title, or press Esc to clear the search.";
+                                horizontal-alignment: center;
+                                wrap: word-wrap;
+                                font-size: 13px;
+                                color: Theme.text-muted;
                             }
                         }
                     }
                 }
-
-                if root.results.length == 0 && root.error == "": VerticalLayout {
-                    alignment: center;
-                    spacing: 6px;
-                    Text {
-                        text: "No titles found";
-                        horizontal-alignment: center;
-                        font-size: 16px;
-                        font-weight: 600;
-                        color: Theme.text;
-                    }
-                    Text {
-                        text: "Nothing matches “\{search.text}”. Try another title, or press Esc to clear the search.";
-                        horizontal-alignment: center;
-                        wrap: word-wrap;
-                        font-size: 13px;
-                        color: Theme.text-muted;
-                    }
-                }
+            }
+            if root.shown == "home": Placeholder {
+                width: 100%;
+                height: 100%;
+                title: "Home";
+                body: "An overview of what to watch next will appear here in a later version.";
+            }
+            if root.shown == "discover": Placeholder {
+                width: 100%;
+                height: 100%;
+                title: "Discover";
+                body: "Searching for movies and TV series to add to your library arrives in a later version.";
+            }
+            if root.shown == "calendar": Placeholder {
+                width: 100%;
+                height: 100%;
+                title: "Calendar";
+                body: "Upcoming episodes and releases will appear here in a later version.";
+            }
+            if root.shown == "statistics": Placeholder {
+                width: 100%;
+                height: 100%;
+                title: "Statistics";
+                body: "Statistics about what you have watched will appear here in a later version.";
+            }
+            if root.shown == "settings": SettingsPage {
+                width: 100%;
+                height: 100%;
+                storage: root.storage;
+                open-about => { root.page = "about"; }
+            }
+            if root.shown == "about": AboutPage {
+                width: 100%;
+                height: 100%;
+                storage: root.storage;
+            }
+            if root.shown == "error": StartupErrorPage {
+                width: 100%;
+                height: 100%;
+                message: root.startup-error;
+                storage: root.storage;
+                retry => { root.retry(); }
+                quit => { root.quit(); }
             }
         }
-        Rectangle {
-            width: 1px;
-            background: Theme.border;
-        }
-        DetailPane {
-            width: 360px;
-            item: root.detail;
-            has-item: root.selected-id >= 0;
+        if root.shown == "library": HorizontalLayout {
+            Rectangle {
+                width: 1px;
+                background: Theme.border;
+            }
+            DetailPane {
+                width: 360px;
+                item: root.detail;
+                has-item: root.selected-row >= 0;
+            }
         }
     }
 }

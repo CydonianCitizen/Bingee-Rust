@@ -8,6 +8,8 @@ Startup is process creation through input-idle plus a responsive main window;
 this does NOT prove that posters are painted or that input has been processed.
 Every startup sample uses a new process, with warm OS caches (no reboot/flush).
 Output directories are unique; failures and incomplete runs remain on disk.
+Since R6 the 1,000-title workload is an opt-in build: this suite builds it with
+--features benchmark-fixture and launches it with --benchmark-fixture.
 #>
 param(
     [string]$Exe = 'target/release/bingee-desktop.exe',
@@ -49,7 +51,7 @@ foreach ($check in @(
     @{ tool='cargo'; arguments=@('check') },
     @{ tool='cargo'; arguments=@('test') },
     @{ tool='cargo'; arguments=@('clippy','--all-targets','--all-features','--','-D','warnings') },
-    @{ tool='cargo'; arguments=@('build','--release') }
+    @{ tool='cargo'; arguments=@('build','--release','--features','benchmark-fixture') }
 )) {
     $arguments = $check.arguments
     $name = $check.tool + ' ' + ($arguments -join ' ')
@@ -63,8 +65,8 @@ foreach ($check in @(
 $exePath = (Resolve-Path $Exe).Path
 $builtExe = (Resolve-Path (Join-Path $root 'target/release/bingee-desktop.exe')).Path
 if ($exePath -ne $builtExe) { throw 'Exe must be the release artifact just built: target/release/bingee-desktop.exe.' }
-$database = Join-Path (Split-Path $exePath) 'bingee-spike.db'
-if (-not (Test-Path $database)) { throw 'Existing seeded database required. Launch normally once, then rerun.' }
+$database = Join-Path (Split-Path $exePath) 'data/bingee-spike.db'
+if (-not (Test-Path $database)) { throw 'Existing seeded database required. Launch once with --benchmark-fixture, then rerun.' }
 $assetDir = Join-Path $root 'benchmark/assets/posters'
 foreach ($line in Get-Content (Join-Path $assetDir 'SHA256SUMS')) {
     if ($line -notmatch '^([a-fA-F0-9]{64})\s+\*?(.+)$') { throw 'Invalid asset manifest.' }
@@ -104,7 +106,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Feature inventory failed.' }
 function Launch([string]$label) {
     $timer = [Diagnostics.Stopwatch]::StartNew()
     # This is an interactive GUI under test, intentionally visible.
-    $process = Start-Process -FilePath $exePath -PassThru -RedirectStandardError (Join-Path $out "$label-stderr.txt")
+    $process = Start-Process -FilePath $exePath -ArgumentList '--benchmark-fixture' -PassThru -RedirectStandardError (Join-Path $out "$label-stderr.txt")
     try {
         if (-not $process.WaitForInputIdle(15000)) { throw 'Input-idle timeout.' }
         do {

@@ -1,10 +1,17 @@
-# Bingee Desktop Rust + Slint — Spike Implementation Plan
+# Bingee Desktop — Implementation Plan
 
 ## Goal
 
-Create a small but representative Rust + Slint Bingee Desktop prototype, then compare it fairly with the C# + Avalonia prototype.
+Bingee Desktop is a Rust + Slint local-first desktop media tracker for
+Windows, macOS and Linux.
 
-This is a technology evaluation, not yet the production roadmap.
+Milestones R0–R5 were a technology evaluation: a small Rust + Slint prototype
+compared with a C# + Avalonia prototype (separate repository). That phase is
+closed. Its sections below are kept as they were written, and its evidence
+stays in `docs/measurements/` and `benchmark/`. From R6 on, this repository is
+the canonical Bingee Desktop implementation and this plan is its production
+roadmap. The R4 workload remains available as a benchmark fixture for
+performance regression checks.
 
 This file holds deliverables and exit criteria. The working brief for a
 milestone lives in `docs/milestones/<id>.md`; start one with `/milestone R0`.
@@ -170,8 +177,66 @@ Linux has not run yet. See `docs/milestones/R5.md`.
 
 ---
 
-## Stop condition
+## Stop condition (R0–R5, historical)
 
 After R5, pause feature development.
 
 Compare Rust/Slint against the Avalonia spike using the agreed scorecard before starting production Bingee features such as TMDB, full library schema, watch progress, statistics, backup/restore, calendars, or notifications.
+
+The pause ended in September 2026: Rust + Slint was chosen, and R6 started
+the production application.
+
+---
+
+## Milestone R6 — Production foundations
+
+### Goal
+
+Turn the benchmark-oriented spike into a clean production foundation: real
+user-data locations, a versioned schema with migrations, a coherent error
+model, local diagnostics, correct About/licensing, and an app that starts with
+an empty real library. No TMDB.
+
+### Deliverables
+
+- Normal startup without fake data; the R4 fixture kept as an explicit,
+  opt-in benchmark build.
+- Per-user data, cache and log locations on Windows, macOS and Linux, behind
+  one testable path policy.
+- Schema v1 (`media`, `external_refs`, `library_entries`) with `PRAGMA
+  user_version` migrations that run in one transaction.
+- Identity `(source, media_type, external_id)` enforced by SQLite.
+- An application error model and a startup error page; a failed open never
+  deletes or recreates the database.
+- A local log file (no telemetry) for startup, migrations and failures.
+- Navigable shell (Home, Library, Discover, Calendar, Statistics, Settings,
+  About); Library, Settings and About functional, the rest placeholders.
+- About with version, Slint attribution, license status and data locations.
+- A settings module for future preferences.
+- Tests for migrations, constraints, corrupt/foreign/newer databases, and path
+  resolution. ADR-0006, `docs/milestones/R6.md`, updated README.
+
+### Exit criteria
+
+- Production startup contains no fake library data.
+- Correct cross-platform user-data paths are used.
+- Schema v1 is explicit and migrated transactionally.
+- Movie/TV external-id collision is impossible by schema.
+- Startup database failure is not silently destructive.
+- Benchmark fixtures remain reproducible and separate.
+- About/attribution is accessible.
+- Build, tests and clippy pass.
+- Documentation matches behavior.
+
+### Status
+
+PASS locally / cross-platform CI pending (14 September 2026). See
+`docs/milestones/R6.md`.
+
+---
+
+## Next: R7 — TMDB
+
+Search TMDB (Discover), add titles to the library, fetch and cache metadata
+and posters. First milestone allowed to add networking (HTTP client, and an
+async runtime only if it is justified).

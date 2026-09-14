@@ -1,81 +1,33 @@
-# Bingee Desktop — Rust + Slint
+# Bingee Desktop
 
-This repository contains only the Rust + Slint implementation of Bingee
-Desktop, implemented with a coding agent. `main` is its only development
-branch.
+Bingee Desktop is a Rust + Slint local-first desktop media tracker for
+Windows, macOS and Linux. It keeps your library of movies and TV series in a
+local SQLite database. `main` is the development branch.
 
-It is one side of a controlled comparison between two independent desktop
-implementations. The other side, C# + Avalonia (implemented manually with
-assisted guidance), lives in a separate repository.
-
-The spike is **not** the production application. Its purpose is to compare the
-two stacks on the same UX slice, dataset, and benchmark protocol before
-choosing the production stack. The shared contract (`BENCHMARK_SPEC.md`,
-`benchmark/R4-workload.md`, and the posters in `benchmark/assets/posters/`)
-stays in this repository for the Avalonia side to reproduce.
+**History.** Milestones R0–R5 were a technology spike: this Rust + Slint
+implementation (built with a coding agent) was compared with a C# + Avalonia
+implementation in a separate repository, on the same UX slice, dataset and
+benchmark protocol. Rust + Slint was chosen. The spike's contract and evidence
+are preserved: `BENCHMARK_SPEC.md`, `benchmark/`, `docs/measurements/`. Since
+R6 this repository is the canonical Bingee Desktop implementation, and the R4
+workload lives on as a benchmark fixture for regression checks.
 
 ## Product constraints
 
-Bingee Desktop is desktop-first (not a port of Bingee Android), local-first,
-cross-platform (Windows, macOS, Linux), highly responsive, conservative in
-RAM/CPU use, and designed to scale to large personal libraries without eagerly
-loading everything into memory.
+Desktop-first (not a port of Bingee Android), local-first, cross-platform
+(Windows, macOS, Linux), highly responsive, conservative in RAM/CPU use, and
+designed to scale to large personal libraries without eagerly loading
+everything into memory.
 
-## Shared spike slice
+## Status
 
-Both implementations must eventually provide the same test slice:
+R6 (production foundations) is implemented: an empty real library in the
+per-user data folders, database schema v1 with migrations, startup error
+handling, a local log, and Settings/About. There is no TMDB access yet, so
+titles cannot be added; that is R7. See `IMPLEMENTATION_PLAN.md` and
+`docs/milestones/R6.md`.
 
-1. desktop shell with sidebar, library pane, and detail pane
-2. 1,000 deterministic fake media items
-3. local search
-4. media selection and detail update
-5. a small SQLite-backed query
-6. lazy/virtualized list behavior
-7. bounded image/poster caching
-8. the measurements in `BENCHMARK_SPEC.md`
-
-Never compare benchmark results from different workloads.
-
-## Working with Claude Code
-
-Instructions live in `CLAUDE.md`, which Claude Code loads automatically. The
-rest of the setup:
-
-| File | Role |
-| --- | --- |
-| `.claude/settings.json` | Permissions and hooks. Denies commits, pushes, and destructive git; prompts for `cargo add` and `cargo run`; formats Rust after edits. |
-| `.claude/rules/rust-slint.md` | Coding rules that load only when `.rs`, `.slint`, or `Cargo.toml` files are in play. |
-| `.claude/skills/` | `/milestone`, `/check-rust`, `/benchmark-run`, `/adr`. |
-| `.claude/agents/spike-reviewer.md` | Read-only reviewer subagent, used before calling a milestone done. |
-| `docs/milestones/` | One brief per milestone. |
-
-Typical session:
-
-```text
-/milestone R0          # start the milestone in plan mode
-…                      # implement
-/check-rust            # fmt, check, test, clippy
-```
-
-`.claude/settings.json` contains `permissions.allow` rules, so Claude Code asks
-you to trust the workspace the first time you open this repo. Review the rules
-in that file before accepting.
-
-The `cargo fmt` hook runs through bash; on Windows it needs Git Bash. Delete the
-`hooks` block from `.claude/settings.json` if you would rather not use it.
-
-Prompts blocked by a deny rule are intentional. If one gets in your way, change
-the rule deliberately rather than working around it in a session.
-
-## Rust spike
-
-See `IMPLEMENTATION_PLAN.md` for the full roadmap and `docs/milestones/` for
-milestone briefs. R0–R3 are implemented. The R4 baseline is frozen as partial
-(interactive checks blocked by the environment; see
-`docs/measurements/R4-rust-slint/STATUS.md`). R5 added the portable package
-and cross-platform CI (`docs/milestones/R5.md`).
-
-### Prerequisites
+## Prerequisites
 
 - Rust stable via [rustup](https://rustup.rs) (developed with 1.98.1).
 - A C compiler, because SQLite is compiled from source (`rusqlite`'s `bundled`
@@ -88,249 +40,248 @@ and cross-platform CI (`docs/milestones/R5.md`).
   time, so a desktop session needs them installed. Checked by CI only.
 - macOS: Xcode command line tools. Checked by CI only.
 
-### Run
+## Run Bingee Desktop
 
 ```bash
 cargo run            # debug build, with a console for stderr
 cargo run --release  # release build (no console window on Windows)
 ```
 
-### Checks
+The first start creates an empty library and shows "Your library is empty".
+The working directory never matters.
+
+To keep a development build away from your real library, point
+`BINGEE_HOME` at an absolute folder; data, cache and logs then go to
+`<folder>/data`, `<folder>/cache` and `<folder>/logs`:
+
+```powershell
+$env:BINGEE_HOME = "$env:TEMP\bingee-dev"; cargo run   # PowerShell
+```
+```bash
+BINGEE_HOME=/tmp/bingee-dev cargo run                  # bash
+```
+
+### Where your data lives
+
+| | Database (`bingee.db`) | Cache | Log (`bingee-desktop.log`) |
+| --- | --- | --- | --- |
+| Windows | `%LOCALAPPDATA%\Bingee Desktop\data\` | `%LOCALAPPDATA%\Bingee Desktop\cache\` | `%LOCALAPPDATA%\Bingee Desktop\logs\` |
+| macOS | `~/Library/Application Support/Bingee Desktop/` | `~/Library/Caches/Bingee Desktop/` | `~/Library/Logs/Bingee Desktop/` |
+| Linux | `$XDG_DATA_HOME/bingee-desktop/` (default `~/.local/share/…`) | `$XDG_CACHE_HOME/bingee-desktop/` (default `~/.cache/…`) | `$XDG_STATE_HOME/bingee-desktop/` (default `~/.local/state/…`) |
+
+Settings and About show the exact resolved paths and the database schema
+version. Nothing is written beside the executable. The cache folder is
+created but not used yet. See `docs/adr/0006-production-storage-and-schema-v1.md`.
+
+If the database cannot be opened (for example damaged, not a Bingee
+database, or created by a newer version), the window shows "Your library could not be
+opened" with the reason, the database and log paths, and **Try again**. The
+file is never deleted, replaced or "repaired" automatically.
+
+## Run the benchmark fixture (R4 workload)
+
+The 1,000-title deterministic library, the spike database and the synthetic
+posters are not part of a normal build. They need a Cargo feature *and* a
+flag:
+
+```bash
+cargo run --release --features benchmark-fixture -- --benchmark-fixture
+```
+
+The fixture keeps the R5 portable layout: its database is
+`<exe dir>/data/bingee-spike.db` (seeded on first launch; delete it to
+reseed) and its posters come from `<exe dir>/assets/posters/`, or from the
+checkout's `benchmark/assets/posters/` for a build-tree binary. It never
+touches the per-user folders. The sidebar footer reads "Benchmark fixture".
+
+The opt-in R4 latency harness (ADR-0004) is the `r4-measurement` feature,
+which includes the fixture:
+
+```bash
+cargo build --release --features r4-measurement
+target/release/bingee-desktop --r4-latency sqlite|posters|ui <output.csv>
+```
+
+`benchmark/scripts/r4-core.ps1` and `r3-memory.ps1` build or launch the
+fixture explicitly. A default build refuses `--benchmark-fixture` (exit code
+1), so a benchmark cannot silently measure the empty production app. The
+frozen R4 executables and database under `target/release/` are unchanged; see
+`docs/measurements/R4-rust-slint/STATUS.md`. Never compare numbers from
+different workloads (`BENCHMARK_SPEC.md`).
+
+## Checks
 
 ```bash
 cargo fmt --check
 cargo check
 cargo test
 cargo clippy --all-targets --all-features -- -D warnings
+cargo build --release
 ```
 
-`.github/workflows/cross-platform.yml` runs these, plus `cargo build
---release`, on Windows, Ubuntu and macOS.
+Tests never touch the real per-user folders: they use temporary directories
+and in-memory databases. `.github/workflows/cross-platform.yml` runs these on
+Windows, Ubuntu and macOS, plus clippy for the default and fixture-only
+feature sets.
 
-### Portable Windows package (R5)
+## Portable Windows package
 
 ```powershell
 pwsh -NoProfile -File scripts/package-windows.ps1        # -> dist/bingee-desktop-windows-x64/
 pwsh -NoProfile -File scripts/smoke-windows-package.ps1 -WorkDir $env:TEMP\bingee-smoke
 ```
 
-The package holds `bingee-desktop.exe`, `assets/posters/`, an empty `data/`,
-`THIRD_PARTY_NOTICES.txt`, `README.txt` and `SHA256SUMS.txt`, and runs from
-any folder and any working directory. It needs the Visual C++ 2015–2022
-Redistributable (x64) for `VCRUNTIME140.dll`. It is not an installer and must
-not be shared outside the team until the Slint attribution condition is met
-(see below). See `docs/adr/0005-portable-package-layout.md` and
-`docs/measurements/R5-packaging-cross-platform/summary.md`.
+The package holds `bingee-desktop.exe`, `THIRD_PARTY_NOTICES.txt` (with the
+generated list of linked crates), `README.txt` and `SHA256SUMS.txt`. It writes
+nothing to its own folder, so it may live in a read-only location. It needs
+the Visual C++ 2015–2022 Redistributable (x64). The smoke test runs a fresh,
+a second and a corrupt-database start from an unrelated working directory,
+with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
+and is not signed.
 
-### Current scope: R3 features, R5 packaging
+## What the app does (R6)
 
-R4 and R5 added no user-visible features. A desktop shell with three panes over a 1,000-record library stored in SQLite,
-with local synthetic posters behind a bounded cache:
+- **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings,
+  About. Home, Discover, Calendar and Statistics are labelled placeholders.
+- **Library**: the titles in `library_entries`, with a search field (title and
+  original title, Unicode case-insensitive), a virtualized list and a detail
+  pane. Empty until R7 can add titles.
+- **Settings**: where the database, data, cache and log live, the schema
+  version, and a link to About.
+- **About**: version, Rust/Slint/SQLite credits, the "Made with Slint"
+  widget, license status, data locations.
+- **Startup error page** instead of an empty library when the database
+  cannot be loaded.
 
-- **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings.
-  Only Library is active; the other entries are not wired up yet.
-- **Library**: search field, result count, and a virtualized list of the
-  matching titles. Each row has a 40×60 poster thumbnail, title, type, year,
-  original title, and progress. A search with no matches shows a "No titles
-  found" empty state.
-- **Detail**: the selected title's 160×240 poster, type/year, original title,
-  progress, and overview, or "No title selected" when the results are empty.
-- **Posters**: if a poster file is missing or cannot be decoded, the R2
-  gradient-and-initials placeholder shows instead and the row stays usable.
-- **Errors**: if the database cannot be opened, created, seeded, or queried,
-  the library pane shows the error in red instead of an empty library.
+## Code layout
 
-Code layout:
+- `src/main.rs`: identity constants (`APP_NAME`, and `APP_ID`/`APP_VERSION`
+  from Cargo), startup, the error page wiring, the `--benchmark-fixture` and
+  `--r4-latency` dispatch.
+- `src/paths.rs`: the per-OS data/cache/log policy (pure, tested for all
+  three OSes on any host).
+- `src/settings.rs`: Bingee's own settings; today only `BINGEE_HOME`.
+- `src/database.rs`: `Database` (one owned connection), schema v1, migrations.
+- `src/library.rs`: production library types and the search query. No Slint.
+- `src/view.rs`: the `slint::Model` over search results and the selection
+  logic, shared by the production library and the fixture.
+- `src/error.rs`: `AppError` (kind, user message, cause).
+- `src/diagnostics.rs`: the local log file and panic hook.
+- `src/fixture/`: the benchmark fixture: `library.rs` (1,000-record
+  generator and reference search), `db.rs` (spike schema, seed, SQL search),
+  `poster.rs` (poster mapping and bounded LRU cache), `mod.rs` (fixture paths,
+  poster loader, startup). Tests and `benchmark-fixture` builds only.
+- `ui/app-window.slint`: layout, pages, visuals and keyboard handling.
+- `benchmark/`: the frozen R4 workload contract, the R4 harness
+  (`r4_latency.rs`), benchmark scripts, and the shared posters
+  (`examples/generate_posters.rs` recreates them).
+- `scripts/`: Windows packaging and smoke test.
 
-- `src/library.rs`: plain Rust domain types, the dataset generator, the
-  selection policy, and the R1 in-memory search (now test-only, kept as the
-  reference oracle). No Slint or SQLite types.
-- `src/db.rs`: the SQLite schema, the seed, and the SQL search, with their
-  tests. No Slint types.
-- `src/poster.rs`: the id → poster mapping and `PosterCache`, a byte-budgeted
-  LRU generic over the loaded value, with its tests. No Slint types.
-- `src/main.rs`: the package-root, database and poster paths, the Slint
-  poster loader, `LibraryView` (a `slint::Model` over the current results that
-  owns the connection and the poster cache), and the window callbacks.
-- `ui/app-window.slint`: layout, visuals, and keyboard handling.
-- `benchmark/assets/posters/`: the shared synthetic posters (see their
-  README); `examples/generate_posters.rs` recreates them.
-- `benchmark/`: the frozen R4 workload contract (`R4-workload.md`), the opt-in
-  R4 latency harness (`r4_latency.rs`, feature `r4-measurement`), and the
-  benchmark scripts (`scripts/`, Windows PowerShell only by design).
-- `scripts/`: the Windows packaging and package smoke-test scripts (R5).
-- `.github/workflows/cross-platform.yml`: CI on Windows, Ubuntu and macOS.
+## Database
 
-#### Database (spike only)
+`rusqlite` 0.40 with SQLite 3.53.2 compiled in (`bundled`), plus its
+`functions` feature for the Unicode case-folding search function. No ORM,
+pool or async runtime. One `Database` value owns the only connection; it
+moves into the library view and closes when the window closes.
 
-This is **not** the Bingee Desktop schema. It is one table sized for the R2
-workload. See `docs/adr/0002-sqlite-via-rusqlite-bundled.md`.
+Schema v1 (ADR-0006), all `STRICT` tables:
 
-- **Crate**: `rusqlite` 0.40 with the `bundled` feature, which compiles SQLite
-  3.53.2 into the executable. No ORM, migrations, pool, or async runtime.
-- **Location** (since R5, ADR-0005): `data/bingee-spike.db` inside the
-  directory that holds the executable, created on first launch. That is the
-  package's own `data/` folder, and `target/debug/data/` or
-  `target/release/data/` during development (git-ignored, removed by `cargo
-  clean`). The working directory never matters. Debug and release builds keep
-  separate, identically seeded databases. Delete the file to reseed. This is a
-  portable-spike policy, not the production data directory. The frozen R4
-  database at `target/release/bingee-spike.db` is used only by the retained R4
-  executables.
-- **Schema**: one `media` table: `local_id` (the stable R1 id), `title`,
-  `original_title`, `year`, `media_type` (`'Movie'`/`'TV'`), `progress_state`
-  (`'planned'`/`'watched'`/`'episodes'`), `progress_value`/`progress_total`
-  (episodes watched/total, NULL otherwise), `overview`, and `search_text`.
-  `CHECK` constraints reject unknown `media_type`/`progress_state` values, and
-  the row mapper returns an error rather than guessing.
-- **Seed**: on every launch, one transaction creates the table if it is
-  missing and inserts the 1,000 `generate_library()` records only if the
-  table is empty. A database that already has rows is left untouched, and a
-  failed seed leaves no partial data.
-- **Lifecycle**: `main` opens one `rusqlite::Connection` and moves it into
-  `LibraryView`, which is the only owner. It is closed when the window closes.
-  There is no global connection.
-- **Limitations**: no migrations (after a schema change, delete the file). No
-  personal-state/metadata split, external ids, seasons, genres, or ratings.
-  `search_text` is derived data that every writer must keep in sync; the seed is
-  the only writer in R2. Open, schema, and seed errors all appear as a single
-  "Could not load the library" message with SQLite's text; they are not
-  separated by step.
+- `media`: local metadata. `local_media_id` (never reused), `media_type`
+  (`movie`/`tv`), `title`, `original_title`, `release_date` (`YYYY-MM-DD`),
+  `overview`, `poster_path`, `backdrop_path`, `runtime_minutes`,
+  `metadata_updated_at` (Unix seconds, UTC).
+- `external_refs`: provider identity, primary key `(source, media_type,
+  external_id)`. TMDB movie 603 and TMDB TV 603 are different rows; a
+  duplicate triple is rejected; a ref's type must match its media row
+  (composite foreign key); TMDB ids must be plain positive decimals.
+- `library_entries`: membership, `local_media_id` → `media` (`ON DELETE
+  RESTRICT`), `added_at`. Cached metadata is not library membership.
 
-#### Dataset
+Migrations: `PRAGMA user_version` is the schema version and `PRAGMA
+application_id` marks the file as Bingee's. All pending steps run in one
+transaction; a failure leaves the file as it was. Files that are damaged,
+belong to another application (including the spike's `bingee-spike.db`), or
+come from a newer version are refused without writing.
 
-`generate_library()` returns exactly 1,000 records with ids 1–1000 in id order.
-Ids 1–10 are the R0 sample titles. Ids 11–1000 are built from the record index
-`k` (0–989) with integer arithmetic only, so there is no RNG:
+## Diagnostics
 
-- The title is an adjective/noun pair picked by `(k * 389 + 17) % 1000`, a
-  one-to-one mapping over the 25 × 40 word table, so every title is unique.
-- The original title is the German counterpart of the same pair, for example
-  "Pale Harbor" / "Blasse Hafen".
-- Year, Movie/TV kind, progress, and overview come from other fixed modulo
-  formulas; see `generated_record`.
+A plain-text log, `bingee-desktop.log` in the log folder above, also echoed
+to stderr: startup (version, OS, architecture), the database path, migration
+start/end, schema version and title count, failures with their causes,
+panics, and close. It is rotated to `bingee-desktop.log.1` above 1 MiB. There
+is no telemetry, analytics or remote logging; no per-interaction events or
+secrets are logged.
 
-A test pins sample values, so any change to the shared benchmark dataset is
-deliberate. The Avalonia spike must reproduce this generator exactly.
-
-#### Search and selection
-
-- Search is local, case-insensitive substring matching on the title and the
-  original title, run on every edit with no debounce. Results keep dataset
-  (id) order, and an empty or whitespace-only query shows all 1,000 records.
-  Accent folding is not done: "shogun" finds Shōgun only because its original
-  title is "Shogun".
-- Since R2 the search is SQL: `WHERE instr(search_text, ?1) > 0 ORDER BY
-  local_id`, with the query trimmed and lowercased in Rust and bound as a
-  parameter. SQLite's `lower()`/`LIKE` fold only ASCII, so the lowercased key
-  is computed in Rust (`str::to_lowercase`, as in R1) and stored at seed time.
-  "NÖRDLICHE" therefore matches "Nördliche". `instr` is a literal match, so `%`
-  and `_` are not wildcards. A test checks that the SQL results equal the R1
-  in-memory search (same ids, same order) for a fixed query set. There are no
-  intentional differences.
-- Selection is stored as the item's stable id, never as a list index.
-- After each search, the selected id is kept if it is still in the results.
-  Otherwise the first result is selected, or nothing if there are no results.
-  The detail pane is rebuilt from the selected id every time, so it cannot show
-  an item the filter removed.
-- The filter path per keystroke, synchronously on the UI thread:
-  - runs the cached prepared statement;
-  - maps each matching row to an owned `MediaItem` (at most 1,000);
-  - replaces the result `Vec` and resets the model. Slint then drops its
-    current row components and instantiates only the ones that fit the viewport
-    (nine at the default window size; checked in R2 with a temporary
-    `row_data` trace), calling `row_data` for each.
-
-  UI rows (`MediaRow`) are built only for rows the ListView shows, plus the
-  detail row. In an informal release-build measurement, fetching all 1,000
-  records took about 2–3 ms (median), and a no-match query about 0.3 ms. That
-  is well inside a frame, so there is no worker thread. See
-  `docs/measurements/R2-sqlite-informal.md`. If a search fails, the previous
-  results stay and the error is shown.
-
-#### Large list
-
-`LibraryView` implements `slint::Model` and is bound to a `for` repeater
-directly inside the std `ListView`. The Slint 1.17 compiler turns that into a
-virtualized repeater: it creates components only for the rows in the viewport,
-drops the ones that scroll out, and creates new ones as rows scroll in. Rows
-still on screen are updated in place. There is no pool that recycles
-components. The current results (up to 1,000 `MediaItem`s) stay in Rust
-memory; only visible rows exist as components and `MediaRow` values. Loading
-every matching record is a deliberate R2 simplification. For much larger
-libraries, the view would hold ids only and load visible rows by id.
-
-#### Posters (R3, spike only)
-
-See `docs/adr/0003-poster-pipeline-and-bounded-cache.md` and
-`docs/measurements/R3-posters-informal.md`.
-
-- **Assets**: 100 synthetic 240×360 JPEGs in `benchmark/assets/posters/`,
-  shared with the Avalonia spike. Record `local_id` shows poster
-  `(local_id − 1) % 100 + 1`; the number is printed on the poster. For example,
-  Severance (id 1) shows 001, Pale Harbor (id 11) shows 011, and Lost Canyon
-  (id 1000) shows 100. Nothing poster-related is stored in SQLite.
-- **Location** (since R5, ADR-0005): `assets/posters/` beside the executable,
-  as in the portable package. A build-tree binary (`cargo run`, tests) has no
-  such folder and reads the checkout it was built from instead
-  (`CARGO_MANIFEST_DIR`). An executable copied without its `assets/` folder
-  shows placeholders.
-- **Loading**: `slint::Image::load_from_path`, synchronously on the UI thread,
-  only from `Model::row_data` (the rows the ListView instantiates) and for the
-  detail row. It decodes immediately (JPEG → RGB8, about 1.1 ms in release).
-  Nothing is decoded at startup beyond the first frame's rows (9 at the default
-  window size).
-- **Cache**: one LRU in `LibraryView`, shared by the rows and the detail pane,
-  keyed by poster number and bounded at 12 MiB of estimated decoded size
-  (`w × h × 4`, so 36 posters). A hit returns the cached `slint::Image`
-  handle without touching the file. Eviction drops the cache's handle, and
-  the pixels are freed once no visible row still uses them. Slint has its own
-  internal 5 MiB LRU behind `load_from_path`, so some misses are served
-  without decoding.
-- **Failures**: a missing or corrupt file is logged once to stderr, never
-  retried, and shown as the placeholder.
-- **Debug dump**: F12 with the list focused prints the cache counters to
-  stderr: entries, estimated bytes, hits, misses, evictions, failures, and load
-  times. In release builds stderr is only visible when redirected, for example
-  by `benchmark/scripts/r3-memory.ps1`.
-- **Debug builds** decode about 30× slower (unoptimized dependencies), so
-  scrolling in `cargo run` without `--release` is not representative.
-
-#### Keyboard
+## Keyboard (Library)
 
 | Key | Effect |
 | --- | --- |
-| Tab / Shift+Tab | Move focus between the search field and the list (the cycle has only these two stops). |
+| Tab / Shift+Tab | Move focus between the search field and the list. |
 | Up / Down / PageUp / PageDown / Home / End | In the list: move the selection and scroll it into view. |
 | Down or Enter | In the search field: move focus to the list. |
 | Esc | In the search field or the list: clear the search. |
-| F12 | In the list: print poster cache counters to stderr (debug aid). |
+| F12 | In the list, fixture only: print poster cache counters to stderr. |
 
-Clicking a row selects it and focuses the list. A focused list shows an accent
-outline on the selected row.
+## Benchmark fixture internals (R1–R3)
 
-**Not implemented yet:** the production database schema, migrations, TMDB or
-any network access, remote images or a disk image cache, sidebar navigation,
-an About screen, and an installer. Measurements: informal R2/R3 observations
-and the partial R4 baseline (`docs/measurements/`). None of them makes a
-Rust-versus-Avalonia claim.
+These describe the fixture, which is unchanged from R5 apart from its module
+location.
 
-### Slint licensing (spike assumption only)
+- **Dataset**: `generate_library()` returns exactly 1,000 records with ids
+  1–1000. Ids 1–10 are the R0 sample titles; ids 11–1000 come from integer
+  arithmetic on the record index (no RNG): an adjective/noun pair picked by
+  `(k * 389 + 17) % 1000`, its German counterpart as the original title, and
+  year, kind, progress and overview from fixed modulo formulas. A test pins
+  sample values; the Avalonia spike reproduced this generator exactly.
+- **Search**: case-insensitive substring match on title and original title,
+  on every edit, no debounce, id order. SQL `instr(search_text, ?1)` over a
+  `search_text` column lowercased in Rust at seed time, checked against the
+  in-memory reference search for a fixed query set.
+- **Selection**: stored as the stable id; kept after a search when still
+  present, otherwise the first result, otherwise none. Shared with the
+  production library (`view::reselect`).
+- **Large list**: `LibraryView` implements `slint::Model` inside the std
+  `ListView`, which instantiates only the rows in the viewport. The current
+  results stay in Rust memory; only visible rows become `MediaRow`s.
+- **Posters**: 100 synthetic 240×360 JPEGs; record `id` shows poster
+  `(id − 1) % 100 + 1`. Loaded synchronously with `Image::load_from_path`
+  only for requested rows and the selection, through one LRU bounded at
+  12 MiB of estimated decoded size (36 posters). A missing or corrupt file is
+  logged once and shown as the placeholder. See ADR-0003 and
+  `docs/measurements/R3-posters-informal.md`.
+- **Debug builds** decode about 30× slower (unoptimized dependencies), so
+  scrolling the fixture in a debug build is not representative.
+
+## Licensing
 
 Slint 1.17 is offered under GPL-3.0-only, the Slint Royalty-free Desktop,
-Mobile, and Web Applications License 2.0, or a commercial license. This spike
-is an internal, undistributed evaluation and assumes the Royalty-free 2.0 terms
-for evaluation purposes only. That license's attribution condition applies on
-distribution: show the `AboutSlint` widget in an About screen, or put the
-"Made with Slint" badge on the download page. Any build shared outside the
-team must do one of these first. The R5 package does neither: it has no About
-screen and is not published.
+Mobile, and Web Applications License 2.0, or a commercial license. Bingee
+Desktop currently uses the Royalty-free 2.0 terms; this is the working
+assumption, not a final decision, and no commercial license has been
+obtained. That license's attribution condition is met by the About page,
+which is a top-level sidebar entry and shows the `AboutSlint` widget.
 
-`THIRD_PARTY_NOTICES.txt` records this assumption, SQLite (public domain), the
-direct dependencies and their licenses. The packaging script appends the full
-list of linked crates with their license expressions. Full license texts of the
-permissive crates are not bundled yet. That is required before any external
-distribution.
+`THIRD_PARTY_NOTICES.txt` records this, SQLite (public domain), the direct
+dependencies and their licenses; the packaging script appends every linked
+crate with its license expression. Full license texts of the permissive
+crates are not bundled yet; that is required before public distribution.
 
-This is **not** a decision about the Bingee Desktop product license, which
-remains open (see `docs/adr/0001-rust-slint-spike.md`).
+The license of Bingee Desktop itself is not decided
+(see `docs/adr/0001-rust-slint-spike.md`).
+
+## Working with Claude Code
+
+Instructions live in `CLAUDE.md` (local, git-ignored), which Claude Code
+loads automatically. The rest of the setup:
+
+| File | Role |
+| --- | --- |
+| `.claude/settings.json` | Permissions and hooks. Denies commits, pushes, and destructive git; prompts for `cargo add` and `cargo run`; formats Rust after edits. |
+| `.claude/rules/rust-slint.md` | Coding rules that load only when `.rs`, `.slint`, or `Cargo.toml` files are in play. |
+| `.claude/skills/` | `/milestone`, `/check-rust`, `/benchmark-run`, `/adr`. |
+| `.claude/agents/spike-reviewer.md` | Read-only reviewer subagent, used before calling a milestone done. |
+| `docs/milestones/` | One brief or record per milestone. |
+
+The `cargo fmt` hook runs through bash; on Windows it needs Git Bash. Prompts
+blocked by a deny rule are intentional. If one gets in your way, change the
+rule deliberately rather than working around it in a session.

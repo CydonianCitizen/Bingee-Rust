@@ -1,5 +1,6 @@
 //! Opt-in R4 harness. Product operations are reused, not reimplemented.
 use super::*;
+use slint::{ComponentHandle, Model};
 use std::collections::VecDeque;
 use std::error::Error;
 use std::fs::File;
@@ -41,7 +42,7 @@ impl Samples {
     }
 }
 
-pub(super) fn run() -> Result<()> {
+pub(crate) fn run() -> Result<()> {
     if cfg!(debug_assertions) {
         return Err("R4 requires release mode".into());
     }
@@ -300,27 +301,27 @@ fn ui(mut samples: Samples, output: &Path) -> Result<()> {
                 Action::Query(query) => { window.invoke_query_changed(query.into()); verify_rows(&view.results.borrow(), &oracle, query); }
                 Action::Navigate(row) => { window.invoke_row_selected(row); window.invoke_reveal_row(row); }
                 Action::Search(label, query, sample) => {
-                    let wanted = library::reselect(&expected(&oracle, query).into_iter().cloned().collect::<Vec<_>>(), view.selected.get());
+                    let wanted = crate::view::reselect(&expected(&oracle, query).into_iter().cloned().collect::<Vec<_>>(), |item| item.id.into(), view.selected.get());
                     let query_value: slint::SharedString = query.into();
-                    let before = view.posters.borrow().stats;
+                    let before = view.library.posters.borrow().stats;
                     let start = Instant::now();
                     window.invoke_query_changed(query_value);
                     let elapsed = start.elapsed();
                     verify_rows(&view.results.borrow(), &oracle, query);
                     assert_eq!(view.selected.get(), wanted);
                     verify_detail(&window, &view);
-                    let after = view.posters.borrow().stats;
+                    let after = view.library.posters.borrow().stats;
                     samples.record("search", label, sample, elapsed, view.row_count(), (after.hits-before.hits, after.misses-before.misses, after.evictions-before.evictions, window.get_selected_id()))?;
                 }
                 Action::Select(label, sample, row) => {
                     if label == "explicit_miss" {
-                        for number in 2..=100 { drop(view.posters.borrow_mut().get(number)); }
+                        for number in 2..=100 { drop(view.library.posters.borrow_mut().get(number)); }
                     }
-                    let before = view.posters.borrow().stats;
+                    let before = view.library.posters.borrow().stats;
                     let start = Instant::now();
                     window.invoke_row_selected(row);
                     let elapsed = start.elapsed();
-                    let after = view.posters.borrow().stats;
+                    let after = view.library.posters.borrow().stats;
                     verify_detail(&window, &view);
                     assert_eq!(window.get_selected_row(), row);
                     if label == "explicit_miss" { assert_eq!(after.misses-before.misses, 1); }
@@ -330,7 +331,7 @@ fn ui(mut samples: Samples, output: &Path) -> Result<()> {
                 }
             }
             assert!(window.get_error().is_empty());
-            assert_eq!(view.posters.borrow().stats.failures, 0);
+            assert_eq!(view.library.posters.borrow().stats.failures, 0);
             Ok(false)
         };
         match operation() {
@@ -356,7 +357,7 @@ fn verify_detail(window: &AppWindow, view: &LibraryView) {
         Some(id) => {
             let item = rows
                 .iter()
-                .find(|item| item.id == id)
+                .find(|item| i64::from(item.id) == id)
                 .expect("selected id in results");
             let detail = window.get_detail();
             assert_eq!(detail.id, id as i32);
@@ -368,7 +369,7 @@ fn verify_detail(window: &AppWindow, view: &LibraryView) {
                 detail.poster.path(),
                 Some(
                     poster_dir()
-                        .join(poster::file_name(poster::poster_number(id)))
+                        .join(poster::file_name(poster::poster_number(item.id)))
                         .as_path()
                 )
             );
