@@ -10,6 +10,7 @@ mod fixture;
 mod library;
 mod network;
 mod paths;
+mod poster;
 mod remote;
 mod search;
 mod secrets;
@@ -22,16 +23,18 @@ use std::process::ExitCode;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use database::Database;
+use database::{Database, SharedDb};
 use diagnostics::Log;
 use error::AppError;
+use library::{MediaType, Sort};
 use network::Network;
 use paths::AppPaths;
+use poster::{PosterKey, Posters};
 use secrets::KeyringStore;
 use settings::Settings;
 use slint::{ComponentHandle, Model, SharedString};
 use tmdb::TmdbClient;
-use view::LibraryView;
+use view::{LibraryView, UserLibrary};
 
 /// Worker threads for network and credential-store calls (ADR-0008).
 const NETWORK_WORKERS: usize = 4;
@@ -100,18 +103,64 @@ fn run() -> ExitCode {
     if let Err(err) = slint::set_xdg_app_id(APP_ID) {
         log.error(format_args!("The application id could not be set: {err}"));
     }
-    start(&window, paths, log.clone());
+    // One HTTP client and one worker pool for search, configuration and
+    // posters.
+    let network = Network::start(NETWORK_WORKERS);
+    let client = TmdbClient::new();
+    let poster_dir = paths.as_ref().ok().map(|paths| paths.cache.join("posters"));
+    let posters = posters(
+        &window,
+        poster_dir,
+        client.clone(),
+        network.clone(),
+        log.clone(),
+    );
+    let db = SharedDb::default();
+    start(&window, paths, log.clone(), db.clone(), posters.clone());
     // Independent of the library: a database failure does not stop remote
     // search, and no network failure reaches the database.
-    let network = Network::start(NETWORK_WORKERS);
     remote::start(
         &window,
-        TmdbClient::new(),
+        client,
         Arc::new(KeyringStore),
         network,
         log.clone(),
+        db,
+        posters.clone(),
     );
-    finish(window.run(), &log)
+    let result = window.run();
+    log.info(posters.stats());
+    finish(result, &log)
+}
+
+/// The poster service, announcing finished posters to the window.
+fn posters(
+    window: &AppWindow,
+    dir: Option<std::path::PathBuf>,
+    client: TmdbClient,
+    network: Network,
+    log: Arc<Log>,
+) -> Arc<Posters> {
+    let window = window.as_weak();
+    let ready = Box::new(move |key: &PosterKey| {
+        if let Some(window) = window.upgrade() {
+            poster_ready(&window, key);
+        }
+    });
+    Arc::new(Posters::new(dir, client, network, log, ready))
+}
+
+/// A poster is in RAM now: both lists re-read the rows that show it, and the
+/// detail panes update if they still show it.
+fn poster_ready(window: &AppWindow, key: &PosterKey) {
+    let results = window.get_results();
+    if let Some(view) = results.as_any().downcast_ref::<LibraryView<UserLibrary>>() {
+        view.poster_ready(key);
+        if window.get_detail().poster_key == key.name() {
+            view::show_selection(window, view);
+        }
+    }
+    remote::poster_ready(window, key);
 }
 
 #[cfg(feature = "benchmark-fixture")]
@@ -155,17 +204,23 @@ fn set_app_info(window: &AppWindow) {
 }
 
 /// Fills `window` with the library, or with the startup error page, and
-/// wires Try again and Quit.
-fn start(window: &AppWindow, paths: Result<AppPaths, AppError>, log: Arc<Log>) {
+/// wires Try again and Quit. The opened database goes into `db`.
+fn start(
+    window: &AppWindow,
+    paths: Result<AppPaths, AppError>,
+    log: Arc<Log>,
+    db: SharedDb,
+    posters: Arc<Posters>,
+) {
     set_app_info(window);
     let paths = Rc::new(paths);
-    load_library(window, &paths, &log);
+    load_library(window, &paths, &log, &db, &posters);
     window.on_retry({
         let window = window.as_weak();
         move || {
             if let Some(window) = window.upgrade() {
                 log.info("Retrying");
-                load_library(&window, &paths, &log);
+                load_library(&window, &paths, &log, &db, &posters);
             }
         }
     });
@@ -174,16 +229,22 @@ fn start(window: &AppWindow, paths: Result<AppPaths, AppError>, log: Arc<Log>) {
     });
 }
 
-fn load_library(window: &AppWindow, paths: &Result<AppPaths, AppError>, log: &Arc<Log>) {
+fn load_library(
+    window: &AppWindow,
+    paths: &Result<AppPaths, AppError>,
+    log: &Arc<Log>,
+    db: &SharedDb,
+    posters: &Arc<Posters>,
+) {
     let opened = match paths {
-        Ok(paths) => open_production(paths, log),
+        Ok(paths) => open_production(paths, log, db, posters),
         Err(err) => Err(AppError::new(err.kind, err.message.clone())),
     };
     match opened {
         Ok((view, schema)) => {
             window.set_storage(storage(paths, log, Some(schema)));
             window.set_startup_error(SharedString::new());
-            view::connect(window, Rc::new(view), log.clone());
+            connect_library(window, Rc::new(view), log.clone());
         }
         // Never an empty library, and never a deleted or recreated file:
         // the error page explains and offers Try again.
@@ -195,18 +256,94 @@ fn load_library(window: &AppWindow, paths: &Result<AppPaths, AppError>, log: &Ar
     }
 }
 
-fn open_production(paths: &AppPaths, log: &Log) -> Result<(LibraryView<Database>, u32), AppError> {
+fn open_production(
+    paths: &AppPaths,
+    log: &Log,
+    db: &SharedDb,
+    posters: &Arc<Posters>,
+) -> Result<(LibraryView<UserLibrary>, u32), AppError> {
     paths.create_dirs()?;
     let path = paths.database();
     log.info(format_args!("Database {}", path.display()));
-    let db = Database::open(&path, log)?;
-    let schema = db.schema_version()?;
-    let view = LibraryView::new(db)?;
+    let database = Database::open(&path, log)?;
+    let schema = database.schema_version()?;
+    db.set(database);
+    let view = LibraryView::new(UserLibrary::new(db.clone(), posters.clone()))?;
     log.info(format_args!(
         "Library opened: schema version {schema}, {} titles",
         view.row_count()
     ));
     Ok((view, schema))
+}
+
+/// The production Library page: `view::connect`, plus the type filter, the
+/// sort, Remove from Library, and reloading when Discover adds a title.
+fn connect_library(window: &AppWindow, view: Rc<LibraryView<UserLibrary>>, log: Arc<Log>) {
+    view::connect(window, view.clone(), log.clone());
+    window.set_library_controls(true);
+    window.on_library_options_changed({
+        let (view, window, log) = (view.clone(), window.as_weak(), log.clone());
+        move |filter, sort| {
+            view.library.kind.set(match filter.as_str() {
+                "movie" => Some(MediaType::Movie),
+                "tv" => Some(MediaType::Tv),
+                _ => None,
+            });
+            view.library.sort.set(match sort {
+                1 => Sort::Title,
+                _ => Sort::RecentlyAdded,
+            });
+            if let Some(window) = window.upgrade() {
+                reload(&window, &view, &log);
+            }
+        }
+    });
+    window.on_library_changed({
+        let (view, window, log) = (view.clone(), window.as_weak(), log.clone());
+        move || {
+            if let Some(window) = window.upgrade() {
+                reload(&window, &view, &log);
+            }
+        }
+    });
+    window.on_library_remove({
+        let window = window.as_weak();
+        move || {
+            let (Some(window), Some(id)) = (window.upgrade(), view.selected.get()) else {
+                return;
+            };
+            // Membership only: metadata, identity and poster stay (ADR-0010).
+            match view.library.db.with(|db| library::remove(db, id)) {
+                Ok(_) => {
+                    log.info(format_args!("Library remove #{id}"));
+                    reload(&window, &view, &log);
+                    window.invoke_membership_changed();
+                }
+                Err(err) => {
+                    log.error(&err);
+                    window.set_error(err.message.into());
+                }
+            }
+        }
+    });
+}
+
+/// Runs the Library search again and updates the title count.
+fn reload(window: &AppWindow, view: &LibraryView<UserLibrary>, log: &Log) {
+    let refreshed = view
+        .refresh()
+        .and_then(|()| view.library.db.with(library::count));
+    match refreshed {
+        Ok(total) => {
+            window.set_error(SharedString::new());
+            window.set_total_count(total as i32);
+            view::show_selection(window, view);
+        }
+        Err(err) => {
+            log.error(&err);
+            window.set_error(err.message.into());
+        }
+    }
 }
 
 fn storage(paths: &Result<AppPaths, AppError>, log: &Log, schema: Option<u32>) -> Storage {
@@ -356,7 +493,13 @@ mod tests {
         let mut ui = Headless::new(1280, 800);
         let app = ui.app.clone_strong();
         let log = Arc::new(Log::stderr_only());
-        start(&app, Ok(paths.clone()), log);
+        start(
+            &app,
+            Ok(paths.clone()),
+            log,
+            SharedDb::default(),
+            poster::tests::offline(),
+        );
         ui.render();
         assert_eq!(app.get_startup_error(), "");
         assert_eq!(
@@ -397,7 +540,13 @@ mod tests {
         let mut ui = Headless::new(1280, 800);
         let app = ui.app.clone_strong();
 
-        start(&app, Ok(paths.clone()), log);
+        start(
+            &app,
+            Ok(paths.clone()),
+            log,
+            SharedDb::default(),
+            poster::tests::offline(),
+        );
         ui.render();
         let message = app.get_startup_error();
         assert!(message.contains("damaged"), "{message}");
@@ -435,12 +584,152 @@ mod tests {
         let mut ui = Headless::new(1280, 800);
         let app = ui.app.clone_strong();
         let error = AppError::new(ErrorKind::Configuration, "No data folder.");
-        start(&app, Err(error), Arc::new(Log::stderr_only()));
+        start(
+            &app,
+            Err(error),
+            Arc::new(Log::stderr_only()),
+            SharedDb::default(),
+            poster::tests::offline(),
+        );
         ui.render();
         assert_eq!(app.get_startup_error(), "No data folder.");
         assert!(app.get_storage().database.starts_with("Unknown"));
         app.set_page("about".into());
         ui.render();
+    }
+
+    /// A library of `titles` in an in-memory database, on the production
+    /// Library page, with posters from `server`.
+    fn library_page(
+        ui: &Headless,
+        server: &tmdb::fake::FakeServer,
+        titles: &[(u32, &str, &str)],
+    ) -> (Rc<LibraryView<UserLibrary>>, Arc<Posters>) {
+        use crate::search::tests::item;
+        let db = SharedDb::default();
+        db.set(Database::open_in_memory());
+        db.with(|db| {
+            for (n, (id, title, poster)) in titles.iter().enumerate() {
+                let mut result = item(MediaType::Movie, *id, title);
+                result.poster_path = Some((*poster).to_owned());
+                library::add(db, &result, n as i64)?;
+            }
+            Ok(())
+        })
+        .unwrap();
+        let log = Arc::new(Log::stderr_only());
+        let client = TmdbClient::for_tests(&server.base, std::time::Duration::from_secs(5));
+        let network = Network::with_post(4, ui.post());
+        let posters = posters(&ui.app, None, client, network, log.clone());
+        posters.set_base_url(format!("{}/t/p/", server.base));
+        let view = Rc::new(LibraryView::new(UserLibrary::new(db, posters.clone())).unwrap());
+        connect_library(&ui.app, view.clone(), log);
+        (view, posters)
+    }
+
+    #[test]
+    fn a_late_poster_never_lands_on_a_row_that_shows_another_title() {
+        use crate::poster::tests::jpeg;
+        use tmdb::fake::{FakeServer, Reply};
+        let (slow, fast) = (jpeg(185, 278, 10), jpeg(92, 138, 200));
+        let server = FakeServer::start(move |seen| match seen.target.as_str() {
+            "/t/p/w185/alpha.jpg" => {
+                Reply::bytes(200, slow.clone()).after(std::time::Duration::from_millis(400))
+            }
+            "/t/p/w185/bravo.jpg" => Reply::bytes(200, fast.clone()),
+            _ => Reply::json(404, "{}"),
+        });
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let (view, posters) = library_page(
+            &ui,
+            &server,
+            &[(1, "Alpha", "/alpha.jpg"), (2, "Bravo", "/bravo.jpg")],
+        );
+
+        // Row 0 shows Alpha; its poster starts downloading (slowly).
+        app.invoke_query_changed("alpha".into());
+        ui.render();
+        assert_eq!(app.get_results().row_data(0).unwrap().title, "Alpha");
+        // Before it arrives, row 0 is reused for Bravo, whose poster is quick.
+        app.invoke_query_changed("bravo".into());
+        ui.render();
+        ui.pump_until("Bravo's poster", |app| {
+            app.get_results().row_data(0).unwrap().poster.size().width == 92
+        });
+        // Alpha's poster arrives late: row 0 and the detail pane keep Bravo's.
+        ui.pump_until("Alpha's poster", |_| {
+            posters.idle() && posters.stats().downloads == 2
+        });
+        ui.render();
+        let row = app.get_results().row_data(0).unwrap();
+        assert_eq!(
+            (row.title.as_str(), row.poster_key.as_str()),
+            ("Bravo", "tmdb-w185-bravo.jpg")
+        );
+        assert_eq!(row.poster.size().width, 92);
+        let detail = app.get_detail();
+        assert_eq!(
+            (detail.title.as_str(), detail.poster.size().width),
+            ("Bravo", 92)
+        );
+        // Alpha's poster is cached for Alpha's row.
+        app.invoke_query_changed("".into());
+        let alpha = (0..view.row_count())
+            .map(|r| view.row_data(r).unwrap())
+            .find(|row| row.title == "Alpha")
+            .unwrap();
+        assert_eq!(alpha.poster.size().width, 185);
+    }
+
+    /// 1,000 titles: only the rows on screen load posters, and a long scroll
+    /// keeps the decoded cache within its budget.
+    #[test]
+    fn a_large_library_loads_visible_posters_only_within_budget() {
+        use crate::poster::{RAM_BUDGET, tests::jpeg};
+        use tmdb::fake::{FakeServer, Reply};
+        let image = jpeg(185, 278, 60);
+        let server = FakeServer::start(move |_| Reply::bytes(200, image.clone()));
+        let names: Vec<(String, String)> = (1..=1000)
+            .map(|n| (format!("Title {n:04}"), format!("/p{n}.jpg")))
+            .collect();
+        let titles: Vec<(u32, &str, &str)> = names
+            .iter()
+            .enumerate()
+            .map(|(i, (title, poster))| (i as u32 + 1, title.as_str(), poster.as_str()))
+            .collect();
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let (_view, posters) = library_page(&ui, &server, &titles);
+        assert_eq!(app.get_total_count(), 1000);
+
+        ui.render();
+        ui.pump_until("the first screen", |_| posters.idle());
+        let first = server.seen().len();
+        assert!(
+            (6..=14).contains(&first),
+            "{first} downloads for the first screen"
+        );
+
+        // Scroll 240 rows, a screen at a time.
+        for row in (0..240).step_by(8) {
+            app.invoke_reveal_row(row);
+            ui.render();
+            ui.pump_until("a screen of posters", |_| posters.idle());
+            assert!(posters.ram_bytes() <= RAM_BUDGET);
+        }
+        let stats = posters.stats();
+        let downloads = server.seen().len();
+        assert!(
+            downloads < 300,
+            "{downloads} downloads for ~250 visible rows, not 1,000"
+        );
+        assert!(stats.evictions > 100, "{stats:?}");
+        assert_eq!(stats.failures, 0);
+        println!(
+            "{stats}; {downloads} downloads; {} bytes in RAM",
+            posters.ram_bytes()
+        );
     }
 
     #[test]

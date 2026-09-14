@@ -55,14 +55,14 @@ Direct Rust dependencies
   keyring 4.2.0         MIT OR Apache-2.0 (OS credential store)
   serde 1.0.229         MIT OR Apache-2.0
   serde_json 1.0.151    MIT OR Apache-2.0
+  image 0.25.10         MIT OR Apache-2.0 (poster decoding; features "jpeg"
+                        and "png", already linked by Slint)
 
   Notable crates they bring in: rustls 0.23 (Apache-2.0 OR ISC OR MIT),
   ring 0.17 (Apache-2.0 AND ISC), rustls-webpki (ISC), and webpki-roots 1.0,
   whose Mozilla root certificate data is under CDLA-Permissive-2.0.
 
   Build only, not shipped: slint-build 1.17.1 (same license as slint).
-  Development only, not shipped: image 0.25.10 (MIT OR Apache-2.0), used to
-  generate the benchmark posters.
 
 
 Transitive Rust crates
@@ -84,7 +84,8 @@ TMDB (The Movie Database)
 -------------------------
 This product uses the TMDB API but is not endorsed or certified by TMDB.
 Discover searches https://www.themoviedb.org with the user's own API Read
-Access Token. The TMDB API is free for non-commercial use with attribution;
+Access Token, and Library posters are downloaded from TMDB's image server and
+cached locally in the user's cache folder. The TMDB API is free for non-commercial use with attribution;
 commercial use requires an agreement with TMDB.
 
 ui/assets/tmdb-logo.svg is TMDB's official "alt short" blue logo, downloaded

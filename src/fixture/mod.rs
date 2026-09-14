@@ -12,7 +12,7 @@
 //! ```
 
 mod db;
-mod library;
+pub(crate) mod library;
 mod poster;
 
 #[cfg(feature = "r4-measurement")]
@@ -211,6 +211,7 @@ fn to_row(item: &MediaItem, poster: Option<Image>) -> MediaRow {
         overview: item.overview.as_str().into(),
         tint: view::tint(item.id.into()),
         poster: poster.unwrap_or_default(),
+        ..Default::default()
     }
 }
 

@@ -270,13 +270,53 @@ transient: no Add to Library, no poster cache, no details, no tracking.
 
 ### Status
 
-PASS locally / cross-platform CI pending (14 September 2026). Live TMDB
-smoke test not run (no credential available). See `docs/milestones/R7.md`.
+PASS (14 September 2026): committed as `847a257`; the `cross-platform` CI
+run passed on Windows, Ubuntu and macOS. Live TMDB smoke test not run (no
+credential available). See `docs/milestones/R7.md`.
 
 ---
 
-## Next: R8 — Add to Library
+## Milestone R8 — Real local-first library
 
-Persist a chosen search result as `media` + `external_refs` +
-`library_entries`, fetch its details, and cache posters on disk. See the R8
-prerequisites in `docs/milestones/R7.md`.
+### Goal
+
+Turn transient TMDB results into persistent library data: search, Add to
+Library, restart, and use the library offline with locally cached posters.
+No watch progress, seasons, episodes, ratings or detail endpoints.
+
+### Deliverables
+
+- Add to Library as one SQLite transaction, idempotent by the full identity
+  `(source, media_type, external_id)`; Remove from Library that removes
+  membership only.
+- Library read from SQLite alone: local search, Movie/TV filter, sort by
+  recently added or title; empty, no-match and error states.
+- Discover shows "In Library" per result, from one query per result set.
+- Production posters: TMDB image configuration, `w185`, an atomic disk cache
+  in the cache folder, deduplicated background downloads, a bounded decoded
+  RAM cache, key-addressed binding so a late poster never lands on another
+  row, and nonfatal failures.
+- Keyboard use of Discover (list navigation, Enter adds) and the Library
+  controls.
+- ADR-0010, ADR-0011, ADR-0012, `docs/milestones/R8.md`, README.
+
+### Exit criteria
+
+Search TMDB → add a movie and a series → restart → they are there, posters
+cached where downloaded → TMDB unreachable → restart → the library is fully
+usable. Also: idempotent add, no Movie/TV id collision, batched membership,
+transactional add, non-destructive remove, SQLite-backed search/filter/sort,
+persistent disk cache, bounded RAM cache, no wrong-row posters, nonfatal
+poster failures, no local-data damage from network failures, all checks pass.
+
+### Status
+
+PASS locally / cross-platform CI pending (14 September 2026). See
+`docs/milestones/R8.md`.
+
+---
+
+## Next: R9 — Details and refresh
+
+Movie and TV detail endpoints, a metadata refresh policy, and the first
+tracking data. See the R9 prerequisites in `docs/milestones/R8.md`.

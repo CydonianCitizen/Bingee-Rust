@@ -14,6 +14,8 @@ use crate::secrets::Token;
 use crate::{APP_ID, APP_VERSION};
 
 const API_BASE: &str = "https://api.themoviedb.org";
+/// TMDB's documented image base URL, used until `/3/configuration` answers.
+pub const IMAGE_BASE: &str = "https://image.tmdb.org/t/p/";
 /// Metadata language. The UI is English and has no language setting yet.
 const LANGUAGE: &str = "en-US";
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -21,6 +23,8 @@ const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(15);
 /// A search page is tens of KB; anything this large is not a TMDB answer.
 const MAX_BODY: u64 = 2 * 1024 * 1024;
+/// A `w185` poster is tens of KB.
+const MAX_IMAGE: u64 = 4 * 1024 * 1024;
 
 /// Why a TMDB call failed. `Display` is diagnostic text for the log and never
 /// contains the token; `user_message` is what the UI shows.
@@ -28,6 +32,8 @@ const MAX_BODY: u64 = 2 * 1024 * 1024;
 pub enum TmdbError {
     /// HTTP 401: the token is wrong, revoked or expired.
     CredentialInvalid,
+    /// HTTP 404.
+    NotFound,
     /// HTTP 429.
     RateLimited,
     Timeout,
@@ -47,6 +53,7 @@ impl TmdbError {
             TmdbError::CredentialInvalid => {
                 "TMDB rejected your access token. Check it in Settings."
             }
+            TmdbError::NotFound => "TMDB does not have it.",
             TmdbError::RateLimited => {
                 "TMDB is receiving too many requests. Wait a moment, then try again."
             }
@@ -67,6 +74,7 @@ impl fmt::Display for TmdbError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             TmdbError::CredentialInvalid => f.write_str("TMDB rejected the token (HTTP 401)"),
+            TmdbError::NotFound => f.write_str("not found at TMDB (HTTP 404)"),
             TmdbError::RateLimited => f.write_str("TMDB rate limit (HTTP 429)"),
             TmdbError::Timeout => f.write_str("TMDB request timed out"),
             TmdbError::Offline(detail) => write!(f, "no connection to TMDB: {detail}"),
@@ -160,6 +168,43 @@ impl TmdbClient {
         }
     }
 
+    /// The image base URL from `/3/configuration`, if it offers our poster
+    /// size.
+    pub fn image_base(&self, token: &Token) -> Result<String, TmdbError> {
+        let body = self.get(token, "/3/configuration", &[])?;
+        let images = decode::<ConfigDto>(&body)?.images;
+        let usable = images.secure_base_url.starts_with("http")
+            && images.secure_base_url.ends_with('/')
+            && images
+                .poster_sizes
+                .iter()
+                .any(|size| size == crate::poster::SIZE);
+        match usable {
+            true => Ok(images.secure_base_url),
+            false => Err(TmdbError::MalformedResponse(format!(
+                "no usable {} image base in the configuration",
+                crate::poster::SIZE
+            ))),
+        }
+    }
+
+    /// An image from TMDB's image server. Needs no token, and gets none.
+    pub fn get_image(&self, url: &str) -> Result<Vec<u8>, TmdbError> {
+        let mut response = self
+            .agent
+            .get(url)
+            .header("Accept", "image/*")
+            .call()
+            .map_err(|err| transport(err, None))?;
+        status(response.status().as_u16())?;
+        response
+            .body_mut()
+            .with_config()
+            .limit(MAX_IMAGE)
+            .read_to_vec()
+            .map_err(|err| body_error(err, None))
+    }
+
     /// The body of a successful GET. The token goes into the header only.
     fn get(&self, token: &Token, path: &str, params: &[(&str, &str)]) -> Result<String, TmdbError> {
         let mut request = self
@@ -170,29 +215,44 @@ impl TmdbClient {
         for (key, value) in params {
             request = request.query(key, value);
         }
-        let mut response = request.call().map_err(|err| transport(err, token))?;
-        match response.status().as_u16() {
-            200..=299 => response
-                .body_mut()
-                .with_config()
-                .limit(MAX_BODY)
-                .read_to_string()
-                .map_err(|err| match transport(err, token) {
-                    TmdbError::Unexpected(detail) => TmdbError::MalformedResponse(detail),
-                    other => other,
-                }),
-            401 => Err(TmdbError::CredentialInvalid),
-            429 => Err(TmdbError::RateLimited),
-            status @ 500..=599 => Err(TmdbError::Server(status)),
-            status => Err(TmdbError::Unexpected(format!("HTTP {status}"))),
-        }
+        let mut response = request.call().map_err(|err| transport(err, Some(token)))?;
+        status(response.status().as_u16())?;
+        response
+            .body_mut()
+            .with_config()
+            .limit(MAX_BODY)
+            .read_to_string()
+            .map_err(|err| body_error(err, Some(token)))
+    }
+}
+
+fn status(status: u16) -> Result<(), TmdbError> {
+    match status {
+        200..=299 => Ok(()),
+        401 => Err(TmdbError::CredentialInvalid),
+        404 => Err(TmdbError::NotFound),
+        429 => Err(TmdbError::RateLimited),
+        500..=599 => Err(TmdbError::Server(status)),
+        status => Err(TmdbError::Unexpected(format!("HTTP {status}"))),
+    }
+}
+
+/// A failure while reading a body: the transport's kinds, anything else is a
+/// malformed response.
+fn body_error(err: ureq::Error, token: Option<&Token>) -> TmdbError {
+    match transport(err, token) {
+        TmdbError::Unexpected(detail) => TmdbError::MalformedResponse(detail),
+        other => other,
     }
 }
 
 /// Classifies a transport failure. The detail text is scrubbed of the token,
 /// although ureq never puts headers in its errors.
-fn transport(err: ureq::Error, token: &Token) -> TmdbError {
-    let detail = err.to_string().replace(token.secret(), "[redacted]");
+fn transport(err: ureq::Error, token: Option<&Token>) -> TmdbError {
+    let mut detail = err.to_string();
+    if let Some(token) = token {
+        detail = detail.replace(token.secret(), "[redacted]");
+    }
     match err {
         ureq::Error::Timeout(_) => TmdbError::Timeout,
         ureq::Error::Io(io) if io.kind() == std::io::ErrorKind::TimedOut => TmdbError::Timeout,
@@ -215,6 +275,18 @@ fn decode<'a, T: Deserialize<'a>>(body: &'a str) -> Result<T, TmdbError> {
 #[derive(Deserialize)]
 struct AuthDto {
     success: bool,
+}
+
+/// `/3/configuration`, the part Bingee uses.
+#[derive(Deserialize)]
+struct ConfigDto {
+    images: ImagesDto,
+}
+
+#[derive(Deserialize)]
+struct ImagesDto {
+    secure_base_url: String,
+    poster_sizes: Vec<String>,
 }
 
 #[derive(Deserialize)]
@@ -344,21 +416,35 @@ pub mod fake {
 
     pub struct Reply {
         pub status: u16,
-        pub body: String,
+        pub body: Vec<u8>,
         pub delay: Duration,
+        /// Content-Length to announce; more than `body` fakes a cut transfer.
+        pub declared: Option<usize>,
     }
 
     impl Reply {
         pub fn json(status: u16, body: &str) -> Self {
+            Self::bytes(status, body.as_bytes().to_vec())
+        }
+
+        pub fn bytes(status: u16, body: Vec<u8>) -> Self {
             Self {
                 status,
-                body: body.to_owned(),
+                body,
                 delay: Duration::ZERO,
+                declared: None,
             }
         }
 
         pub fn after(mut self, delay: Duration) -> Self {
             self.delay = delay;
+            self
+        }
+
+        /// Announces the full length, sends half, and closes.
+        pub fn truncated(mut self) -> Self {
+            self.declared = Some(self.body.len());
+            self.body.truncate(self.body.len() / 2);
             self
         }
     }
@@ -419,11 +505,11 @@ pub mod fake {
         std::thread::sleep(reply.delay);
         let _ = write!(
             stream,
-            "HTTP/1.1 {} Fake\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+            "HTTP/1.1 {} Fake\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
             reply.status,
-            reply.body.len(),
-            reply.body
+            reply.declared.unwrap_or(reply.body.len()),
         );
+        let _ = stream.write_all(&reply.body);
     }
 
     /// A search page body with `(id, title)` movies or series.
@@ -487,11 +573,7 @@ mod tests {
             (429, r#"{"status_code":25}"#, TmdbError::RateLimited),
             (500, r#"{"status_code":11}"#, TmdbError::Server(500)),
             (503, r#"{"status_code":46}"#, TmdbError::Server(503)),
-            (
-                404,
-                r#"{"status_code":34}"#,
-                TmdbError::Unexpected("HTTP 404".into()),
-            ),
+            (404, r#"{"status_code":34}"#, TmdbError::NotFound),
         ];
         for (status, body, expected) in cases {
             let server = replying(status, body);
@@ -624,6 +706,45 @@ mod tests {
     }
 
     #[test]
+    fn configuration_gives_the_image_base_and_images_need_no_token() {
+        let server = FakeServer::start(|seen| match seen.target.as_str() {
+            "/3/configuration" => Reply::json(
+                200,
+                r#"{"images":{"base_url":"http://image.tmdb.org/t/p/",
+                "secure_base_url":"https://image.tmdb.org/t/p/","poster_sizes":["w92","w185","original"]},
+                "change_keys":["x"]}"#,
+            ),
+            "/t/p/w185/p.jpg" => Reply::bytes(200, vec![0xff, 0xd8, 0xff]),
+            _ => Reply::json(404, "{}"),
+        });
+        let client = client(&server);
+        assert_eq!(client.image_base(&token()).as_deref(), Ok(IMAGE_BASE));
+        let image = format!("{}/t/p/w185/p.jpg", server.base);
+        assert_eq!(client.get_image(&image), Ok(vec![0xff, 0xd8, 0xff]));
+        let missing = format!("{}/t/p/w185/none.jpg", server.base);
+        assert_eq!(client.get_image(&missing), Err(TmdbError::NotFound));
+        let seen = server.seen();
+        assert!(seen[0].authorization.is_some(), "the API needs the token");
+        assert!(
+            seen[1..].iter().all(|s| s.authorization.is_none()),
+            "images never get it"
+        );
+
+        let no_size = FakeServer::start(|_| {
+            Reply::json(
+                200,
+                r#"{"images":{"secure_base_url":"https://x/t/p/","poster_sizes":["w500"]}}"#,
+            )
+        });
+        let error =
+            TmdbClient::for_tests(&no_size.base, Duration::from_secs(5)).image_base(&token());
+        assert!(
+            matches!(error, Err(TmdbError::MalformedResponse(_))),
+            "{error:?}"
+        );
+    }
+
+    #[test]
     fn page_numbers_are_capped_at_the_tmdb_maximum() {
         let server = replying(
             200,
@@ -641,7 +762,7 @@ mod tests {
         assert!(!format!("{client:?}").contains(TOKEN));
         let redacted = transport(
             ureq::Error::BadUri(format!("http://x/?t={TOKEN}")),
-            &token(),
+            Some(&token()),
         );
         assert_eq!(
             redacted,

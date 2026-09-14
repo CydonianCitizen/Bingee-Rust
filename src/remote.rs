@@ -2,22 +2,29 @@
 //! search. The state sits behind one mutex that is only locked on the UI
 //! thread. Network and credential-store calls run on the worker pool and hand
 //! their results back through the Slint event loop (ADR-0008, ADR-0009).
-//! Nothing here touches the database: search results stay in memory.
+//! Search results stay in memory; the database is touched only to look up
+//! which results are in the library (one query per result set) and to add
+//! the chosen one (ADR-0010).
 
+use std::collections::HashSet;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
 
-use slint::{ComponentHandle, Model, ModelRc, SharedString, Timer, VecModel};
+use slint::{ComponentHandle, Model, ModelNotify, ModelRc, ModelTracker, SharedString, Timer};
 
+use crate::database::SharedDb;
 use crate::diagnostics::Log;
 use crate::error::AppError;
+use crate::library::{self, Added};
 use crate::network::Network;
+use crate::poster::{PosterKey, Posters};
 use crate::search::{
     DEBOUNCE, ExternalRef, MediaSearchResult, Request, SearchController, SearchPage, Status,
 };
 use crate::secrets::{STORE_NAME, SecretStore, Token};
 use crate::tmdb::{TmdbClient, TmdbError};
-use crate::view::{media_row, reselect};
+use crate::view::{media_row, reselect, with_poster};
 use crate::{AppWindow, DiscoverView, MediaRow, TmdbView};
 
 /// What is known about the token.
@@ -56,8 +63,16 @@ struct State {
     selected: Option<ExternalRef>,
     /// The user chose `selected`; otherwise the top result is selected.
     picked: bool,
-    /// The identities currently in the results model, to skip needless resets.
-    shown: Vec<ExternalRef>,
+    /// The results as the list shows them (a snapshot for the model).
+    list: Vec<MediaSearchResult>,
+    /// Which of `list` are in the library, as the database last said.
+    in_library: HashSet<ExternalRef>,
+    /// The library changed; look `in_library` up again.
+    membership_stale: bool,
+    /// Why the last Add to Library failed.
+    add_error: String,
+    /// `/3/configuration` was requested this session.
+    image_base_requested: bool,
 }
 
 #[derive(Clone)]
@@ -68,6 +83,62 @@ struct Remote {
     client: TmdbClient,
     secrets: Arc<dyn SecretStore>,
     log: Arc<Log>,
+    db: SharedDb,
+    posters: Arc<Posters>,
+}
+
+/// The Discover list: rows are built only when the list view asks, so only
+/// visible results request posters.
+struct DiscoverModel {
+    remote: Remote,
+    notify: ModelNotify,
+}
+
+impl Model for DiscoverModel {
+    type Data = MediaRow;
+
+    fn row_count(&self) -> usize {
+        self.remote.state().list.len()
+    }
+
+    fn row_data(&self, row: usize) -> Option<MediaRow> {
+        let state = self.remote.state();
+        let result = state.list.get(row)?.clone();
+        let member = state.in_library.contains(&result.external);
+        drop(state);
+        Some(self.remote.row(&result, member))
+    }
+
+    fn model_tracker(&self) -> &dyn ModelTracker {
+        &self.notify
+    }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+}
+
+/// A poster finished loading: Discover rows and the preview that show it are
+/// read again. Rows that now show another result are left alone.
+pub fn poster_ready(window: &AppWindow, key: &PosterKey) {
+    let model = window.get_discover_results();
+    let Some(model) = model.as_any().downcast_ref::<DiscoverModel>() else {
+        return;
+    };
+    let rows: Vec<usize> = model
+        .remote
+        .state()
+        .list
+        .iter()
+        .enumerate()
+        .filter(|(_, r)| r.poster_path.as_deref().and_then(PosterKey::tmdb).as_ref() == Some(key))
+        .map(|(row, _)| row)
+        .collect();
+    rows.into_iter()
+        .for_each(|row| model.notify.row_changed(row));
+    if window.get_discover_detail().poster_key == key.name() {
+        model.remote.render(window);
+    }
 }
 
 enum Loaded {
@@ -82,13 +153,16 @@ enum Saved {
 }
 
 /// Wires Discover and the TMDB part of Settings to `window`, then reads the
-/// saved token (and checks it with TMDB) in the background.
+/// saved token (and checks it with TMDB) in the background. `db` is the
+/// library database, once it is open.
 pub fn start(
     window: &AppWindow,
     client: TmdbClient,
     secrets: Arc<dyn SecretStore>,
     network: Network,
     log: Arc<Log>,
+    db: SharedDb,
+    posters: Arc<Posters>,
 ) {
     let remote = Remote {
         window: window.as_weak(),
@@ -99,14 +173,34 @@ pub fn start(
             search: SearchController::new(false),
             selected: None,
             picked: false,
-            shown: Vec::new(),
+            list: Vec::new(),
+            in_library: HashSet::new(),
+            membership_stale: false,
+            add_error: String::new(),
+            image_base_requested: false,
         })),
         network,
         client,
         secrets,
         log,
+        db,
+        posters,
     };
-    window.set_discover_results(ModelRc::new(VecModel::<MediaRow>::default()));
+    window.set_discover_results(ModelRc::from(Rc::new(DiscoverModel {
+        remote: remote.clone(),
+        notify: ModelNotify::default(),
+    })));
+    window.on_discover_add({
+        let remote = remote.clone();
+        move || remote.add()
+    });
+    window.on_membership_changed({
+        let remote = remote.clone();
+        move || {
+            remote.state().membership_stale = true;
+            remote.refresh();
+        }
+    });
     window.on_discover_query_changed({
         let remote = remote.clone();
         move |text| remote.input(&text)
@@ -163,7 +257,10 @@ impl Remote {
     // Discover
 
     fn input(&self, text: &str) {
-        let fire = self.state().search.input(text);
+        let mut state = self.state();
+        state.add_error.clear();
+        let fire = state.search.input(text);
+        drop(state);
         if let Some(generation) = fire {
             self.fire_after(generation, DEBOUNCE);
         }
@@ -234,10 +331,11 @@ impl Remote {
         let mut state = self.state();
         let key = usize::try_from(row)
             .ok()
-            .and_then(|row| Some(state.search.results().get(row)?.external.clone()));
+            .and_then(|row| Some(state.list.get(row)?.external.clone()));
         if key.is_some() {
             state.selected = key;
             state.picked = true;
+            state.add_error.clear();
         }
         drop(state);
         self.refresh();
@@ -271,9 +369,12 @@ impl Remote {
                     describe(&check)
                 ));
                 state.credential = Credential::from_check(&check);
-                state.token = Some(token);
+                state.token = Some(token.clone());
                 let fire = state.search.set_has_token(true);
                 drop(state);
+                if check.is_ok() {
+                    self.fetch_image_base(token);
+                }
                 if let Some(generation) = fire {
                     self.fire_after(generation, Duration::ZERO);
                 }
@@ -319,12 +420,13 @@ impl Remote {
             Saved::Accepted(token, Ok(())) => {
                 self.log
                     .info("TMDB token validated and saved in the credential store");
-                state.token = Some(token);
+                state.token = Some(token.clone());
                 state.credential = Credential::Valid;
                 state.note.clear();
                 window.set_tmdb_token_input(SharedString::new());
                 let fire = state.search.set_has_token(true);
                 drop(state);
+                self.fetch_image_base(token);
                 if let Some(generation) = fire {
                     self.fire_after(generation, Duration::ZERO);
                 }
@@ -344,6 +446,75 @@ impl Remote {
                     None => "It was not saved.",
                 }
                 .into();
+            }
+        }
+    }
+
+    /// Asks `/3/configuration` for the image base URL, once per session.
+    /// Posters use TMDB's documented default until (and unless) it answers.
+    fn fetch_image_base(&self, token: Token) {
+        let mut state = self.state();
+        if std::mem::replace(&mut state.image_base_requested, true) {
+            return;
+        }
+        drop(state);
+        self.spawn(
+            move |remote| remote.client.image_base(&token),
+            |remote, _, base| match base {
+                Ok(url) => remote.posters.set_base_url(url),
+                Err(error) => {
+                    remote.state().image_base_requested = false;
+                    remote.log.info(format_args!(
+                        "TMDB image configuration not loaded, using the default: {error}"
+                    ));
+                }
+            },
+        );
+    }
+
+    /// Adds the selected result to the library: one SQLite transaction. The
+    /// list shows "In Library" only after it committed, as the database then
+    /// reports it.
+    fn add(&self) {
+        let mut state = self.state();
+        let chosen = state
+            .selected
+            .as_ref()
+            .and_then(|key| state.list.iter().find(|r| &r.external == key).cloned());
+        let Some(result) = chosen else {
+            return;
+        };
+        let external = &result.external;
+        let name = format!(
+            "{}/{}/{}",
+            external.source.key(),
+            external.media_type.key(),
+            external.id
+        );
+        match self
+            .db
+            .with(|db| library::add(db, &result, library::unix_now()))
+        {
+            Ok(added) => {
+                let again = matches!(added, Added::AlreadyThere(_));
+                self.log.info(format_args!(
+                    "Library add {name}: {}",
+                    if again { "already there" } else { "added" }
+                ));
+                state.add_error.clear();
+                state.membership_stale = true;
+                drop(state);
+                if let Some(window) = self.window.upgrade() {
+                    window.invoke_library_changed();
+                    self.render(&window);
+                }
+            }
+            Err(error) => {
+                self.log
+                    .error(format_args!("Library add {name} failed: {error}"));
+                state.add_error = error.message;
+                drop(state);
+                self.refresh();
             }
         }
     }
@@ -411,12 +582,25 @@ impl Remote {
 
     fn render(&self, window: &AppWindow) {
         let mut state = self.state();
-        let (rows, keys): (Vec<MediaRow>, Vec<ExternalRef>) = state
-            .search
-            .results()
-            .into_iter()
-            .map(|result| (row(result), result.external.clone()))
-            .unzip();
+        let results: Vec<MediaSearchResult> = state.search.results().into_iter().cloned().collect();
+        let list_changed = results
+            .iter()
+            .map(|r| &r.external)
+            .ne(state.list.iter().map(|r| &r.external));
+        let mut rows_changed = list_changed;
+        if list_changed || state.membership_stale {
+            let refs: Vec<ExternalRef> = results.iter().map(|r| r.external.clone()).collect();
+            // No library open (startup failed): nothing is "in library".
+            let members = self
+                .db
+                .with(|db| library::membership(db, &refs))
+                .unwrap_or_default();
+            rows_changed |= members != state.in_library;
+            state.in_library = members;
+            state.membership_stale = false;
+        }
+        state.list = results;
+        let keys: Vec<ExternalRef> = state.list.iter().map(|r| r.external.clone()).collect();
         // Results stream in per type, so an automatic selection follows the
         // top row; a user's choice stays while it is still listed.
         let picked = state
@@ -429,29 +613,43 @@ impl Remote {
             .selected
             .as_ref()
             .and_then(|key| keys.iter().position(|k| k == key));
-        window.set_discover(discover_view(&state));
-        window.set_tmdb(tmdb_view(&state));
+        let chosen = selected.map(|row| state.list[row].clone());
+        let member = chosen
+            .as_ref()
+            .is_some_and(|r| state.in_library.contains(&r.external));
+        let discover = discover_view(&state);
+        let tmdb = tmdb_view(&state);
+        // Slint may read the model while we set properties: no lock held.
+        drop(state);
+        window.set_discover(discover);
+        window.set_tmdb(tmdb);
         window.set_discover_selected_row(selected.map_or(-1, |row| row as i32));
-        window.set_discover_detail(selected.map(|row| rows[row].clone()).unwrap_or_default());
-        if state.shown != keys {
-            state.shown = keys;
+        window.set_discover_in_library(member);
+        let detail = chosen.map(|r| self.row(&r, member)).unwrap_or_default();
+        window.set_discover_detail(detail);
+        if rows_changed {
             let model = window.get_discover_results();
-            if let Some(model) = model.as_any().downcast_ref::<VecModel<MediaRow>>() {
-                model.set_vec(rows);
+            if let Some(model) = model.as_any().downcast_ref::<DiscoverModel>() {
+                model.notify.reset();
             }
         }
     }
-}
 
-fn row(result: &MediaSearchResult) -> MediaRow {
-    media_row(
-        result.external.id.parse().unwrap_or(-1),
-        result.external.media_type,
-        &result.title,
-        result.original_title.as_deref(),
-        result.year(),
-        result.overview.as_deref(),
-    )
+    fn row(&self, result: &MediaSearchResult, in_library: bool) -> MediaRow {
+        let mut row = media_row(
+            result.external.id.parse().unwrap_or(-1),
+            result.external.media_type,
+            &result.title,
+            result.original_title.as_deref(),
+            result.year(),
+            result.overview.as_deref(),
+        );
+        if in_library {
+            row.badge = "In Library".into();
+        }
+        let key = result.poster_path.as_deref().and_then(PosterKey::tmdb);
+        with_poster(row, key, &self.posters)
+    }
 }
 
 fn describe(check: &Result<(), TmdbError>) -> String {
@@ -479,8 +677,13 @@ fn discover_view(state: &State) -> DiscoverView {
     } else {
         search_view(search, message)
     };
+    let notice = match state.add_error.is_empty() {
+        true => view.notice.clone(),
+        false => state.add_error.as_str().into(),
+    };
     DiscoverView {
         ready: state.token.is_some(),
+        notice,
         ..view
     }
 }
@@ -518,9 +721,9 @@ fn search_view(
                 TmdbError::RateLimited => ("Too many requests", "retry"),
                 TmdbError::Timeout | TmdbError::Offline(_) => ("Can't reach TMDB", "retry"),
                 TmdbError::Server(_) => ("TMDB is having problems", "retry"),
-                TmdbError::MalformedResponse(_) | TmdbError::Unexpected(_) => {
-                    ("Something went wrong", "retry")
-                }
+                TmdbError::NotFound
+                | TmdbError::MalformedResponse(_)
+                | TmdbError::Unexpected(_) => ("Something went wrong", "retry"),
             };
             message(title, error.user_message().into(), action)
         }
@@ -645,16 +848,41 @@ mod tests {
         })
     }
 
-    fn remote(ui: &Headless, base: &str, store: &Arc<MemoryStore>) {
+    /// Starts Discover and the TMDB settings on `ui` against `base`, with the
+    /// library database `db` (open or not) and posters under `posters`.
+    fn remote_with(
+        ui: &Headless,
+        base: &str,
+        store: &Arc<MemoryStore>,
+        db: SharedDb,
+        posters: Option<std::path::PathBuf>,
+    ) -> Arc<Posters> {
         let client = TmdbClient::for_tests(base, Duration::from_secs(5));
         let log = Arc::new(Log::stderr_only());
+        let network = Network::with_post(4, ui.post());
+        let posters = crate::posters(
+            &ui.app,
+            posters,
+            client.clone(),
+            network.clone(),
+            log.clone(),
+        );
+        // Images from the same fake server, never from the real TMDB.
+        posters.set_base_url(format!("{base}/t/p/"));
         start(
             &ui.app,
             client,
             store.clone(),
-            Network::with_post(4, ui.post()),
+            network,
             log,
+            db,
+            posters.clone(),
         );
+        posters
+    }
+
+    fn remote(ui: &Headless, base: &str, store: &Arc<MemoryStore>) {
+        remote_with(ui, base, store, SharedDb::default(), None);
     }
 
     fn titles(app: &AppWindow) -> Vec<String> {
@@ -862,11 +1090,16 @@ mod tests {
 
         let mut ui = Headless::new(1280, 800);
         let app = ui.app.clone_strong();
-        crate::start(&app, Ok(paths.clone()), Arc::new(Log::stderr_only()));
-        remote(
-            &ui,
-            &format!("http://{closed}"),
-            &Arc::new(MemoryStore::with(GOOD)),
+        let db = SharedDb::default();
+        let store = Arc::new(MemoryStore::with(GOOD));
+        let base = format!("http://{closed}");
+        let posters = remote_with(&ui, &base, &store, db.clone(), None);
+        crate::start(
+            &app,
+            Ok(paths.clone()),
+            Arc::new(Log::stderr_only()),
+            db,
+            posters,
         );
         assert_eq!(app.get_total_count(), 1);
 
@@ -898,5 +1131,358 @@ mod tests {
         ui.render();
         let after = std::fs::read(paths.database()).unwrap();
         assert_eq!(after, before, "the database is untouched");
+    }
+
+    /// TMDB with a search for "x": movie 603 and TV 603 share an id, movie
+    /// 604 has no poster, TV 605's poster is missing (404). Posters and the
+    /// configuration are served too; everything but images needs `GOOD`.
+    fn journey_tmdb() -> FakeServer {
+        let jpeg = crate::poster::tests::jpeg(185, 278, 80);
+        FakeServer::start(move |seen| {
+            if seen.target.starts_with("/t/p/w185/") {
+                return match seen.target.as_str() {
+                    "/t/p/w185/matrix.jpg" | "/t/p/w185/show.jpg" => {
+                        Reply::bytes(200, jpeg.clone())
+                    }
+                    _ => Reply::json(404, r#"{"status_code":34}"#),
+                };
+            }
+            if seen.authorization.as_deref() != Some(&format!("Bearer {GOOD}")) {
+                return Reply::json(401, INVALID);
+            }
+            match seen.target.split('?').next().unwrap() {
+                "/3/authentication" => Reply::json(200, SUCCESS),
+                "/3/search/movie" => Reply::json(
+                    200,
+                    r#"{"page":1,"total_pages":1,"total_results":2,"results":[
+                    {"id":603,"title":"The Matrix","release_date":"1999-03-31","overview":"A hacker learns the truth.","poster_path":"/matrix.jpg"},
+                    {"id":604,"title":"No Poster","release_date":"2003-05-15","overview":"","poster_path":null}]}"#,
+                ),
+                "/3/search/tv" => Reply::json(
+                    200,
+                    r#"{"page":1,"total_pages":1,"total_results":2,"results":[
+                    {"id":603,"name":"Some Show","first_air_date":"2010-01-01","overview":"Same number, other title.","poster_path":"/show.jpg"},
+                    {"id":605,"name":"Broken Poster","first_air_date":"2011-01-01","overview":"","poster_path":"/missing.jpg"}]}"#,
+                ),
+                _ => Reply::json(404, "{}"),
+            }
+        })
+    }
+
+    fn row_titles(model: slint::ModelRc<MediaRow>) -> Vec<String> {
+        model.iter().map(|row| row.title.to_string()).collect()
+    }
+
+    fn db_counts(path: &std::path::Path) -> [i64; 3] {
+        let conn = rusqlite::Connection::open(path).unwrap();
+        ["media", "external_refs", "library_entries"].map(|t| {
+            conn.query_row(&format!("SELECT count(*) FROM {t}"), [], |r| r.get(0))
+                .unwrap()
+        })
+    }
+
+    /// The R8 journey: search, add a movie and a series (same TMDB id), add
+    /// again, let posters cache, restart offline: the library still works.
+    #[test]
+    fn search_add_restart_offline() {
+        use crate::paths::{AppPaths, TestDir};
+        use crate::settings::Settings;
+
+        let server = journey_tmdb();
+        let dir = TestDir::new("journey");
+        let settings = Settings {
+            home_override: Some(dir.0.clone()),
+        };
+        let paths = AppPaths::from_env(&settings).unwrap();
+        let poster_dir = paths.cache.join("posters");
+
+        // Session 1, online. Each session gets its own UI thread.
+        let (online_paths, base) = (paths.clone(), server.base.clone());
+        std::thread::spawn(move || {
+            let mut ui = Headless::new(1280, 800);
+            let app = ui.app.clone_strong();
+            let db = SharedDb::default();
+            let store = Arc::new(MemoryStore::with(GOOD));
+            let poster_dir = online_paths.cache.join("posters");
+            let posters = remote_with(&ui, &base, &store, db.clone(), Some(poster_dir.clone()));
+            crate::start(
+                &app,
+                Ok(online_paths),
+                Arc::new(Log::stderr_only()),
+                db,
+                posters.clone(),
+            );
+            ui.pump_until("the token check", |app| {
+                app.get_tmdb().status == "Connected to TMDB"
+            });
+            assert_eq!(app.get_total_count(), 0);
+
+            app.set_page("discover".into());
+            app.invoke_discover_query_changed("x".into());
+            ui.advance(ms(300));
+            ui.pump_until("the results", |app| {
+                app.get_discover_results().row_count() == 4
+            });
+            assert_eq!(
+                row_titles(app.get_discover_results()),
+                ["The Matrix", "Some Show", "No Poster", "Broken Poster"]
+            );
+            assert!(
+                app.get_discover_results()
+                    .iter()
+                    .all(|row| row.badge.is_empty())
+            );
+
+            // Add all four; the first one twice.
+            for row in [0, 1, 2, 3, 0] {
+                app.invoke_discover_row_selected(row);
+                app.invoke_discover_add();
+                assert!(app.get_discover_in_library(), "row {row}");
+            }
+            assert_eq!(app.get_total_count(), 4, "the second add changed nothing");
+            let badges: Vec<String> = app
+                .get_discover_results()
+                .iter()
+                .map(|r| r.badge.into())
+                .collect();
+            assert_eq!(badges, ["In Library"; 4]);
+            assert_eq!(app.get_discover().notice, "");
+
+            // The Library page shows them without a restart, newest first.
+            app.set_page("library".into());
+            ui.render();
+            assert_eq!(
+                row_titles(app.get_results()),
+                ["Broken Poster", "No Poster", "Some Show", "The Matrix"]
+            );
+            ui.pump_until("two posters on disk", |_| {
+                ["tmdb-w185-matrix.jpg", "tmdb-w185-show.jpg"]
+                    .iter()
+                    .all(|name| poster_dir.join(name).is_file())
+            });
+            ui.pump_until("the posters in the rows", |app| {
+                app.get_results()
+                    .iter()
+                    .filter(|row| row.poster.size().width > 0)
+                    .count()
+                    == 2
+            });
+            let stats = posters.stats();
+            assert_eq!(stats.downloads, 2, "{stats:?}");
+            ui.render();
+        })
+        .join()
+        .unwrap();
+        for name in ["tmdb-w185-matrix.jpg", "tmdb-w185-show.jpg"] {
+            assert!(poster_dir.join(name).is_file(), "{name}");
+        }
+        assert_eq!(db_counts(&paths.database()), [4, 4, 4]);
+        let before = server.seen().len();
+
+        // Session 2: TMDB is unreachable.
+        let closed = std::net::TcpListener::bind("127.0.0.1:0")
+            .unwrap()
+            .local_addr()
+            .unwrap();
+        let offline_paths = paths.clone();
+        std::thread::spawn(move || {
+            let mut ui = Headless::new(1280, 800);
+            let app = ui.app.clone_strong();
+            let db = SharedDb::default();
+            let store = Arc::new(MemoryStore::with(GOOD));
+            let base = format!("http://{closed}");
+            let posters = remote_with(
+                &ui,
+                &base,
+                &store,
+                db.clone(),
+                Some(offline_paths.cache.join("posters")),
+            );
+            crate::start(
+                &app,
+                Ok(offline_paths),
+                Arc::new(Log::stderr_only()),
+                db,
+                posters.clone(),
+            );
+            // The library is there at once, from SQLite alone.
+            assert_eq!(app.get_total_count(), 4);
+            assert_eq!(app.get_startup_error(), "");
+            ui.render();
+            ui.pump_until("the cached posters", |app| {
+                app.get_results()
+                    .iter()
+                    .filter(|row| row.poster.size().width > 0)
+                    .count()
+                    == 2
+            });
+            let stats = posters.stats();
+            assert_eq!((stats.disk_loads, stats.downloads), (2, 0), "{stats:?}");
+            let placeholders: Vec<String> = app
+                .get_results()
+                .iter()
+                .filter(|row| row.poster.size().width == 0)
+                .map(|row| row.title.into())
+                .collect();
+            assert_eq!(placeholders, ["Broken Poster", "No Poster"]);
+
+            // Local search, filter and sort.
+            app.invoke_query_changed("matrix".into());
+            assert_eq!(row_titles(app.get_results()), ["The Matrix"]);
+            app.invoke_query_changed("".into());
+            app.invoke_library_options_changed("tv".into(), 1);
+            assert_eq!(
+                row_titles(app.get_results()),
+                ["Broken Poster", "Some Show"]
+            );
+            app.invoke_library_options_changed("all".into(), 1);
+            assert_eq!(
+                row_titles(app.get_results()),
+                ["Broken Poster", "No Poster", "Some Show", "The Matrix"]
+            );
+
+            // Remove works offline and keeps the metadata.
+            app.invoke_row_selected(3);
+            assert_eq!(app.get_detail().title, "The Matrix");
+            app.invoke_library_remove();
+            assert_eq!(app.get_total_count(), 3);
+            assert_eq!(
+                row_titles(app.get_results()),
+                ["Broken Poster", "No Poster", "Some Show"]
+            );
+
+            // Discover says TMDB is out of reach.
+            ui.pump_until("the offline check", |app| {
+                app.get_tmdb().status == "Can't reach TMDB"
+            });
+            app.set_page("discover".into());
+            app.invoke_discover_query_changed("x".into());
+            ui.advance(ms(300));
+            ui.pump_until("the offline search", |app| {
+                app.get_discover().title == "Can't reach TMDB"
+            });
+            ui.render();
+        })
+        .join()
+        .unwrap();
+        assert_eq!(
+            db_counts(&paths.database()),
+            [4, 4, 3],
+            "remove kept metadata and identity"
+        );
+        assert_eq!(server.seen().len(), before, "session 2 never reached TMDB");
+    }
+
+    #[test]
+    fn membership_follows_adds_and_removes_in_one_query_per_result_set() {
+        use crate::database::Database;
+
+        let server = journey_tmdb();
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let db = SharedDb::default();
+        db.set(Database::open_in_memory());
+        // Already in the library before the search: the TV series 603 only.
+        let tv = crate::search::tests::item(crate::library::MediaType::Tv, 603, "Some Show");
+        db.with(|db| library::add(db, &tv, 1)).unwrap();
+        let store = Arc::new(MemoryStore::with(GOOD));
+        remote_with(&ui, &server.base, &store, db.clone(), None);
+        ui.pump_until("the token check", |app| {
+            app.get_tmdb().status == "Connected to TMDB"
+        });
+        app.invoke_discover_query_changed("x".into());
+        ui.advance(ms(300));
+        ui.pump_until("the results", |app| {
+            app.get_discover_results().row_count() == 4
+        });
+        let badges = |app: &AppWindow| -> Vec<String> {
+            app.get_discover_results()
+                .iter()
+                .map(|r| r.badge.into())
+                .collect()
+        };
+        // Movie 603 is not TV 603.
+        assert_eq!(badges(&app), ["", "In Library", "", ""]);
+        assert!(!app.get_discover_in_library(), "the movie is selected");
+
+        // Removing it elsewhere (the Library page) is reflected here.
+        let id = db.with(|db| library::add(db, &tv, 2)).unwrap();
+        let crate::library::Added::AlreadyThere(id) = id else {
+            panic!()
+        };
+        db.with(|db| library::remove(db, id)).unwrap();
+        app.invoke_membership_changed();
+        assert_eq!(badges(&app), ["", "", "", ""]);
+        ui.render();
+    }
+
+    #[test]
+    fn a_failed_add_keeps_the_result_and_says_why() {
+        let server = journey_tmdb();
+        let ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        // No library open (as after a startup failure).
+        let store = Arc::new(MemoryStore::with(GOOD));
+        remote_with(&ui, &server.base, &store, SharedDb::default(), None);
+        ui.pump_until("the token check", |app| {
+            app.get_tmdb().status == "Connected to TMDB"
+        });
+        app.invoke_discover_query_changed("x".into());
+        ui.advance(ms(300));
+        ui.pump_until("the results", |app| {
+            app.get_discover_results().row_count() == 4
+        });
+        app.invoke_discover_add();
+        assert!(!app.get_discover_in_library());
+        assert_eq!(app.get_discover().notice, "Your library is not open.");
+        assert_eq!(app.get_discover_results().row_count(), 4, "results kept");
+    }
+
+    #[test]
+    fn discover_is_usable_from_the_keyboard() {
+        use crate::database::Database;
+        use slint::LogicalPosition;
+        use slint::platform::{Key, PointerEventButton, WindowEvent};
+
+        let server = journey_tmdb();
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let db = SharedDb::default();
+        db.set(Database::open_in_memory());
+        let store = Arc::new(MemoryStore::with(GOOD));
+        remote_with(&ui, &server.base, &store, db.clone(), None);
+        ui.pump_until("the token check", |app| {
+            app.get_tmdb().status == "Connected to TMDB"
+        });
+        app.set_page("discover".into());
+        app.invoke_discover_query_changed("x".into());
+        ui.advance(ms(300));
+        ui.pump_until("the results", |app| {
+            app.get_discover_results().row_count() == 4
+        });
+        ui.render();
+
+        let window = app.window();
+        let position = LogicalPosition::new(500.0, 160.0); // the first row
+        let button = PointerEventButton::Left;
+        window.dispatch_event(WindowEvent::PointerPressed { position, button });
+        window.dispatch_event(WindowEvent::PointerReleased { position, button });
+        assert_eq!(app.get_discover_selected_row(), 0);
+        let press = |key: Key| {
+            let text: SharedString = key.into();
+            window.dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+            window.dispatch_event(WindowEvent::KeyReleased { text });
+        };
+        press(Key::DownArrow);
+        assert_eq!(app.get_discover_selected_row(), 1);
+        assert_eq!(app.get_discover_detail().title, "Some Show");
+        press(Key::Return);
+        assert!(
+            app.get_discover_in_library(),
+            "Enter adds the selected result"
+        );
+        assert_eq!(db.with(library::count).unwrap(), 1);
+        press(Key::End);
+        assert_eq!(app.get_discover_selected_row(), 3);
     }
 }

@@ -27,6 +27,15 @@ pub enum Source {
     Tmdb,
 }
 
+impl Source {
+    /// The stored form, `external_refs.source`.
+    pub fn key(self) -> &'static str {
+        match self {
+            Source::Tmdb => "tmdb",
+        }
+    }
+}
+
 /// A title's identity at a provider. The media type is part of it: TMDB movie
 /// 123 and TMDB TV 123 are different titles.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

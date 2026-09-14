@@ -6,6 +6,7 @@
 //! that cannot be opened or migrated is reported, never deleted or recreated.
 
 use std::path::Path;
+use std::sync::{Arc, Mutex, PoisonError};
 
 use rusqlite::functions::FunctionFlags;
 use rusqlite::{Connection, ErrorCode, TransactionBehavior};
@@ -109,6 +110,34 @@ impl Database {
 
     pub fn schema_version(&self) -> Result<u32, AppError> {
         user_version(&self.conn).map_err(read_error)
+    }
+}
+
+/// The user's database, shared by the Library page and Discover: empty until
+/// it opens. Only ever locked on the UI thread; the mutex makes it `Send` for
+/// the code that also holds worker-side state.
+#[derive(Clone, Default)]
+pub struct SharedDb(Arc<Mutex<Option<Database>>>);
+
+impl SharedDb {
+    pub fn set(&self, db: Database) {
+        *self.0.lock().unwrap_or_else(PoisonError::into_inner) = Some(db);
+    }
+
+    /// Runs `f` on the open database, or fails if it is not open.
+    pub fn with<T>(&self, f: impl FnOnce(&Database) -> Result<T, AppError>) -> Result<T, AppError> {
+        match self
+            .0
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .as_ref()
+        {
+            Some(db) => f(db),
+            None => Err(AppError::new(
+                ErrorKind::Database,
+                "Your library is not open.",
+            )),
+        }
     }
 }
 

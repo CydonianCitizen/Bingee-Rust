@@ -11,6 +11,9 @@ benchmark-fixture = []
 r4-measurement = ["benchmark-fixture"]
 
 [dependencies]
+# Decodes and checks downloaded posters off the UI thread. Slint already links
+# image 0.25 with exactly these features, so this adds no crate.
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png"] }
 # OS credential store for the TMDB token (ADR-0009): Credential Manager,
 # Keychain, Secret Service (pure-Rust zbus client, no build-time libdbus).
 keyring = "4.2.0"
@@ -27,5 +30,3 @@ ureq = "3.4.2"
 [build-dependencies]
 slint-build = "1.17.1"
 
-[dev-dependencies]
-image = { version = "0.25.10", default-features = false, features = ["jpeg"] }

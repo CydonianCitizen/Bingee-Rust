@@ -21,12 +21,11 @@ everything into memory.
 
 ## Status
 
-R6 (production foundations) and R7 (TMDB search) are implemented: a real
-library in the per-user data folders with schema v1 and migrations, startup
-error handling, a local log, Settings/About, and Discover, which searches TMDB
-for movies and TV series with your own token. Search results are not saved:
-adding titles to the library is R8. See `IMPLEMENTATION_PLAN.md`,
-`docs/milestones/R6.md` and `docs/milestones/R7.md`.
+R6 (production foundations), R7 (TMDB search) and R8 (local-first library)
+are implemented: find movies and TV series on TMDB with your own token, add
+them to a library stored in SQLite, and browse, search, filter and sort it
+with cached posters, also offline. Watch progress, seasons and episodes come
+later. See `IMPLEMENTATION_PLAN.md` and `docs/milestones/R6.md` to `R8.md`.
 
 ## Prerequisites
 
@@ -71,8 +70,10 @@ BINGEE_HOME=/tmp/bingee-dev cargo run                  # bash
 | Linux | `$XDG_DATA_HOME/bingee-desktop/` (default `~/.local/share/…`) | `$XDG_CACHE_HOME/bingee-desktop/` (default `~/.cache/…`) | `$XDG_STATE_HOME/bingee-desktop/` (default `~/.local/state/…`) |
 
 Settings and About show the exact resolved paths and the database schema
-version. Nothing is written beside the executable. The cache folder is
-created but not used yet. See `docs/adr/0006-production-storage-and-schema-v1.md`.
+version. Nothing is written beside the executable. Posters are cached in the
+cache folder's `posters/` subfolder (`tmdb-w185-<name>.jpg`, about 10–20 KB
+each); deleting it only means they are downloaded again. See
+`docs/adr/0006-production-storage-and-schema-v1.md` and ADR-0011.
 
 If the database cannot be opened (for example damaged, not a Bingee
 database, or created by a newer version), the window shows "Your library could not be
@@ -115,6 +116,30 @@ Searching both movies and TV series sends two requests per page, 300 ms after
 you stop typing, in English (`en-US`) and without adult titles. Results show
 in TMDB's order, movies and series alternating, with **Load more** for further
 pages. See ADR-0007 to ADR-0009.
+
+## Your library
+
+- **Add**: in Discover, select a result and choose **Add to Library** (or
+  press Enter in the result list). The title, original title, type, date,
+  overview and poster path are saved in one SQLite transaction; the result
+  then shows **In Library**, and the Library page lists it at once. Adding a
+  title that is already there changes nothing. TMDB movie 603 and TMDB TV
+  series 603 are different titles.
+- **Browse**: the Library page reads only the local database. Search matches
+  titles and original titles (any case, any script); **All / Movies / TV**
+  filters; the sort menu orders by **Recently added** or **Title** (titles
+  sort case-insensitively by character code, so accented first letters come
+  after Z). Up/Down/PageUp/PageDown/Home/End move the selection; Tab reaches
+  the filters, the sort menu and the detail pane's button.
+- **Remove**: select a title and choose **Remove from Library**. Only its
+  library membership goes; its saved metadata and cached poster stay, so
+  adding it again is instant and keeps its identity.
+- **Posters** download in the background the first time a title is on
+  screen and are kept on disk. Missing or broken posters show the colored
+  placeholder; they never block the library.
+- **Offline**: the library, its search, filters, sort, remove, cached
+  posters, Settings and About all work without a network or a TMDB token.
+  Discover then says it can't reach TMDB; uncached posters stay placeholders.
 
 ## Run the benchmark fixture (R4 workload)
 
@@ -179,17 +204,18 @@ a second and a corrupt-database start from an unrelated working directory,
 with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
 and is not signed.
 
-## What the app does (R7)
+## What the app does (R8)
 
 - **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings,
   About. Home, Calendar and Statistics are labelled placeholders.
-- **Library**: the titles in `library_entries`, with a search field (title and
-  original title, Unicode case-insensitive), a virtualized list and a detail
-  pane. Empty until R8 can add titles.
+- **Library**: your titles from SQLite, with search, a Movie/TV filter, a
+  sort menu, a virtualized list with posters, a detail pane with **Remove from
+  Library**, and states for an empty library, no matches and database errors.
 - **Discover**: TMDB search over movies and TV series, with each result's
-  type and year, a preview pane, **Load more**, and a clear state for a
+  type, year, poster and **In Library** state, a preview pane with **Add to
+  Library**, **Load more**, keyboard navigation, and a clear state for a
   missing or rejected token, no network, rate limiting, TMDB errors and no
-  results. Posters show the placeholder; nothing is saved.
+  results.
 - **Settings**: the TMDB token (validate and save, check, replace, remove),
   where the database, data, cache and log live, the schema version, and a
   link to About.
@@ -207,7 +233,8 @@ and is not signed.
   three OSes on any host).
 - `src/settings.rs`: Bingee's own settings; today only `BINGEE_HOME`.
 - `src/database.rs`: `Database` (one owned connection), schema v1, migrations.
-- `src/library.rs`: production library types and the search query. No Slint.
+- `src/library.rs`: library reads and writes: search with filter and sort,
+  count, add, remove, membership. No Slint, no network.
 - `src/view.rs`: the `slint::Model` over search results and the selection
   logic, shared by the production library and the fixture.
 - `src/error.rs`: `AppError` (kind, user message, cause).
@@ -220,6 +247,8 @@ and is not signed.
   controller (debounce generations, stale-response rules, paging). No Slint,
   threads or clock.
 - `src/network.rs`: the worker pool and the handoff back to the UI thread.
+- `src/poster.rs`: poster keys, the disk cache, validating decoder, bounded
+  RAM cache, and the loading service shared by both lists.
 - `src/remote.rs`: Discover and the TMDB settings wired to the window.
 - `src/fixture/`: the benchmark fixture: `library.rs` (1,000-record
   generator and reference search), `db.rs` (spike schema, seed, SQL search),
@@ -235,8 +264,10 @@ and is not signed.
 
 `rusqlite` 0.40 with SQLite 3.53.2 compiled in (`bundled`), plus its
 `functions` feature for the Unicode case-folding search function. No ORM,
-connection pool or async runtime. One `Database` value owns the only connection; it
-moves into the library view and closes when the window closes.
+connection pool or async runtime. One `Database` owns the only connection; the
+Library page and Discover share it through `SharedDb`, used on the UI thread
+only, and it closes when the window closes. R8 uses schema v1 unchanged; its
+add, remove and membership rules are in ADR-0010.
 
 Schema v1 (ADR-0006), all `STRICT` tables:
 
@@ -268,14 +299,15 @@ result count or error category, and duration (never the query text). It is rotat
 is no telemetry, analytics or remote logging; no per-interaction events or
 secrets are logged.
 
-## Keyboard (Library)
+## Keyboard (Library and Discover)
 
 | Key | Effect |
 | --- | --- |
-| Tab / Shift+Tab | Move focus between the search field and the list. |
-| Up / Down / PageUp / PageDown / Home / End | In the list: move the selection and scroll it into view. |
-| Down or Enter | In the search field: move focus to the list. |
-| Esc | In the search field or the list: clear the search. |
+| Tab / Shift+Tab | Move focus through the search field, the list, the Library filters and sort menu, Load more and the detail pane's button. |
+| Up / Down / PageUp / PageDown / Home / End | In a list: move the selection and scroll it into view. |
+| Down or Enter | In a search field: move focus to the list. |
+| Enter | In the Discover list: add the selected result to the library. |
+| Esc | In a search field (or the Library list): clear the search. |
 | F12 | In the list, fixture only: print poster cache counters to stderr. |
 
 ## Benchmark fixture internals (R1–R3)

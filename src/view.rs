@@ -8,10 +8,11 @@ use std::sync::Arc;
 
 use slint::{Color, ComponentHandle, Image, Model, ModelNotify, ModelRc, ModelTracker};
 
-use crate::database::Database;
+use crate::database::SharedDb;
 use crate::diagnostics::Log;
 use crate::error::AppError;
-use crate::library::{self, LibraryItem, MediaType};
+use crate::library::{self, LibraryItem, MediaType, Query, Sort};
+use crate::poster::{PosterKey, Posters};
 use crate::{AppWindow, MediaRow};
 
 /// A searchable set of titles and how each one is shown.
@@ -20,14 +21,43 @@ pub trait Library {
     fn search(&self, query: &str) -> Result<Vec<Self::Item>, AppError>;
     fn id(item: &Self::Item) -> i64;
     fn row(&self, item: &Self::Item) -> MediaRow;
+    /// The production poster an item shows, if any.
+    fn poster_key(_item: &Self::Item) -> Option<PosterKey> {
+        None
+    }
 }
 
-/// The production library: rows from the user's database. No posters yet.
-impl Library for Database {
+/// The production library: the user's database, the list's filter and sort,
+/// and the poster cache. Reads SQLite only; posters come from the cache or
+/// load in the background.
+pub struct UserLibrary {
+    pub db: SharedDb,
+    pub kind: Cell<Option<MediaType>>,
+    pub sort: Cell<Sort>,
+    pub posters: Arc<Posters>,
+}
+
+impl UserLibrary {
+    pub fn new(db: SharedDb, posters: Arc<Posters>) -> Self {
+        Self {
+            db,
+            kind: Cell::new(None),
+            sort: Cell::new(Sort::default()),
+            posters,
+        }
+    }
+}
+
+impl Library for UserLibrary {
     type Item = LibraryItem;
 
-    fn search(&self, query: &str) -> Result<Vec<LibraryItem>, AppError> {
-        library::search(self, query)
+    fn search(&self, text: &str) -> Result<Vec<LibraryItem>, AppError> {
+        let query = Query {
+            text: text.to_owned(),
+            kind: self.kind.get(),
+            sort: self.sort.get(),
+        };
+        self.db.with(|db| library::search(db, &query))
     }
 
     fn id(item: &LibraryItem) -> i64 {
@@ -35,15 +65,30 @@ impl Library for Database {
     }
 
     fn row(&self, item: &LibraryItem) -> MediaRow {
-        media_row(
+        let row = media_row(
             item.id,
             item.media_type,
             &item.title,
             item.original_title.as_deref(),
             item.year(),
             item.overview.as_deref(),
-        )
+        );
+        with_poster(row, Self::poster_key(item), &self.posters)
     }
+
+    fn poster_key(item: &LibraryItem) -> Option<PosterKey> {
+        PosterKey::tmdb(item.poster_path.as_deref()?)
+    }
+}
+
+/// Adds the poster to a row: from RAM now, or later through `Posters`' ready
+/// notification. The key goes into the row so late results find their rows.
+pub fn with_poster(mut row: MediaRow, key: Option<PosterKey>, posters: &Arc<Posters>) -> MediaRow {
+    if let Some(key) = key {
+        row.poster = posters.image(&key).unwrap_or_default();
+        row.poster_key = key.name().into();
+    }
+    row
 }
 
 /// A row without progress or poster (the placeholder shows): library titles
@@ -66,11 +111,10 @@ pub fn media_row(
             None => kind.into(),
         },
         initials: library::initials(title).into(),
-        status: Default::default(),
-        progress: 0.0,
         overview: overview.unwrap_or_default().into(),
         tint: tint(id),
         poster: Image::default(),
+        ..Default::default()
     }
 }
 
@@ -83,6 +127,8 @@ pub struct LibraryView<L: Library> {
     pub library: L,
     pub results: RefCell<Vec<L::Item>>,
     pub selected: Cell<Option<i64>>,
+    /// The search text the results are for.
+    query: RefCell<String>,
     notify: ModelNotify,
 }
 
@@ -93,6 +139,7 @@ impl<L: Library> LibraryView<L> {
             selected: Cell::new(results.first().map(L::id)),
             results: RefCell::new(results),
             library,
+            query: RefCell::default(),
             notify: ModelNotify::default(),
         })
     }
@@ -103,8 +150,30 @@ impl<L: Library> LibraryView<L> {
         self.selected
             .set(reselect(&results, L::id, self.selected.get()));
         *self.results.borrow_mut() = results;
+        *self.query.borrow_mut() = query.to_owned();
         self.notify.reset();
         Ok(())
+    }
+
+    /// Runs the current search again, after the data, filter or sort changed.
+    pub fn refresh(&self) -> Result<(), AppError> {
+        let query = self.query.borrow().clone();
+        self.set_query(&query)
+    }
+
+    /// A poster finished loading: the rows showing it are read again. Rows
+    /// that now show another title are left alone.
+    pub fn poster_ready(&self, key: &PosterKey) {
+        let rows: Vec<usize> = self
+            .results
+            .borrow()
+            .iter()
+            .enumerate()
+            .filter(|(_, item)| L::poster_key(item).as_ref() == Some(key))
+            .map(|(row, _)| row)
+            .collect();
+        rows.into_iter()
+            .for_each(|row| self.notify.row_changed(row));
     }
 
     pub fn select_row(&self, row: usize) {
@@ -124,8 +193,12 @@ impl<L: Library> LibraryView<L> {
     }
 }
 
-impl<L: Library> Model for LibraryView<L> {
+impl<L: Library + 'static> Model for LibraryView<L> {
     type Data = MediaRow;
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 
     fn row_count(&self) -> usize {
         self.results.borrow().len()
@@ -241,11 +314,18 @@ pub fn tint(id: i64) -> Color {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::database::Database;
     use crate::library::tests::add;
+
+    fn view(db: Database) -> LibraryView<UserLibrary> {
+        let shared = SharedDb::default();
+        shared.set(db);
+        LibraryView::new(UserLibrary::new(shared, crate::poster::tests::offline())).unwrap()
+    }
 
     #[test]
     fn empty_production_library_has_no_rows_and_no_selection() {
-        let view = LibraryView::new(Database::open_in_memory()).unwrap();
+        let view = view(Database::open_in_memory());
         assert_eq!(view.row_count(), 0);
         assert!(view.selected_row().is_none());
         view.set_query("anything").unwrap();
@@ -256,7 +336,7 @@ mod tests {
     fn production_rows_show_database_values_without_progress_or_poster() {
         let db = Database::open_in_memory();
         let id = add(&db, "movie", "Arrival", Some("Premier contact"), true);
-        let view = LibraryView::new(db).unwrap();
+        let view = view(db);
         let (row, detail) = view.selected_row().unwrap();
         assert_eq!(row, 0);
         assert_eq!(detail.id as i64, id);
@@ -268,6 +348,30 @@ mod tests {
             ("", "A")
         );
         assert_eq!(detail.poster.size().width, 0, "placeholder");
+        assert_eq!(detail.poster_key, "", "no poster path");
+    }
+
+    #[test]
+    fn filter_sort_and_refresh_keep_the_search_text() {
+        let db = Database::open_in_memory();
+        add(&db, "tv", "Dark", None, true);
+        add(&db, "movie", "Dark Waters", None, true);
+        add(&db, "movie", "Arrival", None, true);
+        let view = view(db);
+        let titles = |view: &LibraryView<UserLibrary>| -> Vec<String> {
+            (0..view.row_count())
+                .map(|r| view.row_data(r).unwrap().title.into())
+                .collect()
+        };
+        // Same added_at: the newest local id first.
+        assert_eq!(titles(&view), ["Arrival", "Dark Waters", "Dark"]);
+        view.set_query("dark").unwrap();
+        view.library.sort.set(Sort::Title);
+        view.refresh().unwrap();
+        assert_eq!(titles(&view), ["Dark", "Dark Waters"]);
+        view.library.kind.set(Some(MediaType::Movie));
+        view.refresh().unwrap();
+        assert_eq!(titles(&view), ["Dark Waters"]);
     }
 
     #[test]
@@ -275,12 +379,17 @@ mod tests {
         let db = Database::open_in_memory();
         add(&db, "tv", "Dark", None, true);
         add(&db, "tv", "Andor", None, true);
-        let view = LibraryView::new(db).unwrap();
+        let view = view(db);
         view.set_query("dark").unwrap();
         let before = (view.row_count(), view.selected.get());
         view.library
-            .conn()
-            .execute_batch("DROP TABLE library_entries")
+            .db
+            .with(|db| {
+                db.conn()
+                    .execute_batch("DROP TABLE library_entries")
+                    .unwrap();
+                Ok(())
+            })
             .unwrap();
         let error = view.set_query("andor").unwrap_err();
         assert_eq!(error.kind, crate::error::ErrorKind::Database);
