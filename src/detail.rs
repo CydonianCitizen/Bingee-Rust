@@ -19,15 +19,23 @@
 //! title or season a new season generation. An answer is always saved under
 //! the ids it was requested for — it is correct data for that title — but it
 //! reaches the pane only while its generation is still current.
+//!
+//! Personal tracking (ADR-0016, ADR-0017) is a separate path: watched state,
+//! ratings and season bulk actions are written to SQLite synchronously on the
+//! UI thread (one small transaction each, ADR-0019), never touch the network,
+//! and the pane then renders what SQLite committed. A failed write leaves the
+//! committed state on screen with a notice.
 
+use std::collections::HashSet;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::{Duration, Instant};
 
 use slint::{ComponentHandle, ModelRc, SharedString, Timer, VecModel};
 
-use crate::database::SharedDb;
+use crate::database::{Database, SharedDb};
 use crate::diagnostics::Log;
+use crate::error::AppError;
 use crate::library::{self, MediaType};
 use crate::metadata::{self, Clock, Coverage, Episode, Freshness, MediaDetails, Season};
 use crate::network::Network;
@@ -35,6 +43,7 @@ use crate::poster::{PosterKey, Posters};
 use crate::search::ExternalRef;
 use crate::secrets::SharedToken;
 use crate::tmdb::{TmdbClient, TmdbError};
+use crate::tracking::{self, NextEpisode, SeriesProgress, TitleState};
 use crate::view::tint;
 use crate::{AppWindow, DetailFact, EpisodeRow, MediaDetail, SeasonPanel, SeasonRow};
 
@@ -70,6 +79,17 @@ struct State {
     details_pending: bool,
     /// Why the last detail refresh failed. Cleared by the next success.
     notice: String,
+    /// The title's committed personal state.
+    tracking: TitleState,
+    /// A movie's "Watched 2026-09-16 21:04" / "Not watched".
+    watched_label: String,
+    /// A series' progress and next episode.
+    progress: SeriesProgress,
+    next: Option<NextEpisode>,
+    /// Watched episode numbers of the shown season.
+    watched: HashSet<i64>,
+    /// Why the last personal change or read failed.
+    tracking_notice: String,
 }
 
 /// The ids an answer belongs to.
@@ -132,6 +152,18 @@ pub fn start(
     window.on_detail_refresh(on(Detail::refresh));
     window.on_detail_retry_season(on(|d| d.fetch_episodes(true)));
     window.on_detail_poster_ready(on(Detail::render));
+    window.on_detail_watch_toggle(on(Detail::watch_toggle));
+    window.on_detail_watch_again(on(|d| {
+        d.track("watch again", |db, id, now| {
+            tracking::watch_movie(db, id, now, true).map(drop)
+        })
+    }));
+    window.on_detail_rate(on_row(Detail::rate));
+    window.on_detail_episode_toggle(on_row(Detail::episode_toggle));
+    window.on_detail_season_watched({
+        let detail = detail.clone();
+        move |watched| detail.season_watched(watched)
+    });
     window.on_token_changed(on(|d| {
         d.fetch_details(false);
         d.fetch_episodes(false);
@@ -293,6 +325,138 @@ impl Detail {
             state.episode_row = None;
         }
         state.episodes = episodes;
+        self.load_tracking(state);
+    }
+
+    /// Reads the title's personal state (and a series' progress and the shown
+    /// season's watched episodes) into `state`. Local only.
+    fn load_tracking(&self, state: &mut State) {
+        let Some(id) = state.id else {
+            return;
+        };
+        let is_tv = state.details.as_ref().is_some_and(|d| d.tv.is_some());
+        let season = state.season;
+        let read = self.db.with(|db| {
+            let title = tracking::title_state(db, id)?;
+            if !is_tv {
+                let label = match title.watched_at {
+                    Some(at) => format!("Watched {}", tracking::local_time(db, at)?),
+                    None => "Not watched".to_owned(),
+                };
+                return Ok((
+                    title,
+                    label,
+                    SeriesProgress::default(),
+                    None,
+                    HashSet::new(),
+                ));
+            }
+            let progress = tracking::series_progress(db, id)?;
+            let next = tracking::next_episode(db, id, &progress)?;
+            let watched = match season {
+                Some(season) => tracking::watched_episodes(db, id, season)?,
+                None => HashSet::new(),
+            };
+            Ok((title, String::new(), progress, Some(next), watched))
+        });
+        match read {
+            Ok((title, label, progress, next, watched)) => {
+                state.tracking = title;
+                state.watched_label = label;
+                state.progress = progress;
+                state.next = next;
+                state.watched = watched;
+            }
+            Err(error) => {
+                self.log
+                    .error(format_args!("Tracking #{id}: not read: {error}"));
+                state.tracking_notice = error.message;
+            }
+        }
+    }
+
+    // Personal tracking
+
+    /// Runs one personal write for the shown title, then renders what SQLite
+    /// holds. Only failures are logged: watch activity stays in the database.
+    fn track<T>(&self, what: &str, write: impl FnOnce(&Database, i64, i64) -> Result<T, AppError>) {
+        let Some(id) = self.state().id else {
+            return;
+        };
+        let now = self.clock.now();
+        let result = self.db.with(|db| write(db, id, now));
+        let mut state = self.state();
+        let saved = match result {
+            Ok(_) => {
+                state.tracking_notice.clear();
+                true
+            }
+            Err(error) => {
+                self.log
+                    .error(format_args!("Tracking #{id}: {what} not saved: {error}"));
+                state.tracking_notice = error.message;
+                false
+            }
+        };
+        self.load_tracking(&mut state);
+        drop(state);
+        self.render();
+        if saved {
+            self.library_changed();
+        }
+    }
+
+    /// The Library list re-reads its rows' personal status.
+    fn library_changed(&self) {
+        if let Some(window) = self.window.upgrade() {
+            window.invoke_library_changed();
+        }
+    }
+
+    fn watch_toggle(&self) {
+        let watched = self.state().tracking.watched_at.is_some();
+        self.track("watched", move |db, id, now| match watched {
+            true => tracking::unwatch_movie(db, id).map(drop),
+            false => tracking::watch_movie(db, id, now, false).map(drop),
+        });
+    }
+
+    /// `index` in the rating menu: 0 clears, 1 to 10 rate.
+    fn rate(&self, index: i32) {
+        let rating = u8::try_from(index).ok().filter(|rating| *rating > 0);
+        if rating == self.state().tracking.rating {
+            return;
+        }
+        self.track("rating", move |db, id, _| {
+            tracking::set_rating(db, id, rating)
+        });
+    }
+
+    fn episode_toggle(&self, row: i32) {
+        let state = self.state();
+        let Some(episode) = usize::try_from(row)
+            .ok()
+            .and_then(|row| state.episodes.get(row))
+        else {
+            return;
+        };
+        let (season, number) = (episode.season_number, episode.number);
+        let watched = state.watched.contains(&number);
+        drop(state);
+        self.track("episode", move |db, id, now| match watched {
+            true => tracking::unwatch_episode(db, id, season, number).map(drop),
+            false => tracking::watch_episode(db, id, season, number, now, false).map(drop),
+        });
+    }
+
+    fn season_watched(&self, watched: bool) {
+        let Some(season) = self.state().season else {
+            return;
+        };
+        self.track("season", move |db, id, now| match watched {
+            true => tracking::watch_season(db, id, season, now).map(drop),
+            false => tracking::unwatch_season(db, id, season).map(drop),
+        });
     }
 
     fn external(&self, id: i64) -> Option<ExternalRef> {
@@ -359,6 +523,8 @@ impl Detail {
                         "Detail {name}: refreshed in {} ms",
                         took.as_millis()
                     ));
+                    // Coverage may have changed a Library row's progress.
+                    self.library_changed();
                     None
                 }
                 Err(error) => {
@@ -465,6 +631,7 @@ impl Detail {
                             episodes.len(),
                             took.as_millis()
                         ));
+                        self.library_changed();
                         None
                     }
                     Err(error) => {
@@ -515,10 +682,18 @@ impl Detail {
         let season_row = list
             .iter()
             .position(|season| Some(season.number) == state.season);
-        let season_rows: Vec<SeasonRow> = list.iter().map(season_row_view).collect();
+        let season_rows: Vec<SeasonRow> = list
+            .iter()
+            .map(|season| season_row_view(season, state.progress.season(season.number)))
+            .collect();
         let panel = season_panel(&state, season_row.map(|row| &list[row]), can_refresh);
-        let episodes: Vec<EpisodeRow> = state.episodes.iter().map(episode_row_view).collect();
+        let episodes: Vec<EpisodeRow> = state
+            .episodes
+            .iter()
+            .map(|episode| episode_row_view(episode, state.watched.contains(&episode.number)))
+            .collect();
         let episode_row = state.episode_row;
+        let rating = state.tracking.rating.map_or(0, i32::from);
         // Slint may read the models while properties are set: no lock held.
         drop(state);
         window.set_media_detail(detail);
@@ -528,6 +703,9 @@ impl Detail {
         window.set_detail_season(panel);
         window.set_detail_episodes(model(episodes));
         window.set_detail_episode_row(episode_row.map_or(-1, |row| row as i32));
+        // Always the committed rating, also after the menu changed and the
+        // write failed.
+        window.set_detail_rating(rating);
     }
 
     fn media_detail(&self, state: &State, can_refresh: bool, now: i64) -> MediaDetail {
@@ -545,7 +723,16 @@ impl Detail {
         let id = state.id.unwrap_or_default();
         let key = details.poster_path.as_deref().and_then(PosterKey::tmdb);
         let refreshing = state.details_pending || state.episodes_request == Episodes::Loading;
+        let (progress, progress_fraction, progress_detail, specials) =
+            progress_view(&state.progress, state.next.as_ref());
         MediaDetail {
+            watched: state.tracking.watched_at.is_some(),
+            watched_label: state.watched_label.as_str().into(),
+            progress: progress.into(),
+            progress_fraction,
+            progress_detail: progress_detail.into(),
+            specials: specials.into(),
+            tracking_notice: state.tracking_notice.as_str().into(),
             has_item: true,
             title: details.title.as_str().into(),
             original_title: details
@@ -693,10 +880,55 @@ fn facts(details: &MediaDetails) -> Vec<DetailFact> {
     rows.into_iter().flatten().collect()
 }
 
-fn season_row_view(season: &Season) -> SeasonRow {
+/// A series' personal progress: the main line, the watched share of
+/// downloaded episodes, the next episode, and specials. Only complete
+/// coverage gets a percentage (ADR-0018).
+fn progress_view(
+    progress: &SeriesProgress,
+    next: Option<&NextEpisode>,
+) -> (String, f32, String, String) {
+    let (watched, known) = (progress.watched(), progress.known());
+    let main = match (known, progress.coverage_complete()) {
+        (0, _) => "No episodes downloaded yet".to_owned(),
+        (_, true) => format!(
+            "{watched} / {known} episodes watched · {}%",
+            watched * 100 / known
+        ),
+        (_, false) => {
+            format!("{watched} / {known} downloaded episodes watched · episode list incomplete")
+        }
+    };
+    let fraction = match known {
+        0 => 0.0,
+        _ => watched as f32 / known as f32,
+    };
+    let detail = match next {
+        Some(NextEpisode::Episode {
+            season,
+            number,
+            name,
+        }) => match name {
+            Some(name) => format!("Next: S{season} E{number} · {name}"),
+            None => format!("Next: S{season} E{number}"),
+        },
+        Some(NextEpisode::Complete) => "Series watched".to_owned(),
+        Some(NextEpisode::CaughtUp) => "All downloaded episodes watched; more may exist".to_owned(),
+        Some(NextEpisode::NothingKnown) | None => String::new(),
+    };
+    let specials = progress
+        .specials()
+        .map(|(watched, known)| format!("{watched} / {known} specials watched"))
+        .unwrap_or_default();
+    (main, fraction, detail, specials)
+}
+
+fn season_row_view(season: &Season, progress: Option<&tracking::SeasonProgress>) -> SeasonRow {
     let meta: Vec<String> = [
         season.year().map(str::to_owned),
         season.episode_count.map(|n| plural(n, "episode")),
+        progress
+            .filter(|progress| progress.watched > 0)
+            .map(|progress| format!("{} / {} watched", progress.watched, progress.known)),
     ]
     .into_iter()
     .flatten()
@@ -713,7 +945,7 @@ fn season_row_view(season: &Season) -> SeasonRow {
     }
 }
 
-fn episode_row_view(episode: &Episode) -> EpisodeRow {
+fn episode_row_view(episode: &Episode, watched: bool) -> EpisodeRow {
     let meta: Vec<String> = [
         episode.air_date.clone(),
         episode.runtime_minutes.map(duration),
@@ -729,6 +961,7 @@ fn episode_row_view(episode: &Episode) -> EpisodeRow {
         },
         meta: meta.join(" · ").into(),
         overview: episode.overview.as_deref().unwrap_or_default().into(),
+        watched,
     }
 }
 
@@ -767,8 +1000,17 @@ fn season_panel(state: &State, season: Option<&Season>, can_refresh: bool) -> Se
         ..Default::default()
     };
     if !state.episodes.is_empty() {
+        let known = state.episodes.len();
+        let watched = state
+            .episodes
+            .iter()
+            .filter(|episode| state.watched.contains(&episode.number))
+            .count();
         return SeasonPanel {
             state: "episodes".into(),
+            progress: format!("{watched} / {known} watched").into(),
+            can_watch_all: watched < known,
+            can_unwatch_all: watched > 0,
             notice: match &state.episodes_request {
                 Episodes::Failed(message) => format!("Showing saved episodes. {message}").into(),
                 _ => SharedString::new(),
@@ -1497,20 +1739,41 @@ mod tests {
         press(Key::End);
         assert_eq!(app.get_detail_season().heading, "Season 2");
 
-        // Tab again: the episode list, navigable with the usual keys.
-        press(Key::Tab);
-        press(Key::DownArrow);
-        assert_eq!(
-            app.get_detail_episode_row(),
-            0,
-            "Tab reached the episode list"
-        );
+        // Tab again: past "Mark season watched", into the episode list,
+        // navigable with the usual keys.
+        let reached_episodes = (0..3).any(|_| {
+            press(Key::Tab);
+            press(Key::DownArrow);
+            app.get_detail_episode_row() == 0
+        });
+        assert!(reached_episodes, "Tab never reached the episode list");
         press(Key::End);
         assert_eq!(app.get_detail_episode_row(), 11);
         press(Key::PageUp);
         assert!(app.get_detail_episode_row() < 11);
         press(Key::Home);
         assert_eq!(app.get_detail_episode_row(), 0);
+
+        // Space toggles the selected episode's watched state, Enter too.
+        let space = |text: &str| {
+            let text = SharedString::from(text);
+            window.dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+            window.dispatch_event(WindowEvent::KeyReleased { text });
+        };
+        space(" ");
+        assert!(app.get_detail_episodes().row_data(0).unwrap().watched);
+        assert_eq!(app.get_detail_season().progress, "1 / 12 watched");
+        press(Key::DownArrow);
+        press(Key::Return);
+        assert!(app.get_detail_episodes().row_data(1).unwrap().watched);
+        press(Key::Return);
+        assert!(!app.get_detail_episodes().row_data(1).unwrap().watched);
+        assert_eq!(
+            app.get_detail_episode_row(),
+            1,
+            "toggling keeps the selection"
+        );
+        press(Key::Home);
 
         // Focus is not trapped: one more Tab leaves the episode list.
         press(Key::Tab);
@@ -1588,6 +1851,327 @@ mod tests {
         );
     }
 
+    fn events(db: &SharedDb) -> usize {
+        db.with(|db| tracking::recent_history(db, 1_000))
+            .unwrap()
+            .len()
+    }
+
+    /// Stores series 1399's details and every episode of `seasons`, as a
+    /// session with TMDB would have, at `START`.
+    fn seed_series(db: &SharedDb, id: i64, seasons: &[(i64, u32, u32)]) {
+        use crate::metadata::tests::{episode, season, series};
+        db.with(|db| {
+            let summaries = seasons
+                .iter()
+                .map(|(n, count, _)| season(*n, Some(*count)))
+                .collect();
+            metadata::save(db, id, &series("Game of Thrones", summaries), START)?;
+            for (n, _, stored) in seasons {
+                let list: Vec<_> = (1..=i64::from(*stored)).map(|e| episode(*n, e)).collect();
+                metadata::save_episodes(db, id, *n, &list, START)?;
+            }
+            Ok(())
+        })
+        .unwrap();
+    }
+
+    /// R10's journeys: Movie → watched → rating → restart, and TV → episodes
+    /// watched → progress → restart, first without a token, then with TMDB
+    /// unreachable. No tracking action sends a request.
+    #[test]
+    fn tracking_survives_a_restart_and_works_offline() {
+        use crate::paths::TestDir;
+        let dir = TestDir::new("detail-tracking-offline");
+        let path = dir.0.join("bingee.db");
+        let closed = std::net::TcpListener::bind("127.0.0.1:0")
+            .unwrap()
+            .local_addr()
+            .unwrap();
+        let base = format!("http://{closed}");
+        {
+            let db = Database::open(&path, &Log::stderr_only()).unwrap();
+            library::add(&db, &item(MediaType::Movie, 603, "The Matrix"), 1).unwrap();
+            library::add(&db, &item(MediaType::Tv, 1399, "Game of Thrones"), 1).unwrap();
+        }
+
+        // Session 1: no token at all.
+        let (first, first_base) = (path.clone(), base.clone());
+        std::thread::spawn(move || {
+            let db = SharedDb::default();
+            db.set(Database::open(&first, &Log::stderr_only()).unwrap());
+            let mut pane = Pane::new(&first_base, db.clone(), None);
+            seed_series(&db, pane.ids[1], &[(0, 2, 2), (1, 3, 3), (2, 2, 2)]);
+            let app = &pane.app();
+
+            pane.open(0);
+            let shown = app.get_media_detail();
+            assert_eq!(
+                (shown.watched, shown.watched_label.as_str()),
+                (false, "Not watched")
+            );
+            assert_eq!(app.get_detail_rating(), 0);
+            app.invoke_detail_watch_toggle();
+            let shown = app.get_media_detail();
+            assert!(shown.watched);
+            assert!(
+                shown.watched_label.starts_with("Watched 20"),
+                "{}",
+                shown.watched_label
+            );
+            app.invoke_detail_rate(9);
+            assert_eq!(app.get_detail_rating(), 9);
+            assert_eq!(events(&db), 1);
+
+            pane.open(1);
+            assert_eq!(app.get_detail_season().heading, "Season 1");
+            assert_eq!(
+                app.get_media_detail().progress,
+                "0 / 5 episodes watched · 0%"
+            );
+            assert_eq!(
+                app.get_media_detail().progress_detail,
+                "Next: S1 E1 · Episode 1"
+            );
+            app.invoke_detail_episode_toggle(0);
+            app.invoke_detail_episode_toggle(2);
+            assert_eq!(app.get_detail_season().progress, "2 / 3 watched");
+            assert!(app.get_detail_season().can_watch_all);
+            assert_eq!(
+                app.get_media_detail().progress_detail,
+                "Next: S1 E2 · Episode 2"
+            );
+            // Specials: tracked, but apart from the main progress.
+            pane.season(0);
+            app.invoke_detail_season_watched(true);
+            let shown = app.get_media_detail();
+            assert_eq!(shown.specials, "2 / 2 specials watched");
+            assert_eq!(shown.progress, "2 / 5 episodes watched · 40%");
+            pane.ui.render();
+        })
+        .join()
+        .unwrap();
+
+        // Session 2: a token, but TMDB cannot be reached.
+        std::thread::spawn(move || {
+            let db = SharedDb::default();
+            db.set(Database::open(&path, &Log::stderr_only()).unwrap());
+            let mut pane = Pane::new(&base, db.clone(), Some(TOKEN));
+            let app = &pane.app();
+            pane.open(0);
+            assert!(app.get_media_detail().watched);
+            assert_eq!(app.get_detail_rating(), 9);
+
+            pane.open(1);
+            pane.settle();
+            assert_eq!(app.get_detail_season().progress, "2 / 3 watched");
+            let rows: Vec<bool> = app
+                .get_detail_episodes()
+                .iter()
+                .map(|row| row.watched)
+                .collect();
+            assert_eq!(rows, [true, false, true]);
+            let seasons: Vec<String> = app
+                .get_detail_seasons()
+                .iter()
+                .map(|row| row.meta.into())
+                .collect();
+            assert_eq!(
+                seasons,
+                [
+                    "2011 · 2 episodes · 2 / 2 watched",
+                    "2011 · 3 episodes · 2 / 3 watched",
+                    "2011 · 2 episodes"
+                ]
+            );
+            // Finish season 1 and 2 while TMDB is unreachable: complete.
+            app.invoke_detail_season_watched(true);
+            pane.season(2);
+            app.invoke_detail_season_watched(true);
+            let shown = app.get_media_detail();
+            assert_eq!(shown.progress, "5 / 5 episodes watched · 100%");
+            assert_eq!(shown.progress_detail, "Series watched");
+            assert_eq!(shown.progress_fraction, 1.0);
+            assert_eq!(shown.tracking_notice, "");
+            // Unmark the season: state goes, history stays.
+            let before = events(&db);
+            app.invoke_detail_season_watched(false);
+            assert_eq!(app.get_detail_season().progress, "0 / 2 watched");
+            assert!(!app.get_detail_season().can_unwatch_all);
+            assert_eq!(events(&db), before);
+            pane.ui.render();
+        })
+        .join()
+        .unwrap();
+    }
+
+    #[test]
+    fn a_failed_personal_write_shows_the_committed_state_and_says_so() {
+        let server = tmdb();
+        let db = library();
+        let pane = Pane::new(&server.base, db.clone(), None);
+        let app = &pane.app();
+        pane.open(0);
+        app.invoke_detail_rate(6);
+        db.with(|db| {
+            db.conn()
+                .execute_batch(
+                    "CREATE TEMP TRIGGER fail BEFORE UPDATE ON media_tracking
+                     BEGIN SELECT RAISE(ABORT, 'simulated'); END;",
+                )
+                .unwrap();
+            Ok(())
+        })
+        .unwrap();
+
+        // The menu already shows 2; the write fails; the menu goes back to 6.
+        app.set_detail_rating(2);
+        app.invoke_detail_rate(2);
+        assert_eq!(app.get_detail_rating(), 6);
+        let notice = app.get_media_detail().tracking_notice;
+        assert!(notice.contains("could not be saved"), "{notice}");
+        // Mark watched fails too: still shown as not watched, no event.
+        app.invoke_detail_watch_toggle();
+        assert!(!app.get_media_detail().watched);
+        assert_eq!(events(&db), 0);
+        // The metadata part of the pane is unaffected.
+        assert_eq!(app.get_media_detail().title, "The Matrix");
+        assert!(server.seen().is_empty(), "no network for personal actions");
+
+        // The next successful change clears the notice.
+        db.with(|db| {
+            db.conn().execute_batch("DROP TRIGGER fail").unwrap();
+            Ok(())
+        })
+        .unwrap();
+        app.invoke_detail_watch_toggle();
+        assert!(app.get_media_detail().watched);
+        assert_eq!(app.get_media_detail().tracking_notice, "");
+    }
+
+    #[test]
+    fn refresh_404_and_new_episodes_never_touch_personal_state() {
+        let server = tmdb();
+        let db = library();
+        let pane = Pane::new(&server.base, db.clone(), Some(TOKEN));
+        let app = &pane.app();
+
+        // A movie watched and rated before its first detail fetch: the TMDB
+        // answer (vote average 8.2) is metadata, never the user's rating.
+        pane.open(0);
+        app.invoke_detail_watch_toggle();
+        app.invoke_detail_rate(4);
+        pane.settle();
+        app.invoke_detail_refresh();
+        pane.settle();
+        assert_eq!(app.get_media_detail().tagline, "Free your mind.");
+        assert!(app.get_media_detail().watched);
+        assert_eq!(app.get_detail_rating(), 4);
+
+        // TMDB no longer has "Gone Movie": rating and history stay.
+        pane.open(3);
+        app.invoke_detail_watch_toggle();
+        app.invoke_detail_rate(8);
+        app.invoke_detail_refresh();
+        pane.settle();
+        assert!(
+            app.get_media_detail()
+                .notice
+                .starts_with("TMDB no longer has")
+        );
+        assert!(app.get_media_detail().watched);
+        assert_eq!(app.get_detail_rating(), 8);
+
+        // A series: season 1 watched in full, then TMDB refreshes it.
+        pane.open(1);
+        pane.wait("season 1", |app| app.get_detail_episodes().row_count() == 3);
+        pane.settle();
+        app.invoke_detail_season_watched(true);
+        let before = events(&db);
+        app.invoke_detail_refresh();
+        pane.settle();
+        assert_eq!(app.get_detail_season().progress, "3 / 3 watched");
+        assert_eq!(events(&db), before);
+        assert_eq!(
+            app.get_media_detail().progress,
+            "3 / 3 downloaded episodes watched · episode list incomplete",
+            "specials and season 2 are not downloaded: never 100%"
+        );
+        assert_eq!(
+            app.get_media_detail().progress_detail,
+            "All downloaded episodes watched; more may exist"
+        );
+    }
+
+    /// Informal R10 observation, not a `BENCHMARK_SPEC.md` run: what a click
+    /// costs on the UI thread end to end (SQLite commit, tracking re-read,
+    /// pane models, Library status reload), in a file-backed database with a
+    /// 1,000-title library and a 250-episode season. Run with
+    /// `cargo test --release informal_tracking_ui_timings -- --ignored --nocapture`.
+    #[test]
+    #[ignore]
+    fn informal_tracking_ui_timings() {
+        use crate::paths::TestDir;
+        let dir = TestDir::new("detail-tracking-timings");
+        let db = SharedDb::default();
+        db.set(Database::open(&dir.0.join("bingee.db"), &Log::stderr_only()).unwrap());
+        db.with(|db| {
+            for n in 1..1_000 {
+                library::add(db, &item(MediaType::Movie, n, &format!("Movie {n}")), 1)?;
+            }
+            library::add(db, &item(MediaType::Tv, 1399, "Long Season"), 2)?;
+            Ok(())
+        })
+        .unwrap();
+        let pane = Pane::new("http://127.0.0.1:9", db.clone(), None);
+        let series = *pane.ids.last().unwrap();
+        seed_series(&db, series, &[(1, 250, 250)]);
+        let view = Rc::new(
+            crate::view::LibraryView::new(crate::view::UserLibrary::new(
+                db.clone(),
+                crate::poster::tests::offline(),
+            ))
+            .unwrap(),
+        );
+        crate::connect_library(&pane.ui.app, view, Arc::new(Log::stderr_only()));
+        let app = pane.app();
+        app.invoke_detail_selected(series as i32);
+        assert_eq!(app.get_detail_episodes().row_count(), 250);
+
+        let median = |mut samples: Vec<Duration>| {
+            samples.sort();
+            samples[samples.len() / 2].as_secs_f64() * 1e3
+        };
+        let time = |label: &str, runs: usize, f: &mut dyn FnMut(usize)| {
+            let samples: Vec<Duration> = (0..runs)
+                .map(|run| {
+                    let start = Instant::now();
+                    f(run);
+                    start.elapsed()
+                })
+                .collect();
+            let worst = samples.iter().max().unwrap().as_secs_f64() * 1e3;
+            println!(
+                "{label:<46} median {:.3} ms, max {worst:.3} ms ({runs} runs)",
+                median(samples)
+            );
+        };
+        time("toggle episode (rapid, 100 clicks)", 100, &mut |run| {
+            app.invoke_detail_episode_toggle((run % 250) as i32);
+        });
+        time("mark 250-episode season watched", 20, &mut |_| {
+            app.invoke_detail_season_watched(true);
+            app.invoke_detail_season_watched(false);
+        });
+        app.invoke_detail_selected(pane.ids[0] as i32);
+        time("movie watched toggle", 50, &mut |_| {
+            app.invoke_detail_watch_toggle();
+        });
+        time("rating change", 50, &mut |run| {
+            app.invoke_detail_rate((run % 10 + 1) as i32);
+        });
+    }
+
     #[test]
     fn view_helpers_never_invent_values() {
         assert_eq!(duration(57), "57 min");
@@ -1603,14 +2187,14 @@ mod tests {
         );
         let mut season = crate::metadata::tests::season(0, None);
         season.air_date = None;
-        let row = season_row_view(&season);
+        let row = season_row_view(&season, None);
         assert_eq!((row.title.as_str(), row.meta.as_str()), ("Specials", ""));
         assert_eq!(row.coverage, "Not downloaded");
         let mut episode = crate::metadata::tests::episode(1, 4);
         episode.name = None;
         episode.air_date = None;
         episode.runtime_minutes = None;
-        let row = episode_row_view(&episode);
+        let row = episode_row_view(&episode, false);
         assert_eq!((row.title.as_str(), row.meta.as_str()), ("Episode 4", ""));
         let seasons = [crate::metadata::tests::season(0, Some(1))];
         assert_eq!(

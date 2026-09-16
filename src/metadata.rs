@@ -181,18 +181,29 @@ pub enum Coverage {
     Partial { known: u32, expected: u32 },
 }
 
+/// A season's coverage from its stored columns (ADR-0015); also used by
+/// progress queries that read these columns without a whole `Season`.
+pub fn coverage(
+    episodes_fetched_at: Option<i64>,
+    episodes_known: Option<u32>,
+    episode_count: Option<u32>,
+) -> Coverage {
+    let Some(known) = episodes_known.filter(|_| episodes_fetched_at.is_some()) else {
+        return Coverage::NotFetched;
+    };
+    match episode_count {
+        Some(expected) if known < expected => Coverage::Partial { known, expected },
+        _ => Coverage::Complete(known),
+    }
+}
+
 impl Season {
     pub fn coverage(&self) -> Coverage {
-        let Some(known) = self
-            .episodes_known
-            .filter(|_| self.episodes_fetched_at.is_some())
-        else {
-            return Coverage::NotFetched;
-        };
-        match self.episode_count {
-            Some(expected) if known < expected => Coverage::Partial { known, expected },
-            _ => Coverage::Complete(known),
-        }
+        coverage(
+            self.episodes_fetched_at,
+            self.episodes_known,
+            self.episode_count,
+        )
     }
 
     /// "Specials", the provider's name, or "Season 3".

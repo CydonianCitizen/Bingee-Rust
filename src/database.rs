@@ -19,7 +19,7 @@ const APPLICATION_ID: i32 = 0x4269_6E67;
 
 /// Step `n` (1-based) upgrades schema version `n - 1` to `n`. Never edit a
 /// step that has shipped: append a new one.
-const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2];
+const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3];
 
 const SCHEMA_V1: &str = "
 PRAGMA application_id = 1114205799;
@@ -157,6 +157,61 @@ CREATE TABLE episodes (
 -- to another season is a metadata change, not a conflict.
 CREATE UNIQUE INDEX episodes_by_external
     ON episodes (local_media_id, season_number, external_id) WHERE external_id IS NOT NULL;
+";
+
+/// R10: personal tracking (ADR-0016, ADR-0017). Only user actions write these
+/// tables; no provider refresh names them. They reference `media` alone, with
+/// RESTRICT, and deliberately have no foreign key to `seasons` or `episodes`:
+/// provider reconciliation may delete and re-insert those rows, and personal
+/// data must outlive that.
+const SCHEMA_V3: &str = "
+-- Personal state of a title. watched_at NULL means unwatched; only movies are
+-- watched as a whole (a series is watched episode by episode).
+CREATE TABLE media_tracking (
+    local_media_id INTEGER PRIMARY KEY,
+    media_type     TEXT NOT NULL CHECK (media_type IN ('movie', 'tv')),
+    -- Unix seconds, UTC: the latest watch.
+    watched_at     INTEGER CHECK (watched_at IS NULL OR media_type = 'movie'),
+    -- The user's own rating, 1 to 10; never a provider score.
+    rating         INTEGER CHECK (rating BETWEEN 1 AND 10),
+    FOREIGN KEY (local_media_id, media_type)
+        REFERENCES media (local_media_id, media_type) ON DELETE RESTRICT
+) STRICT;
+
+-- A row means the episode is watched. Keyed like `episodes` (series, season,
+-- episode number), without referencing it.
+CREATE TABLE episode_tracking (
+    local_media_id INTEGER NOT NULL,
+    media_type     TEXT NOT NULL CHECK (media_type = 'tv'),
+    season_number  INTEGER NOT NULL CHECK (season_number >= 0),
+    episode_number INTEGER NOT NULL CHECK (episode_number >= 0),
+    -- Unix seconds, UTC: the latest watch.
+    watched_at     INTEGER NOT NULL,
+    PRIMARY KEY (local_media_id, season_number, episode_number),
+    FOREIGN KEY (local_media_id, media_type)
+        REFERENCES media (local_media_id, media_type) ON DELETE RESTRICT
+) STRICT, WITHOUT ROWID;
+
+-- Watch history: one row per real watch, rewatches included. Unmarking never
+-- deletes events. AUTOINCREMENT: an id is never reused, so it is a stable
+-- tie-breaker for events in the same second.
+CREATE TABLE watch_events (
+    event_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    local_media_id INTEGER NOT NULL,
+    media_type     TEXT NOT NULL CHECK (media_type IN ('movie', 'tv')),
+    season_number  INTEGER CHECK (season_number >= 0),
+    episode_number INTEGER CHECK (episode_number >= 0),
+    -- Unix seconds, UTC.
+    watched_at     INTEGER NOT NULL,
+    -- A movie event names no episode; a series event always names one.
+    CHECK ((media_type = 'tv') = (season_number IS NOT NULL AND episode_number IS NOT NULL)),
+    CHECK ((season_number IS NULL) = (episode_number IS NULL)),
+    FOREIGN KEY (local_media_id, media_type)
+        REFERENCES media (local_media_id, media_type) ON DELETE RESTRICT
+) STRICT;
+
+CREATE INDEX watch_events_by_time ON watch_events (watched_at);
+CREATE INDEX watch_events_by_media ON watch_events (local_media_id, media_type);
 ";
 
 /// The one connection to the library database. Owned by whoever needs it
@@ -383,8 +438,8 @@ mod tests {
     fn fresh_database_migrates_to_the_latest_schema() {
         let dir = TestDir::new("db-fresh");
         let db = open(&dir.0.join("bingee.db")).unwrap();
-        assert_eq!(MIGRATIONS.len(), 2);
-        assert_eq!(db.schema_version().unwrap(), 2);
+        assert_eq!(MIGRATIONS.len(), 3);
+        assert_eq!(db.schema_version().unwrap(), 3);
         let app_id: i32 = db
             .conn()
             .pragma_query_value(None, "application_id", |r| r.get(0))
@@ -393,14 +448,17 @@ mod tests {
         assert_eq!(
             tables(db.conn()),
             [
+                "episode_tracking",
                 "episodes",
                 "external_refs",
                 "genres",
                 "library_entries",
                 "media",
                 "media_genres",
+                "media_tracking",
                 "seasons",
-                "sqlite_sequence"
+                "sqlite_sequence",
+                "watch_events"
             ]
         );
         let foreign_keys: bool = db
@@ -434,13 +492,13 @@ mod tests {
     }
 
     #[test]
-    fn a_real_v1_file_upgrades_to_v2_and_keeps_everything() {
+    fn a_real_v1_file_upgrades_to_the_latest_schema_and_keeps_everything() {
         let dir = TestDir::new("db-v1-to-v2");
         let path = dir.0.join("bingee.db");
         let id = v1_fixture(&path);
 
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 2);
+        assert_eq!(db.schema_version().unwrap(), 3);
         // Library membership, provider identity and poster references survive.
         let row: (i64, String, String, String, i64, Option<i64>) = db
             .conn()
@@ -475,17 +533,24 @@ mod tests {
             "detail was never fetched for an upgraded row"
         );
         // The new tables are there and empty.
-        for table in ["genres", "media_genres", "seasons", "episodes"] {
+        for table in [
+            "genres",
+            "media_genres",
+            "seasons",
+            "episodes",
+            "media_tracking",
+            "watch_events",
+        ] {
             let rows: i64 = db
                 .conn()
                 .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
                 .unwrap();
             assert_eq!(rows, 0, "{table}");
         }
-        // Reopening v2 writes nothing.
+        // Reopening the latest version writes nothing.
         drop(db);
         let before = std::fs::read(&path).unwrap();
-        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 2);
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 3);
         assert_eq!(std::fs::read(&path).unwrap(), before);
     }
 
@@ -500,8 +565,178 @@ mod tests {
         assert!(Database::init(conn, broken, &Log::stderr_only()).is_err());
         assert_eq!(std::fs::read(&path).unwrap(), before, "file changed");
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 2, "still upgradable");
+        assert_eq!(db.schema_version().unwrap(), 3, "still upgradable");
         assert!(!tables(db.conn()).contains(&"ok".to_owned()));
+    }
+
+    /// Everything R9 stores in one row per table, for the v2 -> v3 checks.
+    const V2_ROWS: &str = "
+        SELECT m.local_media_id, m.title, m.poster_path, m.status, m.episode_count,
+               m.details_fetched_at, r.external_id, l.added_at, g.name,
+               s.season_number, s.episode_count, s.episodes_fetched_at, s.episodes_known,
+               e.episode_number, e.external_id, e.name
+        FROM media m JOIN external_refs r USING (local_media_id)
+        JOIN library_entries l USING (local_media_id)
+        JOIN media_genres mg USING (local_media_id)
+        JOIN genres g ON g.source = mg.source AND g.external_id = mg.external_id
+        JOIN seasons s USING (local_media_id)
+        JOIN episodes e ON e.local_media_id = s.local_media_id
+                       AND e.season_number = s.season_number
+        ORDER BY s.season_number, e.episode_number";
+
+    fn v2_rows(conn: &Connection) -> Vec<Vec<rusqlite::types::Value>> {
+        let mut stmt = conn.prepare(V2_ROWS).unwrap();
+        let columns = stmt.column_count();
+        stmt.query_map([], |row| (0..columns).map(|i| row.get(i)).collect())
+            .unwrap()
+            .map(Result::unwrap)
+            .collect()
+    }
+
+    /// A schema v2 file as R9 wrote it: a series in the library with its
+    /// identity, details, a genre, specials and season 1 with coverage and
+    /// episodes. Returns its rows as `V2_ROWS` reads them.
+    fn v2_fixture(path: &Path) -> Vec<Vec<rusqlite::types::Value>> {
+        let id = v1_fixture(path);
+        let conn = Connection::open(path).unwrap();
+        let db = Database::init(conn, &MIGRATIONS[..2], &Log::stderr_only()).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 2);
+        db.conn()
+            .execute_batch(&format!(
+                "UPDATE media SET status = 'Returning Series', season_count = 2,
+                     episode_count = 11, details_fetched_at = 1757900000
+                 WHERE local_media_id = {id};
+                 INSERT INTO genres VALUES ('tmdb', '18', 'Drama');
+                 INSERT INTO media_genres VALUES ({id}, 'tmdb', '18');
+                 INSERT INTO seasons (local_media_id, media_type, season_number, episode_count,
+                                      episodes_fetched_at, episodes_known)
+                 VALUES ({id}, 'tv', 0, 1, 1757900100, 1), ({id}, 'tv', 1, 10, 1757900200, 2);
+                 INSERT INTO episodes (local_media_id, season_number, episode_number,
+                                       external_id, name)
+                 VALUES ({id}, 0, 1, '900', 'Special'), ({id}, 1, 1, '901', 'Good News'),
+                        ({id}, 1, 2, '902', 'Half Loop');"
+            ))
+            .unwrap();
+        let rows = v2_rows(db.conn());
+        assert_eq!(rows.len(), 3);
+        rows
+    }
+
+    #[test]
+    fn a_real_v2_file_upgrades_to_v3_and_keeps_everything() {
+        let dir = TestDir::new("db-v2-to-v3");
+        let path = dir.0.join("bingee.db");
+        let before = v2_fixture(&path);
+
+        let db = open(&path).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 3);
+        // Library, identity, details, genres, seasons, episodes and coverage.
+        assert_eq!(v2_rows(db.conn()), before);
+        for table in ["media_tracking", "episode_tracking", "watch_events"] {
+            let rows: i64 = db
+                .conn()
+                .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(rows, 0, "{table} starts empty: nothing is watched");
+        }
+        drop(db);
+        let bytes = std::fs::read(&path).unwrap();
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 3);
+        assert_eq!(
+            std::fs::read(&path).unwrap(),
+            bytes,
+            "v3 reopen writes nothing"
+        );
+    }
+
+    #[test]
+    fn a_failed_v3_migration_leaves_a_v2_file_untouched() {
+        let dir = TestDir::new("db-v3-rollback");
+        let path = dir.0.join("bingee.db");
+        let rows = v2_fixture(&path);
+        let before = std::fs::read(&path).unwrap();
+        let broken = format!("{SCHEMA_V3}; NOT SQL");
+        let steps: &[&str] = &[SCHEMA_V1, SCHEMA_V2, &broken];
+        let conn = Connection::open(&path).unwrap();
+        assert!(Database::init(conn, steps, &Log::stderr_only()).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), before, "file changed");
+        let conn = Connection::open(&path).unwrap();
+        assert_eq!(user_version(&conn).unwrap(), 2);
+        assert!(!tables(&conn).contains(&"watch_events".to_owned()));
+        drop(conn);
+        let db = open(&path).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 3, "still upgradable");
+        assert_eq!(v2_rows(db.conn()), rows);
+    }
+
+    #[test]
+    fn personal_tables_check_types_and_never_cascade_from_metadata() {
+        let db = Database::open_in_memory();
+        let conn = db.conn();
+        let movie = insert_media(conn, "movie", "The Matrix");
+        let show = insert_media(conn, "tv", "Severance");
+        let run = |sql: String| conn.execute(&sql, []);
+
+        // Watched as a whole: movies only. Ratings: 1..10, any title.
+        assert!(constraint(run(format!(
+            "INSERT INTO media_tracking VALUES ({show}, 'tv', 5, NULL)"
+        ))));
+        run(format!(
+            "INSERT INTO media_tracking VALUES ({show}, 'tv', NULL, 7)"
+        ))
+        .unwrap();
+        for rating in [0, 11] {
+            assert!(constraint(run(format!(
+                "INSERT INTO media_tracking VALUES ({movie}, 'movie', NULL, {rating})"
+            ))));
+        }
+        // The type must match the media row.
+        assert!(constraint(run(format!(
+            "INSERT INTO media_tracking VALUES ({movie}, 'tv', NULL, 3)"
+        ))));
+        assert!(constraint(run(format!(
+            "INSERT INTO episode_tracking VALUES ({movie}, 'tv', 1, 1, 5)"
+        ))));
+        // Events: a movie names no episode, a series event names one.
+        assert!(constraint(run(format!(
+            "INSERT INTO watch_events (local_media_id, media_type, season_number, episode_number, watched_at) VALUES ({movie}, 'movie', 1, 1, 5)"
+        ))));
+        assert!(constraint(run(format!(
+            "INSERT INTO watch_events (local_media_id, media_type, watched_at) VALUES ({show}, 'tv', 5)"
+        ))));
+        assert!(constraint(run(format!(
+            "INSERT INTO watch_events (local_media_id, media_type, season_number, watched_at) VALUES ({show}, 'tv', 1, 5)"
+        ))));
+
+        // Episode tracking needs no episode row, and deleting seasons and
+        // episodes (provider reconciliation) leaves personal rows alone.
+        run(format!(
+            "INSERT INTO seasons (local_media_id, media_type, season_number) VALUES ({show}, 'tv', 1)"
+        ))
+        .unwrap();
+        run(format!(
+            "INSERT INTO episodes (local_media_id, season_number, episode_number) VALUES ({show}, 1, 1)"
+        ))
+        .unwrap();
+        run(format!(
+            "INSERT INTO episode_tracking VALUES ({show}, 'tv', 1, 1, 5)"
+        ))
+        .unwrap();
+        run(format!(
+            "INSERT INTO watch_events (local_media_id, media_type, season_number, episode_number, watched_at) VALUES ({show}, 'tv', 1, 1, 5)"
+        ))
+        .unwrap();
+        run(format!("DELETE FROM seasons WHERE local_media_id = {show}")).unwrap();
+        for table in ["episode_tracking", "watch_events", "media_tracking"] {
+            let rows: i64 = conn
+                .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(rows, 1, "{table}");
+        }
+        // And the media row itself cannot go while personal data exists.
+        assert!(constraint(run(format!(
+            "DELETE FROM media WHERE local_media_id = {show}"
+        ))));
     }
 
     #[test]
@@ -519,7 +754,7 @@ mod tests {
         let before = std::fs::read(&path).unwrap();
         for _ in 0..3 {
             let db = open(&path).unwrap();
-            assert_eq!(db.schema_version().unwrap(), 2);
+            assert_eq!(db.schema_version().unwrap(), 3);
             let row: (String, String, i64) = db
                 .conn()
                 .query_row(
@@ -622,6 +857,7 @@ mod tests {
         let broken: &[&str] = &[
             SCHEMA_V1,
             SCHEMA_V2,
+            SCHEMA_V3,
             "CREATE TABLE extra (x); THIS IS NOT SQL",
         ];
         let dir = TestDir::new("db-rollback");

@@ -22,15 +22,17 @@ everything into memory.
 ## Status
 
 R6 (production foundations), R7 (TMDB search), R8 (local-first library) and
-R9 (cache-first details, seasons and episodes) are implemented: find movies and
-TV series on TMDB with your own token, add them to a library stored in SQLite,
-browse, search, filter and sort it with cached posters, and open each title's
-details — for a series its seasons and episodes — also offline.
+R9 (cache-first details, seasons and episodes) and R10 (personal tracking,
+progress and watch history) are implemented: find movies and TV series on TMDB
+with your own token, add them to a library stored in SQLite, browse, search,
+filter and sort it with cached posters, open each title's details — for a
+series its seasons and episodes — and track what you watched: movies and
+episodes, whole seasons, a personal 1–10 rating, series progress and a watch
+history. Everything works offline.
 
-**Not implemented yet:** watched/unwatched state, watch dates, ratings,
-progress, season completion, statistics, calendar, notifications, backup and
-sync. Episodes are provider metadata only. See `IMPLEMENTATION_PLAN.md` and
-`docs/milestones/R6.md` to `R9.md`.
+**Not implemented yet:** statistics, calendar, notifications, a Home /
+Continue Watching page, backup and sync. See `IMPLEMENTATION_PLAN.md` and
+`docs/milestones/R6.md` to `R10.md`.
 
 ## Prerequisites
 
@@ -181,6 +183,50 @@ Details use TMDB's `/3/movie/{id}`, `/3/tv/{id}` and
 `/3/tv/{id}/season/{n}` in English. The detail pane uses the cached `w185`
 poster; backdrops are not downloaded. See ADR-0013 to ADR-0015.
 
+## Tracking what you watch
+
+Bingee keeps two kinds of data apart:
+
+| TMDB metadata (refreshable) | Your personal Bingee data (never touched by TMDB) |
+| --- | --- |
+| titles, dates, overviews, genres, seasons, episodes, poster paths | library membership, watched state and dates, ratings, watch history |
+
+The detail pane shows your data in its own **Your tracking / Your progress**
+box, separate from the TMDB header and its Refresh button.
+
+- **Movies**: **Mark as watched** records the date and one history entry;
+  pressing it again does not add another. **Mark unwatched** clears the state
+  but keeps the history. **Watch again** records a rewatch.
+- **Rating**: **Your rating** is a whole number from 1 to 10, or Not rated.
+  It does not mark anything watched and is never TMDB's score.
+- **Episodes**: click the circle beside an episode, or select it and press
+  **Space** or **Enter**, to mark it watched or unwatched.
+- **Seasons**: **Mark season watched** marks every downloaded episode of the
+  season in one step (already watched ones keep their date); **Unmark** clears
+  them. History is kept.
+- **Progress** counts downloaded regular episodes: "12 / 24 episodes watched ·
+  50%". When some episode lists are not downloaded or TMDB lists more episodes
+  than are saved, it says "downloaded episodes watched · episode list
+  incomplete" and never claims the series is finished. A series is **watched**
+  only when every regular season is fully downloaded and watched; when TMDB
+  adds an episode, it appears unwatched and the series is in progress again.
+  The pane also shows the **next episode** (season order, then episode).
+- **Specials** (season 0) can be marked like any episode but are counted apart
+  ("1 / 8 specials watched") and never block completion.
+- **Library rows** show "Watched" for movies and "12 / 24 · 50%" (or
+  "… known · incomplete") for series you started.
+- **History** (sidebar): recent watches, newest first, with local date and
+  time. **Remove from history** (or **Delete**) removes that entry only; it
+  does not unmark anything.
+- **Kept safe**: refreshing from TMDB, TMDB removing an episode or title,
+  removing a title from the library and adding it back, and restarts never
+  change your tracking. If a change cannot be saved, the pane says so and keeps
+  showing what was saved.
+- **Private**: tracking works without a network or token, is never sent to
+  TMDB or anywhere else, and is not written to the log.
+
+See ADR-0016 to ADR-0019.
+
 ## Run the benchmark fixture (R4 workload)
 
 The 1,000-title deterministic library, the spike database and the synthetic
@@ -244,15 +290,18 @@ a second and a corrupt-database start from an unrelated working directory,
 with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
 and is not signed.
 
-## What the app does (R9)
+## What the app does (R10)
 
-- **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings,
-  About. Home, Calendar and Statistics are labelled placeholders.
+- **Sidebar**: Home, Library, History, Discover, Calendar, Statistics,
+  Settings, About. Home, Calendar and Statistics are labelled placeholders.
 - **Library**: your titles from SQLite, with search, a Movie/TV filter, a
   sort menu, a virtualized list with posters, and states for an empty
   library, no matches and database errors. The detail pane shows cached
-  details with **Refresh** and **Remove**, and for series a season list and
-  the selected season's episodes.
+  details with **Refresh** and **Remove**, your tracking (watched, rating,
+  progress, next episode), and for series a season list with per-season
+  progress and bulk actions and the selected season's episodes with watched
+  marks. Rows show your progress.
+- **History**: recent watches, newest first, with Remove from history.
 - **Discover**: TMDB search over movies and TV series, with each result's
   type, year, poster and **In Library** state, a preview pane with **Add to
   Library**, **Load more**, keyboard navigation, and a clear state for a
@@ -274,14 +323,18 @@ and is not signed.
 - `src/paths.rs`: the per-OS data/cache/log policy (pure, tested for all
   three OSes on any host).
 - `src/settings.rs`: Bingee's own settings; today only `BINGEE_HOME`.
-- `src/database.rs`: `Database` (one owned connection), schemas v1 and v2,
+- `src/database.rs`: `Database` (one owned connection), schemas v1 to v3,
   migrations.
 - `src/library.rs`: library reads and writes: search with filter and sort,
   count, add, remove, membership, provider identity. No Slint, no network.
 - `src/metadata.rs`: provider detail metadata (`MediaDetails`, `Season`,
   `Episode`, `Genre`), the freshness policy and injectable `Clock`, coverage,
   and their SQLite reads and transactional writes. No Slint, no network.
-- `src/detail.rs`: the Library detail pane: cache-first loading, refresh
+- `src/tracking.rs`: personal tracking: watched state, ratings, season bulk
+  actions, watch history, coverage-aware progress, next episode, continue
+  watching. SQLite only; no Slint, no network.
+- `src/history.rs`: the History page.
+- `src/detail.rs`: the Library detail pane (metadata and tracking): cache-first loading, refresh
   decisions, background requests, stale-answer protection, view models.
 - `src/view.rs`: the `slint::Model` over search results and the selection
   logic, shared by the production library and the fixture.
@@ -342,8 +395,23 @@ Schema v2 (R9, ADR-0014) adds provider metadata only:
 - `episodes`, keyed by `(local_media_id, season_number, episode_number)`,
   with the TMDB episode id unique per season.
 
-There are no watched, rating or progress columns. A v1 database is upgraded
-in place on first start; its library, identities and poster paths are kept.
+Schema v3 (R10, ADR-0016) adds personal data only, in its own tables that
+reference `media` with `ON DELETE RESTRICT` and have no foreign key to
+`seasons` or `episodes`, so provider reconciliation can never cascade into
+them:
+
+- `media_tracking (local_media_id, media_type, watched_at, rating)`: a movie's
+  latest watch (Unix seconds, UTC) and the 1–10 rating of any title.
+- `episode_tracking`, keyed like `episodes` (series, season, episode number):
+  a row means watched, with `watched_at`.
+- `watch_events (event_id, local_media_id, media_type, season_number,
+  episode_number, watched_at)`: one row per watch, rewatches included, indexed
+  by time.
+
+Older databases are upgraded in place on first start (v1 → v2 → v3); library,
+identities, details, genres, seasons, episodes and coverage are kept. A future
+backup of personal data is `library_entries`, the three tracking tables and
+`external_refs`, never the token, caches or logs.
 
 Migrations: `PRAGMA user_version` is the schema version and `PRAGMA
 application_id` marks the file as Bingee's. All pending steps run in one
@@ -362,7 +430,8 @@ result count or error category, and duration (never the query text). For
 details: whether an opened title came from the local cache and was fresh,
 stale or never fetched, each detail or season request with its outcome and
 duration, and answers dropped because another title or season is shown —
-never the response bodies. It is rotated to `bingee-desktop.log.1` above 1 MiB. There
+never the response bodies. For tracking, only failed writes or reads (never
+what was watched). It is rotated to `bingee-desktop.log.1` above 1 MiB. There
 is no telemetry, analytics or remote logging; no per-interaction events or
 secrets are logged.
 
@@ -370,8 +439,10 @@ secrets are logged.
 
 | Key | Effect |
 | --- | --- |
-| Tab / Shift+Tab | Move focus through the search field, the list, the Library filters and sort menu, Load more, and the detail pane's Refresh, Remove, season list and episode list. |
-| Up / Down / PageUp / PageDown / Home / End | In a list (titles, seasons, episodes): move the selection and scroll it into view. Up/Down/Home/End in the season list. |
+| Tab / Shift+Tab | Move focus through the search field, the list, the Library filters and sort menu, Load more, and the detail pane's Refresh, Remove, rating menu, watched buttons, season list, season actions and episode list. |
+| Up / Down / PageUp / PageDown / Home / End | In a list (titles, seasons, episodes, history): move the selection and scroll it into view. Up/Down/Home/End in the season list. |
+| Space or Enter | In the episode list: mark the selected episode watched or unwatched. Buttons (Mark as watched, Watch again, Mark season watched, Unmark) and the rating menu are in the Tab order. |
+| Delete | In History: remove the selected entry. |
 | (switching pages) | Focus moves into the Library or Discover list. |
 | Down or Enter | In a search field: move focus to the list. |
 | Enter | In the Discover list: add the selected result to the library. |

@@ -3,6 +3,7 @@
 //! fixture.
 
 use std::cell::{Cell, RefCell};
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -13,6 +14,7 @@ use crate::diagnostics::Log;
 use crate::error::AppError;
 use crate::library::{self, LibraryItem, MediaType, Query, Sort};
 use crate::poster::{PosterKey, Posters};
+use crate::tracking::{self, Status};
 use crate::{AppWindow, MediaRow};
 
 /// A searchable set of titles and how each one is shown.
@@ -35,6 +37,9 @@ pub struct UserLibrary {
     pub kind: Cell<Option<MediaType>>,
     pub sort: Cell<Sort>,
     pub posters: Arc<Posters>,
+    /// Every library title's personal status, read in one query when the data
+    /// changed (`None`) and kept while only the search text changes.
+    pub status: RefCell<Option<HashMap<i64, Status>>>,
 }
 
 impl UserLibrary {
@@ -44,6 +49,7 @@ impl UserLibrary {
             kind: Cell::new(None),
             sort: Cell::new(Sort::default()),
             posters,
+            status: RefCell::default(),
         }
     }
 }
@@ -57,7 +63,12 @@ impl Library for UserLibrary {
             kind: self.kind.get(),
             sort: self.sort.get(),
         };
-        self.db.with(|db| library::search(db, &query))
+        self.db.with(|db| {
+            if self.status.borrow().is_none() {
+                *self.status.borrow_mut() = Some(tracking::library_status(db)?);
+            }
+            library::search(db, &query)
+        })
     }
 
     fn id(item: &LibraryItem) -> i64 {
@@ -65,7 +76,7 @@ impl Library for UserLibrary {
     }
 
     fn row(&self, item: &LibraryItem) -> MediaRow {
-        let row = media_row(
+        let mut row = media_row(
             item.id,
             item.media_type,
             &item.title,
@@ -73,11 +84,43 @@ impl Library for UserLibrary {
             item.year(),
             item.overview.as_deref(),
         );
+        if let Some((status, progress)) = self
+            .status
+            .borrow()
+            .as_ref()
+            .and_then(|statuses| status_label(statuses.get(&item.id)?))
+        {
+            row.status = status.into();
+            row.progress = progress;
+        }
         with_poster(row, Self::poster_key(item), &self.posters)
     }
 
     fn poster_key(item: &LibraryItem) -> Option<PosterKey> {
         PosterKey::tmdb(item.poster_path.as_deref()?)
+    }
+}
+
+/// A library row's personal status and bar, from local SQLite only; nothing
+/// for an unwatched movie or an unstarted series. A series shows a
+/// percentage only with its complete episode list (ADR-0018).
+pub fn status_label(status: &Status) -> Option<(String, f32)> {
+    match status {
+        Status::Movie(state) => state.watched_at.map(|_| ("Watched".to_owned(), 1.0)),
+        Status::Series(progress) => {
+            let (watched, known) = (progress.watched(), progress.known());
+            if watched == 0 {
+                return None;
+            }
+            let label = if progress.is_complete() {
+                format!("Watched · {watched} / {known}")
+            } else if progress.coverage_complete() {
+                format!("{watched} / {known} · {}%", watched * 100 / known)
+            } else {
+                format!("{watched} / {known} known · incomplete")
+            };
+            Some((label, watched as f32 / known as f32))
+        }
     }
 }
 
@@ -349,6 +392,60 @@ mod tests {
         );
         assert_eq!(detail.poster.size().width, 0, "placeholder");
         assert_eq!(detail.poster_key, "", "no poster path");
+    }
+
+    #[test]
+    fn library_rows_show_personal_status_read_once_per_data_change() {
+        use crate::metadata::tests::{episode, season, series, stored};
+        use crate::metadata::{save, save_episodes};
+        let db = Database::open_in_memory();
+        let watched = stored(&db, MediaType::Movie, 1, "Watched movie");
+        stored(&db, MediaType::Movie, 2, "Unwatched movie");
+        let show = |tmdb, title: &str, count, known| {
+            let id = stored(&db, MediaType::Tv, tmdb, title);
+            save(&db, id, &series(title, vec![season(1, Some(count))]), 1).unwrap();
+            let list: Vec<_> = (1..=known).map(|n| episode(1, n)).collect();
+            save_episodes(&db, id, 1, &list, 1).unwrap();
+            id
+        };
+        let started = show(3, "Started", 4, 4);
+        let partial = show(4, "Partial", 4, 2);
+        let done = show(5, "Done", 2, 2);
+        show(6, "Unstarted", 2, 2);
+        tracking::watch_movie(&db, watched, 10, false).unwrap();
+        tracking::watch_episode(&db, started, 1, 1, 10, false).unwrap();
+        tracking::watch_season(&db, partial, 1, 10).unwrap();
+        tracking::watch_season(&db, done, 1, 10).unwrap();
+
+        let view = view(db);
+        let status = |view: &LibraryView<UserLibrary>, title: &str| {
+            (0..view.row_count())
+                .map(|r| view.row_data(r).unwrap())
+                .find(|row| row.title == title)
+                .map(|row| (row.status.to_string(), row.progress))
+                .unwrap()
+        };
+        assert_eq!(status(&view, "Watched movie"), ("Watched".into(), 1.0));
+        assert_eq!(status(&view, "Unwatched movie"), ("".into(), 0.0));
+        assert_eq!(status(&view, "Started"), ("1 / 4 · 25%".into(), 0.25));
+        assert_eq!(
+            status(&view, "Partial"),
+            ("2 / 2 known · incomplete".into(), 1.0),
+            "never a definitive 100% over incomplete metadata"
+        );
+        assert_eq!(status(&view, "Done"), ("Watched · 2 / 2".into(), 1.0));
+        assert_eq!(status(&view, "Unstarted"), ("".into(), 0.0));
+
+        // Typing a search keeps the cached status; a data change re-reads it.
+        view.library
+            .db
+            .with(|db| tracking::unwatch_movie(db, watched))
+            .unwrap();
+        view.set_query("movie").unwrap();
+        assert_eq!(status(&view, "Watched movie").0, "Watched");
+        view.library.status.take();
+        view.refresh().unwrap();
+        assert_eq!(status(&view, "Watched movie").0, "");
     }
 
     #[test]

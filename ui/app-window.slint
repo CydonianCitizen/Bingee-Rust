@@ -75,6 +75,18 @@ export struct MediaDetail {
     refreshing: bool,
     // Why the last refresh failed. The cached detail stays on screen.
     notice: string,
+    // Personal data (`src/tracking.rs`), shown apart from the TMDB metadata.
+    // A movie: watched, and "Watched 2026-09-16 21:04" or "Not watched".
+    watched: bool,
+    watched-label: string,
+    // A series: "12 / 24 episodes · 50%", the watched share of downloaded
+    // episodes, the next episode (or why there is none), and specials.
+    progress: string,
+    progress-fraction: float,
+    progress-detail: string,
+    specials: string,
+    // A personal change that could not be saved; the committed state shows.
+    tracking-notice: string,
 }
 
 // One "Runtime: 136 min" row of the detail pane. Rust leaves out every fact
@@ -101,6 +113,7 @@ export struct EpisodeRow {
     // Air date and runtime, for example "2011-05-02 · 57 min".
     meta: string,
     overview: string,
+    watched: bool,
 }
 
 // The selected season and its episode list (`src/detail.rs`).
@@ -116,6 +129,19 @@ export struct SeasonPanel {
     action: string,
     // Shown above cached episodes, e.g. when a refresh failed.
     notice: string,
+    // "8 / 10 watched"; empty without stored episodes.
+    progress: string,
+    can-watch-all: bool,
+    can-unwatch-all: bool,
+}
+
+// One watch in the History page (`src/history.rs`).
+export struct HistoryRow {
+    title: string,
+    // "S1 E2 · Episode name" for an episode, "Movie" for a movie.
+    detail: string,
+    // Local date and time, "2026-09-16 21:04".
+    when: string,
 }
 
 // The TMDB part of Settings (`tmdb_view` in src/remote.rs).
@@ -258,6 +284,7 @@ component Sidebar inherits Rectangle {
         for item in [
             { id: "home", label: "Home" },
             { id: "library", label: "Library" },
+            { id: "history", label: "History" },
             { id: "discover", label: "Discover" },
             { id: "calendar", label: "Calendar" },
             { id: "statistics", label: "Statistics" },
@@ -570,16 +597,48 @@ component SeasonItem inherits Rectangle {
     }
 }
 
+// A personal watched mark: a filled check when watched, an empty ring when not.
+component WatchedMark inherits Rectangle {
+    in property <bool> watched;
+    callback toggle();
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    border-width: root.watched ? 0 : 1.5px;
+    border-color: touch.has-hover ? Theme.accent : Theme.text-faint;
+    background: root.watched ? Theme.accent : transparent;
+    if root.watched: Path {
+        width: 12px;
+        height: 12px;
+        viewbox-width: 12;
+        viewbox-height: 12;
+        commands: "M 2 6.5 L 5 9.5 L 10.5 3";
+        stroke: Theme.window-bg;
+        stroke-width: 2px;
+    }
+    touch := TouchArea {
+        clicked => { root.toggle(); }
+    }
+}
+
 component EpisodeItem inherits Rectangle {
     in property <EpisodeRow> item;
     in property <bool> selected;
     in property <bool> focused;
     callback clicked;
+    callback toggle-watched;
     accessible-role: list-item;
     accessible-label: "\{root.item.label} \{root.item.title}";
+    accessible-description: root.item.watched ? "Watched" : "Not watched";
+    accessible-checkable: true;
+    accessible-checked: root.item.watched;
     accessible-item-selectable: true;
     accessible-item-selected: root.selected;
     accessible-action-default => { root.clicked(); }
+    // Below the row's content, so the watched mark gets its own clicks.
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
     Rectangle {
         y: 1px;
         height: parent.height - 2px;
@@ -591,6 +650,13 @@ component EpisodeItem inherits Rectangle {
             padding: 8px;
             padding-right: 20px;
             spacing: 10px;
+            VerticalLayout {
+                alignment: center;
+                WatchedMark {
+                    watched: root.item.watched;
+                    toggle => { root.toggle-watched(); }
+                }
+            }
             Text {
                 width: 30px;
                 text: root.item.label;
@@ -626,9 +692,6 @@ component EpisodeItem inherits Rectangle {
             }
         }
     }
-    touch := TouchArea {
-        clicked => { root.clicked(); }
-    }
 }
 
 // The library detail pane: cached provider metadata for the selected title,
@@ -643,11 +706,19 @@ component MediaDetailPane inherits Rectangle {
     in property <[EpisodeRow]> episodes;
     in property <int> episode-row;
     in property <bool> can-remove;
+    // The committed rating's index in the menu: 0 not rated, 1–10.
+    in-out property <int> rating;
     callback refresh();
     callback retry-season();
     callback season-selected(row: int);
     callback episode-selected(row: int);
     callback remove();
+    // Personal actions; Rust writes SQLite and renders the committed state.
+    callback watch-toggle();
+    callback watch-again();
+    callback rate(index: int);
+    callback episode-toggle(row: int);
+    callback season-watched(watched: bool);
 
     private property <length> season-height: 46px;
     private property <length> episode-height: 56px;
@@ -738,6 +809,94 @@ component MediaDetailPane inherits Rectangle {
                 }
             }
         }
+        // Personal tracking, boxed apart from the TMDB header and its Refresh.
+        Rectangle {
+            // Its content height only: the episode list gets the rest.
+            vertical-stretch: 0;
+            border-radius: 8px;
+            background: Theme.window-bg;
+            border-width: 1px;
+            border-color: Theme.border;
+            VerticalLayout {
+                padding: 10px;
+                spacing: 6px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    height: 30px;
+                    SectionTitle {
+                        text: root.detail.is-tv ? "YOUR PROGRESS" : "YOUR TRACKING";
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                    }
+                    Text {
+                        text: "Your rating";
+                        font-size: 12px;
+                        vertical-alignment: center;
+                        color: Theme.text-muted;
+                    }
+                    ComboBox {
+                        width: 110px;
+                        model: ["Not rated", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+                        current-index <=> root.rating;
+                        accessible-label: "Your rating, 1 to 10";
+                        selected => { root.rate(self.current-index); }
+                    }
+                }
+                if !root.detail.is-tv: HorizontalLayout {
+                    spacing: 8px;
+                    Text {
+                        text: root.detail.watched-label;
+                        font-size: 12px;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                        color: root.detail.watched ? Theme.ok : Theme.text-muted;
+                        overflow: elide;
+                    }
+                    Button {
+                        text: root.detail.watched ? "Mark unwatched" : "Mark as watched";
+                        primary: !root.detail.watched;
+                        clicked => { root.watch-toggle(); }
+                    }
+                    if root.detail.watched: Button {
+                        text: "Watch again";
+                        clicked => { root.watch-again(); }
+                    }
+                }
+                if root.detail.is-tv: VerticalLayout {
+                    spacing: 4px;
+                    Text {
+                        text: root.detail.progress;
+                        font-size: 12px;
+                        color: Theme.text;
+                        overflow: elide;
+                    }
+                    ProgressTrack {
+                        progress: root.detail.progress-fraction;
+                    }
+                    if root.detail.progress-detail != "" || root.detail.specials != "": HorizontalLayout {
+                        spacing: 8px;
+                        Text {
+                            text: root.detail.progress-detail;
+                            font-size: 11px;
+                            horizontal-stretch: 1;
+                            color: Theme.text-muted;
+                            overflow: elide;
+                        }
+                        Text {
+                            text: root.detail.specials;
+                            font-size: 11px;
+                            color: Theme.text-faint;
+                        }
+                    }
+                }
+                if root.detail.tracking-notice != "": Text {
+                    text: root.detail.tracking-notice;
+                    font-size: 12px;
+                    color: Theme.error;
+                    wrap: word-wrap;
+                }
+            }
+        }
         // A refresh that failed never replaces what is cached: it says so here
         // and leaves the detail below untouched.
         if root.detail.notice != "": Text {
@@ -756,8 +915,8 @@ component MediaDetailPane inherits Rectangle {
             spacing: 10px;
             // Capped, so the episode list below keeps most of the height.
             FactsAndOverview {
-                min-height: 60px;
-                max-height: 120px;
+                min-height: 40px;
+                max-height: 64px;
                 facts: root.facts;
                 overview: root.detail.overview;
             }
@@ -805,12 +964,38 @@ component MediaDetailPane inherits Rectangle {
             }
             VerticalLayout {
                 spacing: 3px;
-                Text {
-                    text: root.season.heading;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: Theme.text;
-                    overflow: elide;
+                // The season's personal progress and bulk actions share the
+                // heading row, so the episode list keeps its height.
+                HorizontalLayout {
+                    spacing: 6px;
+                    VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 1;
+                        Text {
+                            text: root.season.heading;
+                            font-size: 13px;
+                            font-weight: 600;
+                            color: Theme.text;
+                            overflow: elide;
+                        }
+                        if root.season.state == "episodes": Text {
+                            text: root.season.progress;
+                            font-size: 11px;
+                            color: Theme.text-muted;
+                            overflow: elide;
+                        }
+                    }
+                    if root.season.state == "episodes": Button {
+                        text: "Mark season watched";
+                        enabled: root.season.can-watch-all;
+                        clicked => { root.season-watched(true); }
+                    }
+                    if root.season.state == "episodes": Button {
+                        text: "Unmark";
+                        enabled: root.season.can-unwatch-all;
+                        accessible-label: "Mark season unwatched";
+                        clicked => { root.season-watched(false); }
+                    }
                 }
                 if root.season.meta != "": Text {
                     text: root.season.meta;
@@ -850,6 +1035,13 @@ component MediaDetailPane inherits Rectangle {
                             root.select-episode(0);
                         } else if event.text == Key.End {
                             root.select-episode(root.episodes.length - 1);
+                        } else if event.text == " " || event.text == Key.Return {
+                            // Space or Enter: toggle the selected episode's
+                            // watched state (no selection change, no scroll).
+                            if root.episode-row >= 0 {
+                                root.episode-toggle(root.episode-row);
+                            }
+                            return accept;
                         } else {
                             return reject;
                         }
@@ -874,6 +1066,7 @@ component MediaDetailPane inherits Rectangle {
                                 root.episode-selected(index);
                                 episode-focus.focus();
                             }
+                            toggle-watched => { root.episode-toggle(index); }
                         }
                     }
                 }
@@ -1337,6 +1530,185 @@ component DiscoverPage {
     }
 }
 
+component HistoryItem inherits Rectangle {
+    in property <HistoryRow> item;
+    in property <bool> selected;
+    in property <bool> focused;
+    callback clicked;
+    accessible-role: list-item;
+    accessible-label: root.item.detail == "" ? "\{root.item.title}, \{root.item.when}" : "\{root.item.title}, \{root.item.detail}, \{root.item.when}";
+    accessible-item-selectable: true;
+    accessible-item-selected: root.selected;
+    accessible-action-default => { root.clicked(); }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+    Rectangle {
+        y: 1px;
+        height: parent.height - 2px;
+        border-radius: 6px;
+        background: root.selected ? Theme.selected-bg : touch.has-hover ? Theme.hover-bg : transparent;
+        border-width: root.focused ? 1px : 0;
+        border-color: Theme.accent;
+        HorizontalLayout {
+            padding: 10px;
+            padding-right: 22px;
+            spacing: 14px;
+            VerticalLayout {
+                alignment: center;
+                spacing: 2px;
+                horizontal-stretch: 1;
+                Text {
+                    text: root.item.title;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: Theme.text;
+                    overflow: elide;
+                }
+                if root.item.detail != "": Text {
+                    text: root.item.detail;
+                    font-size: 12px;
+                    color: Theme.text-muted;
+                    overflow: elide;
+                }
+            }
+            Text {
+                text: root.item.when;
+                font-size: 12px;
+                vertical-alignment: center;
+                color: Theme.text-muted;
+            }
+        }
+    }
+}
+
+// Recent watches from SQLite, newest first (`src/history.rs`).
+component HistoryPage {
+    in property <[HistoryRow]> rows;
+    in property <int> selected-row;
+    in property <string> notice;
+    callback row-selected(row: int);
+    callback delete-row(row: int);
+
+    private property <length> row-height: 56px;
+
+    public function focus-list() {
+        list-focus.focus();
+    }
+
+    function select-row(row: int) {
+        if root.rows.length > 0 {
+            root.row-selected(clamp(row, 0, root.rows.length - 1));
+            if root.selected-row * root.row-height + list.viewport-y < 0 {
+                list.viewport-y = -root.selected-row * root.row-height;
+            } else if (root.selected-row + 1) * root.row-height + list.viewport-y > list.visible-height {
+                list.viewport-y = list.visible-height - (root.selected-row + 1) * root.row-height;
+            }
+        }
+    }
+
+    VerticalLayout {
+        padding: 24px;
+        padding-right: 16px;
+        spacing: 16px;
+        HorizontalLayout {
+            spacing: 12px;
+            PageTitle {
+                text: "History";
+            }
+            Text {
+                text: "What you watched, newest first. Stored only on this computer.";
+                font-size: 13px;
+                vertical-alignment: bottom;
+                horizontal-stretch: 1;
+                color: Theme.text-faint;
+                overflow: elide;
+            }
+        }
+        if root.notice != "": Text {
+            text: root.notice;
+            wrap: word-wrap;
+            font-size: 13px;
+            color: Theme.error;
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            list-focus := FocusScope {
+                key-pressed(event) => {
+                    if event.text == Key.UpArrow {
+                        root.select-row(root.selected-row - 1);
+                    } else if event.text == Key.DownArrow {
+                        root.select-row(root.selected-row + 1);
+                    } else if event.text == Key.PageUp {
+                        root.select-row(root.selected-row - max(1, floor(list.visible-height / root.row-height)));
+                    } else if event.text == Key.PageDown {
+                        root.select-row(root.selected-row + max(1, floor(list.visible-height / root.row-height)));
+                    } else if event.text == Key.Home {
+                        root.select-row(0);
+                    } else if event.text == Key.End {
+                        root.select-row(root.rows.length - 1);
+                    } else if event.text == Key.Delete {
+                        if root.selected-row >= 0 {
+                            root.delete-row(root.selected-row);
+                        }
+                    } else {
+                        return reject;
+                    }
+                    return accept;
+                }
+                list := ListView {
+                    width: 100%;
+                    height: 100%;
+                    for item[index] in root.rows: HistoryItem {
+                        height: root.row-height;
+                        item: item;
+                        selected: index == root.selected-row;
+                        focused: self.selected && list-focus.has-focus;
+                        clicked => {
+                            root.row-selected(index);
+                            list-focus.focus();
+                        }
+                    }
+                }
+            }
+            if root.rows.length == 0: VerticalLayout {
+                alignment: center;
+                spacing: 6px;
+                Text {
+                    text: "No watches yet";
+                    horizontal-alignment: center;
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: Theme.text;
+                }
+                Text {
+                    text: "Mark a movie or an episode as watched in your Library, and it appears here.";
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                    font-size: 13px;
+                    color: Theme.text-muted;
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 12px;
+            Button {
+                text: "Remove from history";
+                enabled: root.selected-row >= 0;
+                clicked => { root.delete-row(root.selected-row); }
+            }
+            Text {
+                text: "Removes this entry only. Whether the title is marked watched does not change.";
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                font-size: 12px;
+                color: Theme.text-faint;
+                overflow: elide;
+            }
+        }
+    }
+}
+
 // Shown instead of the library when the database cannot be opened, so a
 // failure never looks like an empty library.
 component StartupErrorPage {
@@ -1428,6 +1800,11 @@ export component AppWindow inherits Window {
     in property <SeasonPanel> detail-season;
     in property <[EpisodeRow]> detail-episodes;
     in property <int> detail-episode-row: -1;
+    in-out property <int> detail-rating;
+    // The History page (src/history.rs).
+    in property <[HistoryRow]> history-rows;
+    in property <int> history-selected-row: -1;
+    in property <string> history-notice;
 
     callback query-changed(query: string);
     callback row-selected(row: int);
@@ -1458,6 +1835,15 @@ export component AppWindow inherits Window {
     // poster finished loading.
     callback token-changed();
     callback detail-poster-ready();
+    // Personal tracking in the detail pane (src/detail.rs).
+    callback detail-watch-toggle();
+    callback detail-watch-again();
+    callback detail-rate(index: int);
+    callback detail-episode-toggle(row: int);
+    callback detail-season-watched(watched: bool);
+    callback history-opened();
+    callback history-row-selected(row: int);
+    callback history-delete(row: int);
 
     private property <length> row-height: 80px;
     private property <string> shown: root.startup-error != "" && root.page != "settings" && root.page != "about" ? "error" : root.page;
@@ -1475,6 +1861,9 @@ export component AppWindow inherits Window {
             list-focus.focus();
         } else if root.shown == "discover" {
             discover-page.focus-list();
+        } else if root.shown == "history" {
+            root.history-opened();
+            history-page.focus-list();
         }
     }
 
@@ -1667,6 +2056,17 @@ export component AppWindow inherits Window {
                     }
                 }
             }
+            // Kept alive like the library, so focus can move into it on entry.
+            history-page := HistoryPage {
+                width: 100%;
+                height: 100%;
+                visible: root.shown == "history";
+                rows: root.history-rows;
+                selected-row: root.history-selected-row;
+                notice: root.history-notice;
+                row-selected(row) => { root.history-row-selected(row); }
+                delete-row(row) => { root.history-delete(row); }
+            }
             if root.shown == "home": Placeholder {
                 width: 100%;
                 height: 100%;
@@ -1746,6 +2146,12 @@ export component AppWindow inherits Window {
                 season-selected(row) => { root.detail-season-selected(row); }
                 episode-selected(row) => { root.detail-episode-selected(row); }
                 remove => { root.library-remove(); }
+                rating <=> root.detail-rating;
+                watch-toggle => { root.detail-watch-toggle(); }
+                watch-again => { root.detail-watch-again(); }
+                rate(index) => { root.detail-rate(index); }
+                episode-toggle(row) => { root.detail-episode-toggle(row); }
+                season-watched(watched) => { root.detail-season-watched(watched); }
             }
         }
         // Discover's preview, and the benchmark fixture's R4 layout, unchanged.

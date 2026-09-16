@@ -8,6 +8,7 @@ mod diagnostics;
 mod error;
 #[cfg(any(test, feature = "benchmark-fixture"))]
 mod fixture;
+mod history;
 mod library;
 mod metadata;
 mod network;
@@ -18,6 +19,7 @@ mod search;
 mod secrets;
 mod settings;
 mod tmdb;
+mod tracking;
 mod view;
 
 use std::path::Path;
@@ -130,6 +132,7 @@ fn run() -> ExitCode {
         db.clone(),
         posters.clone(),
     );
+    history::start(&window, db.clone(), log.clone());
     // The Library detail pane: cached details first, TMDB only when stale.
     detail::start(
         &window,
@@ -346,6 +349,8 @@ fn connect_library(window: &AppWindow, view: Rc<LibraryView<UserLibrary>>, log: 
 
 /// Runs the Library search again and updates the title count.
 fn reload(window: &AppWindow, view: &LibraryView<UserLibrary>, log: &Log) {
+    // The data changed: personal status is read again with the search.
+    view.library.status.take();
     let refreshed = view
         .refresh()
         .and_then(|()| view.library.db.with(library::count));
@@ -525,7 +530,7 @@ mod tests {
         assert_eq!(app.get_selected_row(), -1);
         assert_eq!(app.get_page(), "library");
         let storage = app.get_storage();
-        assert_eq!(storage.schema, "2");
+        assert_eq!(storage.schema, "3");
         assert_eq!(storage.database, paths.database().display().to_string());
         assert!(paths.database().is_file() && paths.cache.is_dir());
         assert_eq!(app.global::<AppInfo>().get_version(), APP_VERSION);
@@ -533,6 +538,7 @@ mod tests {
         // Every page renders.
         for page in [
             "home",
+            "history",
             "discover",
             "calendar",
             "statistics",
@@ -592,7 +598,7 @@ mod tests {
         app.invoke_retry();
         ui.render();
         assert_eq!(app.get_startup_error(), "");
-        assert_eq!(app.get_storage().schema, "2");
+        assert_eq!(app.get_storage().schema, "3");
     }
 
     #[test]
