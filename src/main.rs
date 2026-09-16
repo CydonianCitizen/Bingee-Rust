@@ -3,11 +3,13 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod database;
+mod detail;
 mod diagnostics;
 mod error;
 #[cfg(any(test, feature = "benchmark-fixture"))]
 mod fixture;
 mod library;
+mod metadata;
 mod network;
 mod paths;
 mod poster;
@@ -119,14 +121,25 @@ fn run() -> ExitCode {
     start(&window, paths, log.clone(), db.clone(), posters.clone());
     // Independent of the library: a database failure does not stop remote
     // search, and no network failure reaches the database.
-    remote::start(
+    let token = remote::start(
         &window,
-        client,
+        client.clone(),
         Arc::new(KeyringStore),
-        network,
+        network.clone(),
         log.clone(),
-        db,
+        db.clone(),
         posters.clone(),
+    );
+    // The Library detail pane: cached details first, TMDB only when stale.
+    detail::start(
+        &window,
+        db,
+        client,
+        token,
+        network,
+        posters.clone(),
+        metadata::Clock::system(),
+        log.clone(),
     );
     let result = window.run();
     log.info(posters.stats());
@@ -159,6 +172,9 @@ fn poster_ready(window: &AppWindow, key: &PosterKey) {
         if window.get_detail().poster_key == key.name() {
             view::show_selection(window, view);
         }
+    }
+    if window.get_media_detail().poster_key == key.name() {
+        window.invoke_detail_poster_ready();
     }
     remote::poster_ready(window, key);
 }
@@ -487,7 +503,7 @@ mod tests {
     }
 
     #[test]
-    fn fresh_start_shows_an_empty_library_and_creates_v1() {
+    fn fresh_start_shows_an_empty_library_at_the_latest_schema() {
         let dir = TestDir::new("start-fresh");
         let paths = test_paths(&dir);
         let mut ui = Headless::new(1280, 800);
@@ -509,7 +525,7 @@ mod tests {
         assert_eq!(app.get_selected_row(), -1);
         assert_eq!(app.get_page(), "library");
         let storage = app.get_storage();
-        assert_eq!(storage.schema, "1");
+        assert_eq!(storage.schema, "2");
         assert_eq!(storage.database, paths.database().display().to_string());
         assert!(paths.database().is_file() && paths.cache.is_dir());
         assert_eq!(app.global::<AppInfo>().get_version(), APP_VERSION);
@@ -576,7 +592,7 @@ mod tests {
         app.invoke_retry();
         ui.render();
         assert_eq!(app.get_startup_error(), "");
-        assert_eq!(app.get_storage().schema, "1");
+        assert_eq!(app.get_storage().schema, "2");
     }
 
     #[test]

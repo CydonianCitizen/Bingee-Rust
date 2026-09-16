@@ -22,7 +22,7 @@ use crate::poster::{PosterKey, Posters};
 use crate::search::{
     DEBOUNCE, ExternalRef, MediaSearchResult, Request, SearchController, SearchPage, Status,
 };
-use crate::secrets::{STORE_NAME, SecretStore, Token};
+use crate::secrets::{STORE_NAME, SecretStore, SharedToken, Token};
 use crate::tmdb::{TmdbClient, TmdbError};
 use crate::view::{media_row, reselect, with_poster};
 use crate::{AppWindow, DiscoverView, MediaRow, TmdbView};
@@ -85,6 +85,8 @@ struct Remote {
     log: Arc<Log>,
     db: SharedDb,
     posters: Arc<Posters>,
+    /// The token in use, for the detail pane.
+    shared_token: SharedToken,
 }
 
 /// The Discover list: rows are built only when the list view asks, so only
@@ -154,7 +156,8 @@ enum Saved {
 
 /// Wires Discover and the TMDB part of Settings to `window`, then reads the
 /// saved token (and checks it with TMDB) in the background. `db` is the
-/// library database, once it is open.
+/// library database, once it is open. Returns the token in use as it
+/// changes; `token-changed` announces when one appears or goes away.
 pub fn start(
     window: &AppWindow,
     client: TmdbClient,
@@ -163,7 +166,7 @@ pub fn start(
     log: Arc<Log>,
     db: SharedDb,
     posters: Arc<Posters>,
-) {
+) -> SharedToken {
     let remote = Remote {
         window: window.as_weak(),
         state: Arc::new(Mutex::new(State {
@@ -185,6 +188,7 @@ pub fn start(
         log,
         db,
         posters,
+        shared_token: SharedToken::default(),
     };
     window.set_discover_results(ModelRc::from(Rc::new(DiscoverModel {
         remote: remote.clone(),
@@ -227,6 +231,7 @@ pub fn start(
     });
     remote.render(window);
     remote.load();
+    remote.shared_token
 }
 
 impl Remote {
@@ -619,8 +624,14 @@ impl Remote {
             .is_some_and(|r| state.in_library.contains(&r.external));
         let discover = discover_view(&state);
         let tmdb = tmdb_view(&state);
+        let token = state.token.clone();
         // Slint may read the model while we set properties: no lock held.
         drop(state);
+        let appeared = token.is_some() != self.shared_token.get().is_some();
+        self.shared_token.set(token);
+        if appeared {
+            window.invoke_token_changed();
+        }
         window.set_discover(discover);
         window.set_tmdb(tmdb);
         window.set_discover_selected_row(selected.map_or(-1, |row| row as i32));

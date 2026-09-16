@@ -9,7 +9,7 @@ LOCALAPPDATA pointed at a fresh folder under -WorkDir, so the real per-user
 library is never touched while the real path resolution is exercised.
 
 1. fresh:   creates <profile>\Bingee Desktop\{data\bingee.db, cache, logs},
-            migrates to schema version 1, logs startup, writes nothing to the
+            migrates to schema version 2, logs startup, writes nothing to the
             working directory or the package, exits 0 after a graceful close.
 2. second:  same profile; the database file is byte-identical afterwards and
             no migration runs again.
@@ -85,7 +85,7 @@ New-Item -ItemType Directory -Path $userDir | Out-Null
 $fresh = Invoke-Launch 'fresh' $userDir
 foreach ($path in @($db, $log, (Join-Path $root 'cache'))) { if (-not (Test-Path $path)) { throw "fresh: $path was not created." } }
 $text = Get-Content $log -Raw
-foreach ($line in @('INFO Bingee Desktop ', 'INFO Migrating the database from schema version 0 to 1', 'INFO Migration to schema version 1 complete', 'INFO Library opened: schema version 1, 0 titles', 'INFO Bingee Desktop closed')) {
+foreach ($line in @('INFO Bingee Desktop ', 'INFO Migrating the database from schema version 0 to 2', 'INFO Migration to schema version 2 complete', 'INFO Library opened: schema version 2, 0 titles', 'INFO Bingee Desktop closed')) {
     if (-not $text.Contains($line)) { throw "fresh: log lacks '$line'." }
 }
 if ($text.Contains(' ERROR ')) { throw "fresh: log has an error: $text" }
@@ -97,7 +97,7 @@ $second = Invoke-Launch 'second' $userDir
 if ((Get-Bytes $db) -ne $before) { throw 'second: the database file changed.' }
 $text = Get-Content $log -Raw
 if (([regex]::Matches($text, 'Migrating the database')).Count -ne 1) { throw 'second: migrated again.' }
-if (([regex]::Matches($text, 'Library opened: schema version 1')).Count -ne 2) { throw 'second: library not opened.' }
+if (([regex]::Matches($text, 'Library opened: schema version 2')).Count -ne 2) { throw 'second: library not opened.' }
 
 # 3. Corrupt database.
 $badProfile = Join-Path $WorkDir 'profile-corrupt'

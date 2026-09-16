@@ -35,7 +35,7 @@ impl MediaType {
         }
     }
 
-    fn from_key(key: &str) -> Result<Self, AppError> {
+    pub fn from_key(key: &str) -> Result<Self, AppError> {
         match key {
             "movie" => Ok(MediaType::Movie),
             "tv" => Ok(MediaType::Tv),
@@ -242,6 +242,30 @@ fn media_for(tx: &Transaction, external: &ExternalRef) -> rusqlite::Result<Optio
         |row| row.get(0),
     )
     .optional()
+}
+
+/// The provider identity of a stored title, for its detail requests. `None`
+/// when the title has none (it was never added from a provider).
+pub fn external_ref(db: &Database, id: i64) -> Result<Option<ExternalRef>, AppError> {
+    let failed = |err| AppError::database("Your library could not be read.", err);
+    let row = db
+        .conn()
+        .query_row(
+            "SELECT media_type, external_id FROM external_refs
+             WHERE local_media_id = ?1 AND source = 'tmdb'",
+            [id],
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+        )
+        .optional()
+        .map_err(failed)?;
+    row.map(|(kind, external)| {
+        Ok(ExternalRef {
+            source: Source::Tmdb,
+            media_type: MediaType::from_key(&kind)?,
+            id: external,
+        })
+    })
+    .transpose()
 }
 
 /// Takes a title out of the library: only its membership goes. Its metadata,

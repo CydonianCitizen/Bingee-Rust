@@ -2,6 +2,7 @@
 //! pooled `ureq` agent. The response DTOs are private to this module and are
 //! mapped at once to `search::MediaSearchResult`.
 
+use std::collections::HashSet;
 use std::fmt;
 use std::time::Duration;
 
@@ -9,6 +10,7 @@ use serde::Deserialize;
 
 use crate::error::{AppError, ErrorKind};
 use crate::library::MediaType;
+use crate::metadata::{Episode, Genre, MediaDetails, Season, TvDetails};
 use crate::search::{ExternalRef, MAX_PAGE, MediaSearchResult, SearchPage, Source};
 use crate::secrets::Token;
 use crate::{APP_ID, APP_VERSION};
@@ -166,6 +168,38 @@ impl TmdbClient {
             MediaType::Movie => decode::<PageDto<MovieDto>>(&body).map(|p| p.map(MovieDto::map)),
             MediaType::Tv => decode::<PageDto<TvDto>>(&body).map(|p| p.map(TvDto::map)),
         }
+    }
+
+    /// A title's full metadata: `/3/movie/{id}` or `/3/tv/{id}` (ADR-0013).
+    /// `append_to_response` is deliberately not used: R9 needs nothing from
+    /// the same namespace at this moment, and appending seasons here would
+    /// fetch episodes the user has not opened.
+    pub fn details(
+        &self,
+        token: &Token,
+        media_type: MediaType,
+        id: &str,
+    ) -> Result<MediaDetails, TmdbError> {
+        let path = format!("/3/{}/{id}", media_type.key());
+        let body = self.get(token, &path, &[("language", LANGUAGE)])?;
+        match media_type {
+            MediaType::Movie => decode::<MovieDetailsDto>(&body).map(MovieDetailsDto::map),
+            MediaType::Tv => decode::<TvDetailsDto>(&body).map(TvDetailsDto::map),
+        }
+    }
+
+    /// One season's episodes: `/3/tv/{id}/season/{n}` (ADR-0014). The season
+    /// endpoint carries every episode field R9 stores, so no request is ever
+    /// made per episode.
+    pub fn season_episodes(
+        &self,
+        token: &Token,
+        id: &str,
+        season: i64,
+    ) -> Result<Vec<Episode>, TmdbError> {
+        let path = format!("/3/tv/{id}/season/{season}");
+        let body = self.get(token, &path, &[("language", LANGUAGE)])?;
+        Ok(episodes(decode::<SeasonDetailsDto>(&body)?, season))
     }
 
     /// The image base URL from `/3/configuration`, if it offers our poster
@@ -364,11 +398,10 @@ impl TvDto {
 fn result(
     media_type: MediaType,
     id: u64,
-    [title, original_title, date]: [Option<String>; 3],
+    [title, original_title, date_value]: [Option<String>; 3],
     overview: Option<String>,
     [poster_path, backdrop_path]: [Option<String>; 2],
 ) -> Option<MediaSearchResult> {
-    let text = |value: Option<String>| value.filter(|v| !v.trim().is_empty());
     let original_title = text(original_title);
     let title = text(title).or_else(|| original_title.clone())?;
     (id > 0).then(|| MediaSearchResult {
@@ -379,11 +412,234 @@ fn result(
         },
         title,
         original_title,
-        release_date: date.filter(|d| is_iso_date(d)),
+        release_date: date(date_value),
         overview: text(overview),
         poster_path: text(poster_path),
         backdrop_path: text(backdrop_path),
     })
+}
+
+/// `/3/movie/{id}`, the fields Bingee stores. Everything else TMDB sends
+/// (budget, revenue, production companies, votes, …) is ignored on purpose.
+#[derive(Deserialize)]
+struct MovieDetailsDto {
+    title: Option<String>,
+    original_title: Option<String>,
+    overview: Option<String>,
+    tagline: Option<String>,
+    release_date: Option<String>,
+    /// "Released", "Post Production", "Canceled", …
+    status: Option<String>,
+    /// Null for titles whose runtime TMDB does not know.
+    runtime: Option<i64>,
+    poster_path: Option<String>,
+    backdrop_path: Option<String>,
+    genres: Option<Vec<GenreDto>>,
+}
+
+/// `/3/tv/{id}`: `name`/`first_air_date` instead of `title`/`release_date`,
+/// plus the season summaries.
+#[derive(Deserialize)]
+struct TvDetailsDto {
+    name: Option<String>,
+    original_name: Option<String>,
+    overview: Option<String>,
+    tagline: Option<String>,
+    first_air_date: Option<String>,
+    last_air_date: Option<String>,
+    /// "Returning Series", "Ended", "Canceled", …
+    status: Option<String>,
+    /// TMDB gives a list; a series with several formats has several entries.
+    episode_run_time: Option<Vec<i64>>,
+    number_of_seasons: Option<i64>,
+    number_of_episodes: Option<i64>,
+    poster_path: Option<String>,
+    backdrop_path: Option<String>,
+    genres: Option<Vec<GenreDto>>,
+    seasons: Option<Vec<SeasonDto>>,
+}
+
+#[derive(Deserialize)]
+struct GenreDto {
+    id: u64,
+    name: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct SeasonDto {
+    id: Option<u64>,
+    /// 0 is TMDB's specials season.
+    season_number: Option<i64>,
+    name: Option<String>,
+    overview: Option<String>,
+    air_date: Option<String>,
+    episode_count: Option<i64>,
+    poster_path: Option<String>,
+}
+
+/// `/3/tv/{id}/season/{n}`. Only the episode list is read: the season's own
+/// summary already came with the series details.
+#[derive(Deserialize)]
+struct SeasonDetailsDto {
+    episodes: Option<Vec<EpisodeDto>>,
+}
+
+#[derive(Deserialize)]
+struct EpisodeDto {
+    id: Option<u64>,
+    episode_number: Option<i64>,
+    name: Option<String>,
+    overview: Option<String>,
+    air_date: Option<String>,
+    runtime: Option<i64>,
+    still_path: Option<String>,
+}
+
+/// A non-empty, non-blank string, or `None`.
+fn text(value: Option<String>) -> Option<String> {
+    value.filter(|v| !v.trim().is_empty())
+}
+
+fn date(value: Option<String>) -> Option<String> {
+    value.filter(|d| is_iso_date(d))
+}
+
+/// A count TMDB may send as null, zero or (in malformed data) negative.
+fn count(value: Option<i64>) -> Option<u32> {
+    value.and_then(|n| u32::try_from(n).ok())
+}
+
+/// A duration in minutes: zero means "not known", never "zero minutes".
+fn minutes(value: Option<i64>) -> Option<u32> {
+    count(value).filter(|n| *n > 0)
+}
+
+fn genres(dtos: Option<Vec<GenreDto>>) -> Vec<Genre> {
+    dtos.unwrap_or_default()
+        .into_iter()
+        .filter_map(|dto| {
+            Some(Genre {
+                id: (dto.id > 0).then(|| dto.id.to_string())?,
+                name: text(dto.name)?,
+            })
+        })
+        .collect()
+}
+
+impl MovieDetailsDto {
+    fn map(self) -> MediaDetails {
+        let original_title = text(self.original_title);
+        MediaDetails {
+            media_type: MediaType::Movie,
+            title: text(self.title)
+                .or_else(|| original_title.clone())
+                .unwrap_or_default(),
+            original_title,
+            overview: text(self.overview),
+            tagline: text(self.tagline),
+            release_date: date(self.release_date),
+            status: text(self.status),
+            runtime_minutes: minutes(self.runtime),
+            poster_path: text(self.poster_path),
+            backdrop_path: text(self.backdrop_path),
+            genres: genres(self.genres),
+            fetched_at: None,
+            tv: None,
+        }
+    }
+}
+
+impl TvDetailsDto {
+    fn map(self) -> MediaDetails {
+        let original_title = text(self.original_name);
+        // The shortest listed format is the typical episode length; a series
+        // with one long pilot should not read as a series of long episodes.
+        let runtime = self
+            .episode_run_time
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|n| minutes(Some(n)))
+            .min();
+        let mut seasons: Vec<Season> = self
+            .seasons
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(SeasonDto::map)
+            .collect();
+        seasons.sort_by_key(|season| season.number);
+        seasons.dedup_by_key(|season| season.number);
+        MediaDetails {
+            media_type: MediaType::Tv,
+            title: text(self.name)
+                .or_else(|| original_title.clone())
+                .unwrap_or_default(),
+            original_title,
+            overview: text(self.overview),
+            tagline: text(self.tagline),
+            release_date: date(self.first_air_date),
+            status: text(self.status),
+            runtime_minutes: runtime,
+            poster_path: text(self.poster_path),
+            backdrop_path: text(self.backdrop_path),
+            genres: genres(self.genres),
+            fetched_at: None,
+            tv: Some(TvDetails {
+                last_air_date: date(self.last_air_date),
+                season_count: count(self.number_of_seasons),
+                episode_count: count(self.number_of_episodes),
+                seasons,
+            }),
+        }
+    }
+}
+
+impl SeasonDto {
+    /// `None` for an entry without a usable season number: a season Bingee
+    /// could not address again is no season.
+    fn map(self) -> Option<Season> {
+        Some(Season {
+            number: self.season_number.filter(|n| *n >= 0)?,
+            external_id: self.id.filter(|id| *id > 0).map(|id| id.to_string()),
+            name: text(self.name),
+            overview: text(self.overview),
+            air_date: date(self.air_date),
+            episode_count: count(self.episode_count),
+            poster_path: text(self.poster_path),
+            episodes_fetched_at: None,
+            episodes_known: None,
+        })
+    }
+}
+
+/// The episodes of one season, in episode order, with each episode number and
+/// each provider id appearing once: a malformed answer must not become two
+/// rows for one episode.
+fn episodes(dto: SeasonDetailsDto, season: i64) -> Vec<Episode> {
+    let mut episodes: Vec<Episode> = dto
+        .episodes
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|dto| {
+            Some(Episode {
+                season_number: season,
+                number: dto.episode_number.filter(|n| *n >= 0)?,
+                external_id: dto.id.filter(|id| *id > 0).map(|id| id.to_string()),
+                name: text(dto.name),
+                overview: text(dto.overview),
+                air_date: date(dto.air_date),
+                runtime_minutes: minutes(dto.runtime),
+                still_path: text(dto.still_path),
+            })
+        })
+        .collect();
+    episodes.sort_by_key(|episode| episode.number);
+    episodes.dedup_by_key(|episode| episode.number);
+    let mut seen = HashSet::new();
+    episodes.retain(|episode| match &episode.external_id {
+        Some(id) => seen.insert(id.clone()),
+        None => true,
+    });
+    episodes
 }
 
 fn is_iso_date(date: &str) -> bool {
@@ -510,6 +766,76 @@ pub mod fake {
             reply.declared.unwrap_or(reply.body.len()),
         );
         let _ = stream.write_all(&reply.body);
+    }
+
+    /// A `/3/movie/{id}` body.
+    pub fn movie_details(id: u64, title: &str) -> String {
+        format!(
+            r#"{{"id":{id},"title":"{title}","original_title":"{title}",
+            "overview":"A hacker learns the truth.","tagline":"Free your mind.",
+            "release_date":"1999-03-31","status":"Released","runtime":136,
+            "poster_path":"/matrix.jpg","backdrop_path":"/wide.jpg","budget":63000000,
+            "genres":[{{"id":28,"name":"Action"}},{{"id":878,"name":"Science Fiction"}}],
+            "vote_average":8.2,"belongs_to_collection":null}}"#
+        )
+    }
+
+    /// A `/3/tv/{id}` body whose seasons are `(season_number, episode_count)`.
+    pub fn tv_details(id: u64, name: &str, seasons: &[(i64, u32)]) -> String {
+        let total: u32 = seasons.iter().map(|(_, count)| count).sum();
+        let listed: Vec<String> = seasons
+            .iter()
+            .map(|(number, count)| {
+                format!(
+                    r#"{{"id":{},"season_number":{number},"name":{},"overview":"A season.",
+                    "air_date":"2011-04-1{}","episode_count":{count},"poster_path":null,
+                    "vote_average":8.0}}"#,
+                    3000 + number,
+                    match number {
+                        0 => r#""Specials""#.to_owned(),
+                        n => format!(r#""Season {n}""#),
+                    },
+                    number.rem_euclid(10),
+                )
+            })
+            .collect();
+        format!(
+            r#"{{"id":{id},"name":"{name}","original_name":"{name}","overview":"About the series.",
+            "tagline":null,"first_air_date":"2011-04-17","last_air_date":"2019-05-19",
+            "status":"Ended","episode_run_time":[57,62],"number_of_seasons":{},
+            "number_of_episodes":{total},"poster_path":"/show.jpg","backdrop_path":null,
+            "genres":[{{"id":18,"name":"Drama"}}],"seasons":[{}],"networks":[]}}"#,
+            seasons.len(),
+            listed.join(","),
+        )
+    }
+
+    /// A `/3/tv/{id}/season/{n}` body with `episodes` episodes, numbered from
+    /// one. Episode 1 of every season has no runtime and no air date, so the
+    /// missing-value paths are exercised.
+    pub fn season_details(season: i64, episodes: u32) -> String {
+        let listed: Vec<String> = (1..=episodes)
+            .map(|number| {
+                let (runtime, air_date) = match number {
+                    1 => ("null".to_owned(), "null".to_owned()),
+                    n => (format!("{}", 55 + n), format!(r#""2011-05-{n:02}""#)),
+                };
+                format!(
+                    r#"{{"id":{},"episode_number":{number},"season_number":{season},
+                    "name":"Episode {number}","overview":"Things happen.","air_date":{air_date},
+                    "runtime":{runtime},"still_path":"/s{season}e{number}.jpg",
+                    "episode_type":"standard","vote_average":7.9,"crew":[],"guest_stars":[]}}"#,
+                    60_000 + season * 100 + i64::from(number),
+                )
+            })
+            .collect();
+        format!(
+            r#"{{"_id":"x","id":{},"season_number":{season},"name":"Season {season}",
+            "overview":"A season.","air_date":"2011-04-17","poster_path":null,
+            "vote_average":8.0,"episodes":[{}]}}"#,
+            3000 + season,
+            listed.join(","),
+        )
     }
 
     /// A search page body with `(id, title)` movies or series.
@@ -741,6 +1067,165 @@ mod tests {
         assert!(
             matches!(error, Err(TmdbError::MalformedResponse(_))),
             "{error:?}"
+        );
+    }
+
+    #[test]
+    fn movie_and_tv_details_map_to_the_domain_types() {
+        use super::fake::{movie_details, tv_details};
+        let server = FakeServer::start(|seen| match seen.target.split('?').next().unwrap() {
+            "/3/movie/603" => Reply::json(200, &movie_details(603, "The Matrix")),
+            "/3/tv/1399" => Reply::json(
+                200,
+                &tv_details(1399, "Game of Thrones", &[(0, 3), (1, 10), (2, 10)]),
+            ),
+            _ => Reply::json(404, r#"{"status_code":34}"#),
+        });
+        let client = client(&server);
+
+        let movie = client
+            .details(&token(), MediaType::Movie, "603")
+            .expect("movie details");
+        assert_eq!(movie.media_type, MediaType::Movie);
+        assert_eq!(movie.title, "The Matrix");
+        assert_eq!(movie.tagline.as_deref(), Some("Free your mind."));
+        assert_eq!(movie.status.as_deref(), Some("Released"));
+        assert_eq!(movie.runtime_minutes, Some(136));
+        assert_eq!(movie.release_date.as_deref(), Some("1999-03-31"));
+        assert_eq!(movie.backdrop_path.as_deref(), Some("/wide.jpg"));
+        assert_eq!(movie.genre_line(), "Action, Science Fiction");
+        assert_eq!(movie.fetched_at, None, "storage stamps the time");
+        assert!(movie.tv.is_none());
+
+        let series = client
+            .details(&token(), MediaType::Tv, "1399")
+            .expect("tv details");
+        assert_eq!(series.media_type, MediaType::Tv);
+        assert_eq!(series.title, "Game of Thrones");
+        assert_eq!(series.tagline, None, "null is not an empty string");
+        assert_eq!(series.runtime_minutes, Some(57), "the shortest format");
+        assert_eq!(series.release_date.as_deref(), Some("2011-04-17"));
+        let tv = series.tv.expect("tv part");
+        assert_eq!(tv.last_air_date.as_deref(), Some("2019-05-19"));
+        assert_eq!((tv.season_count, tv.episode_count), (Some(3), Some(23)));
+        let numbers: Vec<i64> = tv.seasons.iter().map(|s| s.number).collect();
+        assert_eq!(numbers, [0, 1, 2], "specials first, in season order");
+        assert_eq!(tv.seasons[0].label(), "Specials");
+        assert_eq!(tv.seasons[0].episode_count, Some(3));
+        assert_eq!(tv.seasons[1].external_id.as_deref(), Some("3001"));
+
+        let targets: Vec<String> = server.seen().into_iter().map(|s| s.target).collect();
+        assert_eq!(
+            targets,
+            ["/3/movie/603?language=en-US", "/3/tv/1399?language=en-US"]
+        );
+        assert_eq!(
+            client.details(&token(), MediaType::Movie, "99999"),
+            Err(TmdbError::NotFound)
+        );
+    }
+
+    #[test]
+    fn season_details_give_every_episode_in_one_request() {
+        let server = FakeServer::start(|seen| match seen.target.split('?').next().unwrap() {
+            "/3/tv/1399/season/0" => Reply::json(200, &super::fake::season_details(0, 1)),
+            "/3/tv/1399/season/1" => Reply::json(200, &super::fake::season_details(1, 3)),
+            _ => Reply::json(404, r#"{"status_code":34}"#),
+        });
+        let client = client(&server);
+
+        let episodes = client.season_episodes(&token(), "1399", 1).unwrap();
+        assert_eq!(episodes.len(), 3);
+        let numbers: Vec<i64> = episodes.iter().map(|e| e.number).collect();
+        assert_eq!(numbers, [1, 2, 3]);
+        assert!(episodes.iter().all(|e| e.season_number == 1));
+        assert_eq!(episodes[0].external_id.as_deref(), Some("60101"));
+        assert_eq!(episodes[0].name.as_deref(), Some("Episode 1"));
+        assert_eq!(
+            (episodes[0].runtime_minutes, episodes[0].air_date.as_deref()),
+            (None, None),
+            "null runtime and air date stay empty"
+        );
+        assert_eq!(episodes[1].runtime_minutes, Some(57));
+        assert_eq!(episodes[1].air_date.as_deref(), Some("2011-05-02"));
+        assert_eq!(episodes[1].still_path.as_deref(), Some("/s1e2.jpg"));
+
+        // Season 0 is addressable like any other.
+        assert_eq!(
+            client.season_episodes(&token(), "1399", 0).unwrap().len(),
+            1
+        );
+        assert_eq!(
+            client.season_episodes(&token(), "1399", 9),
+            Err(TmdbError::NotFound)
+        );
+        let targets: Vec<String> = server.seen().into_iter().map(|s| s.target).collect();
+        assert_eq!(
+            targets,
+            [
+                "/3/tv/1399/season/1?language=en-US",
+                "/3/tv/1399/season/0?language=en-US",
+                "/3/tv/1399/season/9?language=en-US",
+            ],
+            "one request per season, never one per episode"
+        );
+    }
+
+    #[test]
+    fn malformed_detail_payloads_are_survived_not_invented() {
+        let server = FakeServer::start(|seen| {
+            if seen.target.starts_with("/3/tv/1/season/") {
+                // Two entries for episode 2, one provider id on two numbers,
+                // one entry with no number at all, and negative values.
+                return Reply::json(
+                    200,
+                    r#"{"episodes":[
+                    {"id":5,"episode_number":2,"name":"Second","runtime":-4},
+                    {"id":5,"episode_number":3,"name":"Clone of the second"},
+                    {"id":6,"episode_number":2,"name":"Duplicate number"},
+                    {"id":0,"episode_number":1,"name":"","air_date":"soon","runtime":0},
+                    {"id":9,"name":"No number"}]}"#,
+                );
+            }
+            Reply::json(
+                200,
+                r#"{"id":1,"name":"","original_name":"  ","overview":"",
+                "first_air_date":"2011","episode_run_time":[],"number_of_seasons":-1,
+                "genres":[{"id":0,"name":"Bad"},{"id":7,"name":""},{"id":18,"name":"Drama"}],
+                "seasons":[{"id":1,"season_number":1,"episode_count":2},
+                           {"id":2,"season_number":1,"episode_count":9},
+                           {"id":3,"season_number":-5},
+                           {"id":4,"name":"No number"}]}"#,
+            )
+        });
+        let client = client(&server);
+
+        let series = client.details(&token(), MediaType::Tv, "1").unwrap();
+        assert_eq!(series.title, "", "no title to fall back on");
+        assert_eq!(series.original_title, None, "blank is not a title");
+        assert_eq!(series.overview, None);
+        assert_eq!(series.release_date, None, "a year is not a date");
+        assert_eq!(series.runtime_minutes, None);
+        assert_eq!(series.genre_line(), "Drama", "id 0 and blank names dropped");
+        let tv = series.tv.unwrap();
+        assert_eq!(tv.season_count, None, "a negative count is no count");
+        let numbers: Vec<i64> = tv.seasons.iter().map(|s| s.number).collect();
+        assert_eq!(numbers, [1], "one row per season number, none unnumbered");
+
+        let episodes = client.season_episodes(&token(), "1", 1).unwrap();
+        let numbers: Vec<i64> = episodes.iter().map(|e| e.number).collect();
+        assert_eq!(numbers, [1, 2], "one row per episode number");
+        assert_eq!(episodes[0].external_id, None, "id 0 is no id");
+        assert_eq!(episodes[0].name, None);
+        assert_eq!(episodes[0].air_date, None);
+        assert_eq!(
+            episodes[0].runtime_minutes, None,
+            "0 minutes is not a runtime"
+        );
+        assert_eq!(episodes[1].external_id.as_deref(), Some("5"));
+        assert_eq!(
+            episodes[1].runtime_minutes, None,
+            "negative is not a runtime"
         );
     }
 

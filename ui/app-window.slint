@@ -50,6 +50,74 @@ export struct DiscoverView {
     ready: bool,
 }
 
+// The selected library title's provider metadata, prepared by Rust
+// (`src/detail.rs`). Everything here is cached locally and shows before any
+// network request is made.
+export struct MediaDetail {
+    has-item: bool,
+    title: string,
+    // Empty when unknown or the same as the title.
+    original-title: string,
+    // Media type and year, for example "TV series · 2011".
+    meta: string,
+    tagline: string,
+    overview: string,
+    initials: string,
+    tint: color,
+    poster: image,
+    poster-key: string,
+    // Show the season and episode sections.
+    is-tv: bool,
+    // "Updated today", "Details not downloaded yet", …
+    freshness: string,
+    // A TMDB token exists, so Refresh can run.
+    can-refresh: bool,
+    refreshing: bool,
+    // Why the last refresh failed. The cached detail stays on screen.
+    notice: string,
+}
+
+// One "Runtime: 136 min" row of the detail pane. Rust leaves out every fact
+// the provider did not give, rather than showing an empty or invented value.
+export struct DetailFact {
+    label: string,
+    value: string,
+}
+
+export struct SeasonRow {
+    number: int,
+    // "Specials", "Season 1", or the provider's own name.
+    title: string,
+    // Year and episode count, for example "2011 · 10 episodes".
+    meta: string,
+    // How much of the episode list is cached; empty when it is complete.
+    coverage: string,
+}
+
+export struct EpisodeRow {
+    // "E1".
+    label: string,
+    title: string,
+    // Air date and runtime, for example "2011-05-02 · 57 min".
+    meta: string,
+    overview: string,
+}
+
+// The selected season and its episode list (`src/detail.rs`).
+export struct SeasonPanel {
+    // "episodes" shows the list; anything else shows title and message.
+    state: string,
+    heading: string,
+    meta: string,
+    overview: string,
+    title: string,
+    message: string,
+    // "retry" or "" (none).
+    action: string,
+    // Shown above cached episodes, e.g. when a refresh failed.
+    notice: string,
+}
+
 // The TMDB part of Settings (`tmdb_view` in src/remote.rs).
 export struct TmdbView {
     status: string,
@@ -396,6 +464,453 @@ component DetailPane inherits Rectangle {
     }
 }
 
+component FactRow {
+    in property <DetailFact> fact;
+    HorizontalLayout {
+        spacing: 10px;
+        Text {
+            width: 104px;
+            text: root.fact.label;
+            font-size: 12px;
+            color: Theme.text-faint;
+        }
+        Text {
+            text: root.fact.value;
+            horizontal-stretch: 1;
+            font-size: 12px;
+            color: Theme.text;
+            wrap: word-wrap;
+        }
+    }
+}
+
+// The scrolling part both the movie and the series detail share.
+component FactsAndOverview inherits ScrollView {
+    in property <[DetailFact]> facts;
+    in property <string> overview;
+    VerticalLayout {
+        padding-right: 14px;
+        spacing: 10px;
+        alignment: start;
+        if root.facts.length > 0: VerticalLayout {
+            spacing: 6px;
+            for fact in root.facts: FactRow {
+                fact: fact;
+            }
+        }
+        if root.overview != "": VerticalLayout {
+            padding-top: 4px;
+            spacing: 6px;
+            SectionTitle {
+                text: "OVERVIEW";
+            }
+            Text {
+                text: root.overview;
+                font-size: 13px;
+                color: Theme.text-muted;
+                wrap: word-wrap;
+            }
+        }
+    }
+}
+
+component SeasonItem inherits Rectangle {
+    in property <SeasonRow> item;
+    in property <bool> selected;
+    in property <bool> focused;
+    callback clicked;
+    accessible-role: list-item;
+    accessible-label: root.item.title;
+    accessible-item-selectable: true;
+    accessible-item-selected: root.selected;
+    accessible-action-default => { root.clicked(); }
+    Rectangle {
+        y: 1px;
+        height: parent.height - 2px;
+        border-radius: 6px;
+        background: root.selected ? Theme.selected-bg : touch.has-hover ? Theme.hover-bg : transparent;
+        border-width: root.focused ? 1px : 0;
+        border-color: Theme.accent;
+        HorizontalLayout {
+            padding: 8px;
+            padding-right: 20px;
+            spacing: 8px;
+            VerticalLayout {
+                alignment: center;
+                spacing: 2px;
+                horizontal-stretch: 1;
+                Text {
+                    text: root.item.title;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: Theme.text;
+                    overflow: elide;
+                }
+                Text {
+                    text: root.item.meta;
+                    font-size: 11px;
+                    color: Theme.text-muted;
+                    overflow: elide;
+                }
+            }
+            if root.item.coverage != "": VerticalLayout {
+                alignment: center;
+                Text {
+                    text: root.item.coverage;
+                    font-size: 11px;
+                    horizontal-alignment: right;
+                    color: Theme.text-faint;
+                    overflow: elide;
+                }
+            }
+        }
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+component EpisodeItem inherits Rectangle {
+    in property <EpisodeRow> item;
+    in property <bool> selected;
+    in property <bool> focused;
+    callback clicked;
+    accessible-role: list-item;
+    accessible-label: "\{root.item.label} \{root.item.title}";
+    accessible-item-selectable: true;
+    accessible-item-selected: root.selected;
+    accessible-action-default => { root.clicked(); }
+    Rectangle {
+        y: 1px;
+        height: parent.height - 2px;
+        border-radius: 6px;
+        background: root.selected ? Theme.selected-bg : touch.has-hover ? Theme.hover-bg : transparent;
+        border-width: root.focused ? 1px : 0;
+        border-color: Theme.accent;
+        HorizontalLayout {
+            padding: 8px;
+            padding-right: 20px;
+            spacing: 10px;
+            Text {
+                width: 30px;
+                text: root.item.label;
+                vertical-alignment: center;
+                font-size: 12px;
+                font-weight: 600;
+                color: Theme.text-faint;
+            }
+            VerticalLayout {
+                alignment: center;
+                spacing: 2px;
+                horizontal-stretch: 1;
+                Text {
+                    text: root.item.title;
+                    font-size: 13px;
+                    color: Theme.text;
+                    overflow: elide;
+                }
+                if root.item.meta != "": Text {
+                    text: root.item.meta;
+                    font-size: 11px;
+                    color: Theme.text-muted;
+                    overflow: elide;
+                }
+                // The overview of the selected episode only, so every row
+                // keeps the same height and the list stays virtualized.
+                if root.selected && root.item.overview != "": Text {
+                    text: root.item.overview;
+                    font-size: 11px;
+                    color: Theme.text-faint;
+                    overflow: elide;
+                }
+            }
+        }
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
+// The library detail pane: cached provider metadata for the selected title,
+// with seasons and episodes for a series. Rust owns every value here
+// (`src/detail.rs`); nothing is fetched to draw it.
+component MediaDetailPane inherits Rectangle {
+    in property <MediaDetail> detail;
+    in property <[DetailFact]> facts;
+    in property <[SeasonRow]> seasons;
+    in property <int> season-row;
+    in property <SeasonPanel> season;
+    in property <[EpisodeRow]> episodes;
+    in property <int> episode-row;
+    in property <bool> can-remove;
+    callback refresh();
+    callback retry-season();
+    callback season-selected(row: int);
+    callback episode-selected(row: int);
+    callback remove();
+
+    private property <length> season-height: 46px;
+    private property <length> episode-height: 56px;
+
+    function select-season(row: int) {
+        if root.seasons.length > 0 {
+            root.season-selected(clamp(row, 0, root.seasons.length - 1));
+        }
+    }
+
+    function select-episode(row: int) {
+        if root.episodes.length > 0 {
+            root.episode-selected(clamp(row, 0, root.episodes.length - 1));
+        }
+    }
+
+    background: Theme.panel-bg;
+    if !root.detail.has-item: Text {
+        text: "No title selected";
+        font-size: 13px;
+        color: Theme.text-faint;
+    }
+    if root.detail.has-item: VerticalLayout {
+        padding: 20px;
+        padding-right: 14px;
+        spacing: 12px;
+        HorizontalLayout {
+            spacing: 14px;
+            alignment: start;
+            Poster {
+                width: 100px;
+                height: 150px;
+                border-radius: 8px;
+                source: root.detail.poster;
+                initials: root.detail.initials;
+                tint: root.detail.tint;
+                font-size: 40px;
+            }
+            VerticalLayout {
+                alignment: start;
+                spacing: 6px;
+                horizontal-stretch: 1;
+                Text {
+                    text: root.detail.title;
+                    font-size: 19px;
+                    font-weight: 700;
+                    color: Theme.text;
+                    wrap: word-wrap;
+                }
+                Text {
+                    text: root.detail.meta;
+                    font-size: 12px;
+                    color: Theme.text-muted;
+                }
+                if root.detail.original-title != "": Text {
+                    text: root.detail.original-title;
+                    font-size: 12px;
+                    color: Theme.text-faint;
+                    wrap: word-wrap;
+                }
+                if root.detail.tagline != "": Text {
+                    text: root.detail.tagline;
+                    font-size: 12px;
+                    color: Theme.text-muted;
+                    wrap: word-wrap;
+                }
+                HorizontalLayout {
+                    padding-top: 4px;
+                    spacing: 8px;
+                    alignment: start;
+                    Button {
+                        text: "Refresh";
+                        enabled: root.detail.can-refresh && !root.detail.refreshing;
+                        clicked => { root.refresh(); }
+                    }
+                    if root.can-remove: Button {
+                        text: "Remove";
+                        clicked => { root.remove(); }
+                    }
+                }
+                Text {
+                    text: root.detail.refreshing ? "Refreshing from TMDB…"
+                        : root.detail.can-refresh ? root.detail.freshness
+                        : "\{root.detail.freshness} · Connect TMDB in Settings to refresh";
+                    font-size: 11px;
+                    color: Theme.text-faint;
+                    wrap: word-wrap;
+                }
+            }
+        }
+        // A refresh that failed never replaces what is cached: it says so here
+        // and leaves the detail below untouched.
+        if root.detail.notice != "": Text {
+            text: root.detail.notice;
+            font-size: 12px;
+            color: Theme.warning;
+            wrap: word-wrap;
+        }
+        if !root.detail.is-tv: FactsAndOverview {
+            vertical-stretch: 1;
+            facts: root.facts;
+            overview: root.detail.overview;
+        }
+        if root.detail.is-tv: VerticalLayout {
+            vertical-stretch: 1;
+            spacing: 10px;
+            // Capped, so the episode list below keeps most of the height.
+            FactsAndOverview {
+                min-height: 60px;
+                max-height: 120px;
+                facts: root.facts;
+                overview: root.detail.overview;
+            }
+            SectionTitle {
+                text: "SEASONS";
+            }
+            Rectangle {
+                height: min(3 * root.season-height, max(root.season-height, root.seasons.length * root.season-height));
+                season-focus := FocusScope {
+                    key-pressed(event) => {
+                        if event.text == Key.UpArrow {
+                            root.select-season(root.season-row - 1);
+                        } else if event.text == Key.DownArrow {
+                            root.select-season(root.season-row + 1);
+                        } else if event.text == Key.Home {
+                            root.select-season(0);
+                        } else if event.text == Key.End {
+                            root.select-season(root.seasons.length - 1);
+                        } else {
+                            return reject;
+                        }
+                        // Keep the selected season fully visible.
+                        if root.season-row * root.season-height + season-list.viewport-y < 0 {
+                            season-list.viewport-y = -root.season-row * root.season-height;
+                        } else if (root.season-row + 1) * root.season-height + season-list.viewport-y > season-list.visible-height {
+                            season-list.viewport-y = season-list.visible-height - (root.season-row + 1) * root.season-height;
+                        }
+                        return accept;
+                    }
+                    season-list := ListView {
+                        width: 100%;
+                        height: 100%;
+                        for item[index] in root.seasons: SeasonItem {
+                            height: root.season-height;
+                            item: item;
+                            selected: index == root.season-row;
+                            focused: self.selected && season-focus.has-focus;
+                            clicked => {
+                                root.season-selected(index);
+                                season-focus.focus();
+                            }
+                        }
+                    }
+                }
+            }
+            VerticalLayout {
+                spacing: 3px;
+                Text {
+                    text: root.season.heading;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: Theme.text;
+                    overflow: elide;
+                }
+                if root.season.meta != "": Text {
+                    text: root.season.meta;
+                    font-size: 11px;
+                    color: Theme.text-muted;
+                    overflow: elide;
+                }
+                if root.season.overview != "": Text {
+                    text: root.season.overview;
+                    font-size: 11px;
+                    color: Theme.text-faint;
+                    wrap: word-wrap;
+                    // Two lines at most: the episodes matter more here.
+                    max-height: 30px;
+                }
+                if root.season.notice != "": Text {
+                    text: root.season.notice;
+                    font-size: 11px;
+                    color: Theme.warning;
+                    wrap: word-wrap;
+                }
+            }
+            Rectangle {
+                vertical-stretch: 1;
+                episode-focus := FocusScope {
+                    enabled: root.season.state == "episodes";
+                    key-pressed(event) => {
+                        if event.text == Key.UpArrow {
+                            root.select-episode(root.episode-row - 1);
+                        } else if event.text == Key.DownArrow {
+                            root.select-episode(root.episode-row + 1);
+                        } else if event.text == Key.PageUp {
+                            root.select-episode(root.episode-row - max(1, floor(episode-list.visible-height / root.episode-height)));
+                        } else if event.text == Key.PageDown {
+                            root.select-episode(root.episode-row + max(1, floor(episode-list.visible-height / root.episode-height)));
+                        } else if event.text == Key.Home {
+                            root.select-episode(0);
+                        } else if event.text == Key.End {
+                            root.select-episode(root.episodes.length - 1);
+                        } else {
+                            return reject;
+                        }
+                        // Keep the selected episode fully visible.
+                        if root.episode-row * root.episode-height + episode-list.viewport-y < 0 {
+                            episode-list.viewport-y = -root.episode-row * root.episode-height;
+                        } else if (root.episode-row + 1) * root.episode-height + episode-list.viewport-y > episode-list.visible-height {
+                            episode-list.viewport-y = episode-list.visible-height - (root.episode-row + 1) * root.episode-height;
+                        }
+                        return accept;
+                    }
+                    episode-list := ListView {
+                        width: 100%;
+                        height: 100%;
+                        visible: root.season.state == "episodes";
+                        for item[index] in root.episodes: EpisodeItem {
+                            height: root.episode-height;
+                            item: item;
+                            selected: index == root.episode-row;
+                            focused: self.selected && episode-focus.has-focus;
+                            clicked => {
+                                root.episode-selected(index);
+                                episode-focus.focus();
+                            }
+                        }
+                    }
+                }
+                if root.season.state != "episodes": VerticalLayout {
+                    alignment: center;
+                    spacing: 6px;
+                    padding: 12px;
+                    Text {
+                        text: root.season.title;
+                        horizontal-alignment: center;
+                        wrap: word-wrap;
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: Theme.text;
+                    }
+                    if root.season.message != "": Text {
+                        text: root.season.message;
+                        horizontal-alignment: center;
+                        wrap: word-wrap;
+                        font-size: 12px;
+                        color: Theme.text-muted;
+                    }
+                    if root.season.action != "": HorizontalLayout {
+                        alignment: center;
+                        padding-top: 4px;
+                        Button {
+                            text: "Try again";
+                            enabled: root.detail.can-refresh && !root.detail.refreshing;
+                            clicked => { root.retry-season(); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 component PageTitle inherits Text {
     font-size: 24px;
     font-weight: 700;
@@ -655,6 +1170,13 @@ component DiscoverPage {
     // Enter in the list: add the selected result.
     callback add();
 
+    // Called when the page is shown, so keyboard use starts in the list.
+    public function focus-list() {
+        if root.view.state == "results" {
+            list-focus.focus();
+        }
+    }
+
     // Same row-boundary scrolling as the library list.
     function bring-into-view(row: int) {
         if row < 0 {
@@ -898,6 +1420,14 @@ export component AppWindow inherits Window {
     in property <bool> library-controls;
     in-out property <string> library-filter: "all";
     in-out property <int> library-sort: 0;
+    // The production Library's detail pane (src/detail.rs).
+    in property <MediaDetail> media-detail;
+    in property <[DetailFact]> detail-facts;
+    in property <[SeasonRow]> detail-seasons;
+    in property <int> detail-season-row: -1;
+    in property <SeasonPanel> detail-season;
+    in property <[EpisodeRow]> detail-episodes;
+    in property <int> detail-episode-row: -1;
 
     callback query-changed(query: string);
     callback row-selected(row: int);
@@ -918,9 +1448,35 @@ export component AppWindow inherits Window {
     // Rust to Rust: Discover added a title / the Library removed one.
     callback library-changed();
     callback membership-changed();
+    // The detail pane: which title it shows, and its actions.
+    callback detail-selected(id: int);
+    callback detail-refresh();
+    callback detail-retry-season();
+    callback detail-season-selected(row: int);
+    callback detail-episode-selected(row: int);
+    // Rust to Rust: the TMDB token appeared or went away; the detail pane's
+    // poster finished loading.
+    callback token-changed();
+    callback detail-poster-ready();
 
     private property <length> row-height: 80px;
     private property <string> shown: root.startup-error != "" && root.page != "settings" && root.page != "about" ? "error" : root.page;
+
+    // Every path that changes the library selection sets this id, so the
+    // detail pane follows it from one place.
+    changed selected-id => {
+        root.detail-selected(root.selected-id);
+    }
+
+    // Switching pages moves keyboard focus into the page, instead of leaving
+    // it on a control that is no longer visible.
+    changed shown => {
+        if root.shown == "library" {
+            list-focus.focus();
+        } else if root.shown == "discover" {
+            discover-page.focus-list();
+        }
+    }
 
     // Scroll so `row` is fully visible, keeping the offset on a row boundary:
     // ListView snaps long jumps (> 1.5 screens) down to a boundary, which would
@@ -1118,7 +1674,7 @@ export component AppWindow inherits Window {
                 body: "An overview of what to watch next will appear here in a later version.";
             }
             // Kept alive like the library, so the query survives navigation.
-            DiscoverPage {
+            discover-page := DiscoverPage {
                 width: 100%;
                 height: 100%;
                 visible: root.shown == "discover";
@@ -1169,7 +1725,31 @@ export component AppWindow inherits Window {
                 quit => { root.quit(); }
             }
         }
-        if root.shown == "library" || root.shown == "discover": HorizontalLayout {
+        // The production Library: cached details, seasons and episodes.
+        if root.shown == "library" && root.library-controls: HorizontalLayout {
+            Rectangle {
+                width: 1px;
+                background: Theme.border;
+            }
+            MediaDetailPane {
+                width: 420px;
+                detail: root.media-detail;
+                facts: root.detail-facts;
+                seasons: root.detail-seasons;
+                season-row: root.detail-season-row;
+                season: root.detail-season;
+                episodes: root.detail-episodes;
+                episode-row: root.detail-episode-row;
+                can-remove: root.selected-row >= 0;
+                refresh => { root.detail-refresh(); }
+                retry-season => { root.detail-retry-season(); }
+                season-selected(row) => { root.detail-season-selected(row); }
+                episode-selected(row) => { root.detail-episode-selected(row); }
+                remove => { root.library-remove(); }
+            }
+        }
+        // Discover's preview, and the benchmark fixture's R4 layout, unchanged.
+        if root.shown == "discover" || (root.shown == "library" && !root.library-controls): HorizontalLayout {
             Rectangle {
                 width: 1px;
                 background: Theme.border;

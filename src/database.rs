@@ -19,7 +19,7 @@ const APPLICATION_ID: i32 = 0x4269_6E67;
 
 /// Step `n` (1-based) upgrades schema version `n - 1` to `n`. Never edit a
 /// step that has shipped: append a new one.
-const MIGRATIONS: &[&str] = &[SCHEMA_V1];
+const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2];
 
 const SCHEMA_V1: &str = "
 PRAGMA application_id = 1114205799;
@@ -71,6 +71,92 @@ CREATE TABLE library_entries (
     -- Unix seconds, UTC.
     added_at       INTEGER NOT NULL
 ) STRICT;
+";
+
+/// R9: provider-owned detail metadata (ADR-0013, ADR-0014). Everything here
+/// mirrors what a metadata provider says. Nothing personal (watched state,
+/// ratings, progress) belongs in these tables, and a future personal table
+/// must never be a cascade child of one of them (ADR-0014).
+const SCHEMA_V2: &str = "
+-- Detail-only fields of a title, filled by /3/movie/{id} and /3/tv/{id}.
+-- `runtime_minutes` already exists: a movie's runtime, or a series' typical
+-- episode runtime.
+ALTER TABLE media ADD COLUMN status TEXT;
+ALTER TABLE media ADD COLUMN tagline TEXT;
+ALTER TABLE media ADD COLUMN last_air_date TEXT
+    CHECK (last_air_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]');
+ALTER TABLE media ADD COLUMN season_count INTEGER CHECK (season_count >= 0);
+ALTER TABLE media ADD COLUMN episode_count INTEGER CHECK (episode_count >= 0);
+-- Unix seconds, UTC: when the detail endpoint last answered. NULL means the
+-- row only holds what a search result gave, so detail was never fetched.
+ALTER TABLE media ADD COLUMN details_fetched_at INTEGER;
+
+-- Genres as data, not a presentation string. One row per provider genre.
+CREATE TABLE genres (
+    source      TEXT NOT NULL CHECK (source GLOB '[a-z]*' AND source NOT GLOB '*[^a-z0-9_]*'),
+    external_id TEXT NOT NULL CHECK (external_id <> ''),
+    name        TEXT NOT NULL CHECK (name <> ''),
+    PRIMARY KEY (source, external_id)
+) STRICT, WITHOUT ROWID;
+
+-- Which genres a title has. The primary key makes a genre unrepeatable per
+-- title, however often a provider repeats it.
+CREATE TABLE media_genres (
+    local_media_id INTEGER NOT NULL REFERENCES media (local_media_id) ON DELETE CASCADE,
+    source         TEXT NOT NULL,
+    external_id    TEXT NOT NULL,
+    PRIMARY KEY (local_media_id, source, external_id),
+    FOREIGN KEY (source, external_id) REFERENCES genres (source, external_id)
+) STRICT, WITHOUT ROWID;
+
+-- Season summaries, from the series detail response. media_type in the
+-- foreign key keeps seasons off movie rows.
+CREATE TABLE seasons (
+    local_media_id      INTEGER NOT NULL,
+    media_type          TEXT NOT NULL CHECK (media_type = 'tv'),
+    -- 0 is TMDB's specials season and is as valid as any other.
+    season_number       INTEGER NOT NULL CHECK (season_number >= 0),
+    external_id         TEXT CHECK (external_id <> ''),
+    name                TEXT,
+    overview            TEXT,
+    air_date            TEXT CHECK (air_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    -- How many episodes the provider says the season has, or NULL.
+    episode_count       INTEGER CHECK (episode_count >= 0),
+    poster_path         TEXT,
+    -- Coverage, deliberately separate from the summary's freshness: when the
+    -- episode list was last fetched, and how many episodes that fetch gave.
+    episodes_fetched_at INTEGER,
+    episodes_known      INTEGER CHECK (episodes_known >= 0),
+    metadata_updated_at INTEGER,
+    PRIMARY KEY (local_media_id, season_number),
+    FOREIGN KEY (local_media_id, media_type)
+        REFERENCES media (local_media_id, media_type) ON DELETE CASCADE
+) STRICT;
+
+-- Episode metadata only. No watched state, no rating, no progress: those are
+-- a later milestone and get their own tables.
+CREATE TABLE episodes (
+    local_media_id      INTEGER NOT NULL,
+    season_number       INTEGER NOT NULL,
+    episode_number      INTEGER NOT NULL CHECK (episode_number >= 0),
+    -- The provider's episode id, the stable identity when it exists.
+    external_id         TEXT CHECK (external_id <> ''),
+    name                TEXT,
+    overview            TEXT,
+    air_date            TEXT CHECK (air_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    runtime_minutes     INTEGER CHECK (runtime_minutes > 0),
+    still_path          TEXT,
+    metadata_updated_at INTEGER,
+    PRIMARY KEY (local_media_id, season_number, episode_number),
+    FOREIGN KEY (local_media_id, season_number)
+        REFERENCES seasons (local_media_id, season_number) ON DELETE CASCADE
+) STRICT;
+
+-- One provider episode id per season, so a repeated refresh cannot list the
+-- same episode twice. Scoped to the season: a provider that moves an episode
+-- to another season is a metadata change, not a conflict.
+CREATE UNIQUE INDEX episodes_by_external
+    ON episodes (local_media_id, season_number, external_id) WHERE external_id IS NOT NULL;
 ";
 
 /// The one connection to the library database. Owned by whoever needs it
@@ -294,11 +380,11 @@ mod tests {
     }
 
     #[test]
-    fn fresh_database_migrates_to_v1() {
+    fn fresh_database_migrates_to_the_latest_schema() {
         let dir = TestDir::new("db-fresh");
         let db = open(&dir.0.join("bingee.db")).unwrap();
-        assert_eq!(MIGRATIONS.len(), 1);
-        assert_eq!(db.schema_version().unwrap(), 1);
+        assert_eq!(MIGRATIONS.len(), 2);
+        assert_eq!(db.schema_version().unwrap(), 2);
         let app_id: i32 = db
             .conn()
             .pragma_query_value(None, "application_id", |r| r.get(0))
@@ -307,9 +393,13 @@ mod tests {
         assert_eq!(
             tables(db.conn()),
             [
+                "episodes",
                 "external_refs",
+                "genres",
                 "library_entries",
                 "media",
+                "media_genres",
+                "seasons",
                 "sqlite_sequence"
             ]
         );
@@ -320,8 +410,102 @@ mod tests {
         assert!(foreign_keys);
     }
 
+    /// A schema v1 file exactly as R6-R8 wrote it, with `media`, an external
+    /// ref and a library entry, used to test the real v1 -> v2 upgrade.
+    fn v1_fixture(path: &Path) -> i64 {
+        let conn = Connection::open(path).unwrap();
+        let db = Database::init(conn, &MIGRATIONS[..1], &Log::stderr_only()).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 1);
+        db.conn()
+            .execute(
+                "INSERT INTO media (media_type, title, original_title, release_date, overview,
+                                    poster_path, backdrop_path, runtime_minutes, metadata_updated_at)
+                 VALUES ('tv', 'Severance', 'Severance', '2022-02-17', 'Work-life balance.',
+                         '/p.jpg', '/b.jpg', 47, 1757808000)",
+                [],
+            )
+            .unwrap();
+        let id = db.conn().last_insert_rowid();
+        add_ref(db.conn(), "tmdb", "tv", "95396", id).unwrap();
+        db.conn()
+            .execute("INSERT INTO library_entries VALUES (?1, 1757808000)", [id])
+            .unwrap();
+        id
+    }
+
     #[test]
-    fn reopening_v1_changes_nothing_and_keeps_data() {
+    fn a_real_v1_file_upgrades_to_v2_and_keeps_everything() {
+        let dir = TestDir::new("db-v1-to-v2");
+        let path = dir.0.join("bingee.db");
+        let id = v1_fixture(&path);
+
+        let db = open(&path).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 2);
+        // Library membership, provider identity and poster references survive.
+        let row: (i64, String, String, String, i64, Option<i64>) = db
+            .conn()
+            .query_row(
+                "SELECT m.local_media_id, m.title, m.poster_path, r.external_id, l.added_at,
+                        m.details_fetched_at
+                 FROM media AS m JOIN external_refs AS r USING (local_media_id)
+                 JOIN library_entries AS l USING (local_media_id)",
+                [],
+                |r| {
+                    Ok((
+                        r.get(0)?,
+                        r.get(1)?,
+                        r.get(2)?,
+                        r.get(3)?,
+                        r.get(4)?,
+                        r.get(5)?,
+                    ))
+                },
+            )
+            .unwrap();
+        assert_eq!(
+            row,
+            (
+                id,
+                "Severance".into(),
+                "/p.jpg".into(),
+                "95396".into(),
+                1_757_808_000,
+                None
+            ),
+            "detail was never fetched for an upgraded row"
+        );
+        // The new tables are there and empty.
+        for table in ["genres", "media_genres", "seasons", "episodes"] {
+            let rows: i64 = db
+                .conn()
+                .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(rows, 0, "{table}");
+        }
+        // Reopening v2 writes nothing.
+        drop(db);
+        let before = std::fs::read(&path).unwrap();
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 2);
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+    }
+
+    #[test]
+    fn a_failed_v2_migration_leaves_a_v1_file_untouched() {
+        let dir = TestDir::new("db-v2-rollback");
+        let path = dir.0.join("bingee.db");
+        v1_fixture(&path);
+        let before = std::fs::read(&path).unwrap();
+        let broken: &[&str] = &[SCHEMA_V1, "ALTER TABLE media ADD COLUMN ok TEXT; NOT SQL"];
+        let conn = Connection::open(&path).unwrap();
+        assert!(Database::init(conn, broken, &Log::stderr_only()).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), before, "file changed");
+        let db = open(&path).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 2, "still upgradable");
+        assert!(!tables(db.conn()).contains(&"ok".to_owned()));
+    }
+
+    #[test]
+    fn reopening_the_latest_schema_changes_nothing_and_keeps_data() {
         let dir = TestDir::new("db-reopen");
         let path = dir.0.join("bingee.db");
         {
@@ -335,7 +519,7 @@ mod tests {
         let before = std::fs::read(&path).unwrap();
         for _ in 0..3 {
             let db = open(&path).unwrap();
-            assert_eq!(db.schema_version().unwrap(), 1);
+            assert_eq!(db.schema_version().unwrap(), 2);
             let row: (String, String, i64) = db
                 .conn()
                 .query_row(
@@ -435,10 +619,15 @@ mod tests {
 
     #[test]
     fn failed_migration_rolls_back_completely() {
-        let broken: &[&str] = &[SCHEMA_V1, "CREATE TABLE extra (x); THIS IS NOT SQL"];
+        let broken: &[&str] = &[
+            SCHEMA_V1,
+            SCHEMA_V2,
+            "CREATE TABLE extra (x); THIS IS NOT SQL",
+        ];
         let dir = TestDir::new("db-rollback");
 
-        // Fresh file, v1 + a failing v2 in one transaction: nothing remains.
+        // Fresh file, the real steps + a failing one in one transaction:
+        // nothing remains.
         let path = dir.0.join("fresh.db");
         let conn = Connection::open(&path).unwrap();
         let error = Database::init(conn, broken, &Log::stderr_only())
@@ -449,15 +638,15 @@ mod tests {
         assert_eq!(user_version(&conn).unwrap(), 0);
         assert!(tables(&conn).is_empty());
 
-        // A v1 file with data: the failed step leaves it at v1, unchanged.
-        let path = dir.0.join("v1.db");
+        // A migrated file with data: the failed step leaves it as it was.
+        let path = dir.0.join("current.db");
         let id = insert_media(open(&path).unwrap().conn(), "movie", "Kept");
         let before = std::fs::read(&path).unwrap();
         let conn = Connection::open(&path).unwrap();
         assert!(Database::init(conn, broken, &Log::stderr_only()).is_err());
         assert_eq!(std::fs::read(&path).unwrap(), before);
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 1);
+        assert_eq!(db.schema_version().unwrap(), MIGRATIONS.len() as u32);
         assert!(!tables(db.conn()).contains(&"extra".to_owned()));
         let title: String = db
             .conn()
@@ -536,7 +725,7 @@ mod tests {
         drop(open(&path).unwrap());
         Connection::open(&path)
             .unwrap()
-            .pragma_update(None, "user_version", 2)
+            .pragma_update(None, "user_version", MIGRATIONS.len() as u32 + 1)
             .unwrap();
         let newer = std::fs::read(&path).unwrap();
         assert_refused_untouched("db-newer", &newer, ErrorKind::Database);

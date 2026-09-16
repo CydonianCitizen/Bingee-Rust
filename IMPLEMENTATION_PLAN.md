@@ -311,12 +311,52 @@ poster failures, no local-data damage from network failures, all checks pass.
 
 ### Status
 
-PASS locally / cross-platform CI pending (14 September 2026). See
-`docs/milestones/R8.md`.
+PASS (14 September 2026): committed as `319e263`; the `cross-platform` CI
+run passed on Windows, Ubuntu and macOS. See `docs/milestones/R8.md`.
 
 ---
 
-## Next: R9 — Details and refresh
+## Milestone R9 — Cache-first media details, seasons and episodes metadata
 
-Movie and TV detail endpoints, a metadata refresh policy, and the first
-tracking data. See the R9 prerequisites in `docs/milestones/R8.md`.
+### Goal
+
+Open any library title's details from SQLite at once, refresh them from TMDB
+only when needed, and browse a series' seasons and episodes offline once
+fetched. Provider metadata only: no watched state, ratings or progress.
+
+### Deliverables
+
+- Schema v2: detail fields on `media`, relational genres, seasons (with
+  season 0 and episode coverage) and episode metadata; a tested v1 → v2
+  migration.
+- Provider-independent `MediaDetails`, `Season`, `Episode`, `Genre`; TMDB
+  movie, series and season detail requests with private DTOs.
+- Cache-first detail pane with a 7-day freshness policy, an injectable clock,
+  Refresh, per-season episode fetching, non-destructive failures (404 never
+  deletes), and stale-answer protection for titles and seasons.
+- Transactional, targeted refresh writes that never touch library membership
+  or episode coverage outside their scope.
+- Keyboard navigation of seasons and episodes; focus follows page switches.
+- ADR-0013, ADR-0014, ADR-0015, `docs/milestones/R9.md`, README.
+
+### Exit criteria
+
+Library → Movie → cached detail offline after one fetch; Library → TV →
+seasons → season → episodes offline after one fetch. Also: cached detail
+before refresh, no unnecessary requests, manual refresh, failures keep local
+metadata, genres correct, season 0 works, episodes are metadata only, no
+eager download of every season, no stale binding, identities intact,
+membership survives refreshes, no personal state, all checks pass.
+
+### Status
+
+PASS locally / cross-platform CI pending (16 September 2026). See
+`docs/milestones/R9.md`.
+
+---
+
+## Next: R10 — Tracking
+
+Watched state and progress for movies and episodes on top of the R9 episode
+keys and coverage, in separate personal tables. See the R10 prerequisites in
+`docs/milestones/R9.md`.

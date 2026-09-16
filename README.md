@@ -21,11 +21,16 @@ everything into memory.
 
 ## Status
 
-R6 (production foundations), R7 (TMDB search) and R8 (local-first library)
-are implemented: find movies and TV series on TMDB with your own token, add
-them to a library stored in SQLite, and browse, search, filter and sort it
-with cached posters, also offline. Watch progress, seasons and episodes come
-later. See `IMPLEMENTATION_PLAN.md` and `docs/milestones/R6.md` to `R8.md`.
+R6 (production foundations), R7 (TMDB search), R8 (local-first library) and
+R9 (cache-first details, seasons and episodes) are implemented: find movies and
+TV series on TMDB with your own token, add them to a library stored in SQLite,
+browse, search, filter and sort it with cached posters, and open each title's
+details — for a series its seasons and episodes — also offline.
+
+**Not implemented yet:** watched/unwatched state, watch dates, ratings,
+progress, season completion, statistics, calendar, notifications, backup and
+sync. Episodes are provider metadata only. See `IMPLEMENTATION_PLAN.md` and
+`docs/milestones/R6.md` to `R9.md`.
 
 ## Prerequisites
 
@@ -130,16 +135,51 @@ pages. See ADR-0007 to ADR-0009.
   filters; the sort menu orders by **Recently added** or **Title** (titles
   sort case-insensitively by character code, so accented first letters come
   after Z). Up/Down/PageUp/PageDown/Home/End move the selection; Tab reaches
-  the filters, the sort menu and the detail pane's button.
-- **Remove**: select a title and choose **Remove from Library**. Only its
+  the filters, the sort menu and the detail pane.
+- **Remove**: select a title and choose **Remove** in its detail pane. Only its
   library membership goes; its saved metadata and cached poster stay, so
   adding it again is instant and keeps its identity.
 - **Posters** download in the background the first time a title is on
   screen and are kept on disk. Missing or broken posters show the colored
   placeholder; they never block the library.
 - **Offline**: the library, its search, filters, sort, remove, cached
-  posters, Settings and About all work without a network or a TMDB token.
-  Discover then says it can't reach TMDB; uncached posters stay placeholders.
+  posters, cached details, seasons and episodes, Settings and About all work
+  without a network or a TMDB token. Discover then says it can't reach TMDB;
+  uncached posters stay placeholders.
+
+## Details, seasons and episodes
+
+Selecting a library title opens its details in the right-hand pane.
+
+- **Cache first.** What is saved on this computer shows immediately; the
+  network is never needed to open a title. The first time, that is what the
+  search gave (title, date, overview, poster); the full details then download
+  in the background and the pane updates when they are saved.
+- **Movies**: poster, title and original title, year, tagline, release date,
+  runtime, status, genres, overview. **Series**: first and last air date,
+  status, number of seasons and episodes, episode length, genres, overview,
+  and the season list. Anything TMDB does not provide is simply left out.
+- **Seasons and episodes**: choose a season to see its air date, episode
+  count, overview and episodes (number, name, air date, runtime; the selected
+  episode shows its overview). **Specials** (TMDB season 0) are listed like
+  any season. Only the season you open is downloaded — opening a long series
+  costs two requests, not one per season. Each season says whether its
+  episodes are saved ("Not downloaded", "8 of 10 saved").
+- **Freshness**: saved details and episode lists count as fresh for **7 days**.
+  Opening a fresh title sends nothing to TMDB; an older one shows its saved
+  details at once and refreshes in the background. **Refresh** always asks
+  TMDB for the title and the season on screen. The pane says when the details
+  were last updated.
+- **Failures never remove anything.** Offline, a rejected token, rate
+  limiting or TMDB errors leave everything saved on screen with a short
+  explanation, and Refresh / Try again stay available. If TMDB no longer has
+  a title, it stays in your library with its saved details.
+- **Removing** a title from the library keeps its details and episodes for a
+  later re-add, like its poster.
+
+Details use TMDB's `/3/movie/{id}`, `/3/tv/{id}` and
+`/3/tv/{id}/season/{n}` in English. The detail pane uses the cached `w185`
+poster; backdrops are not downloaded. See ADR-0013 to ADR-0015.
 
 ## Run the benchmark fixture (R4 workload)
 
@@ -204,13 +244,15 @@ a second and a corrupt-database start from an unrelated working directory,
 with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
 and is not signed.
 
-## What the app does (R8)
+## What the app does (R9)
 
 - **Sidebar**: Home, Library, Discover, Calendar, Statistics, Settings,
   About. Home, Calendar and Statistics are labelled placeholders.
 - **Library**: your titles from SQLite, with search, a Movie/TV filter, a
-  sort menu, a virtualized list with posters, a detail pane with **Remove from
-  Library**, and states for an empty library, no matches and database errors.
+  sort menu, a virtualized list with posters, and states for an empty
+  library, no matches and database errors. The detail pane shows cached
+  details with **Refresh** and **Remove**, and for series a season list and
+  the selected season's episodes.
 - **Discover**: TMDB search over movies and TV series, with each result's
   type, year, poster and **In Library** state, a preview pane with **Add to
   Library**, **Load more**, keyboard navigation, and a clear state for a
@@ -232,9 +274,15 @@ and is not signed.
 - `src/paths.rs`: the per-OS data/cache/log policy (pure, tested for all
   three OSes on any host).
 - `src/settings.rs`: Bingee's own settings; today only `BINGEE_HOME`.
-- `src/database.rs`: `Database` (one owned connection), schema v1, migrations.
+- `src/database.rs`: `Database` (one owned connection), schemas v1 and v2,
+  migrations.
 - `src/library.rs`: library reads and writes: search with filter and sort,
-  count, add, remove, membership. No Slint, no network.
+  count, add, remove, membership, provider identity. No Slint, no network.
+- `src/metadata.rs`: provider detail metadata (`MediaDetails`, `Season`,
+  `Episode`, `Genre`), the freshness policy and injectable `Clock`, coverage,
+  and their SQLite reads and transactional writes. No Slint, no network.
+- `src/detail.rs`: the Library detail pane: cache-first loading, refresh
+  decisions, background requests, stale-answer protection, view models.
 - `src/view.rs`: the `slint::Model` over search results and the selection
   logic, shared by the production library and the fixture.
 - `src/error.rs`: `AppError` (kind, user message, cause).
@@ -266,8 +314,8 @@ and is not signed.
 `functions` feature for the Unicode case-folding search function. No ORM,
 connection pool or async runtime. One `Database` owns the only connection; the
 Library page and Discover share it through `SharedDb`, used on the UI thread
-only, and it closes when the window closes. R8 uses schema v1 unchanged; its
-add, remove and membership rules are in ADR-0010.
+only, and it closes when the window closes. Add, remove and membership rules
+are in ADR-0010.
 
 Schema v1 (ADR-0006), all `STRICT` tables:
 
@@ -282,6 +330,21 @@ Schema v1 (ADR-0006), all `STRICT` tables:
 - `library_entries`: membership, `local_media_id` → `media` (`ON DELETE
   RESTRICT`), `added_at`. Cached metadata is not library membership.
 
+Schema v2 (R9, ADR-0014) adds provider metadata only:
+
+- `media` columns `status`, `tagline`, `last_air_date`, `season_count`,
+  `episode_count`, `details_fetched_at`.
+- `genres (source, external_id, name)` and `media_genres`, one row per title
+  and genre.
+- `seasons`, keyed by `(local_media_id, season_number)` (season 0 allowed,
+  series only), with the summary and the episode coverage
+  (`episodes_fetched_at`, `episodes_known`).
+- `episodes`, keyed by `(local_media_id, season_number, episode_number)`,
+  with the TMDB episode id unique per season.
+
+There are no watched, rating or progress columns. A v1 database is upgraded
+in place on first start; its library, identities and poster paths are kept.
+
 Migrations: `PRAGMA user_version` is the schema version and `PRAGMA
 application_id` marks the file as Bingee's. All pending steps run in one
 transaction; a failure leaves the file as it was. Files that are damaged,
@@ -295,7 +358,11 @@ to stderr: startup (version, OS, architecture), the database path, migration
 start/end, schema version and title count, failures with their causes,
 panics, and close. For TMDB: token checks and saves (never the token), and one
 line per completed search request with its generation number, type, page,
-result count or error category, and duration (never the query text). It is rotated to `bingee-desktop.log.1` above 1 MiB. There
+result count or error category, and duration (never the query text). For
+details: whether an opened title came from the local cache and was fresh,
+stale or never fetched, each detail or season request with its outcome and
+duration, and answers dropped because another title or season is shown —
+never the response bodies. It is rotated to `bingee-desktop.log.1` above 1 MiB. There
 is no telemetry, analytics or remote logging; no per-interaction events or
 secrets are logged.
 
@@ -303,8 +370,9 @@ secrets are logged.
 
 | Key | Effect |
 | --- | --- |
-| Tab / Shift+Tab | Move focus through the search field, the list, the Library filters and sort menu, Load more and the detail pane's button. |
-| Up / Down / PageUp / PageDown / Home / End | In a list: move the selection and scroll it into view. |
+| Tab / Shift+Tab | Move focus through the search field, the list, the Library filters and sort menu, Load more, and the detail pane's Refresh, Remove, season list and episode list. |
+| Up / Down / PageUp / PageDown / Home / End | In a list (titles, seasons, episodes): move the selection and scroll it into view. Up/Down/Home/End in the season list. |
+| (switching pages) | Focus moves into the Library or Discover list. |
 | Down or Enter | In a search field: move focus to the list. |
 | Enter | In the Discover list: add the selected result to the library. |
 | Esc | In a search field (or the Library list): clear the search. |

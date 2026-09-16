@@ -52,6 +52,28 @@ impl fmt::Debug for Token {
     }
 }
 
+/// The token in use right now, so features other than Discover (the detail
+/// refresh) can see whether remote access is configured without owning the
+/// credential lifecycle. Only `remote` writes it.
+#[derive(Clone, Default)]
+pub struct SharedToken(std::sync::Arc<std::sync::Mutex<Option<Token>>>);
+
+impl SharedToken {
+    pub fn set(&self, token: Option<Token>) {
+        *self
+            .0
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = token;
+    }
+
+    pub fn get(&self) -> Option<Token> {
+        self.0
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
+    }
+}
+
 /// Where the token is kept. Calls may block (an unlock prompt on Linux), so
 /// they run on the network workers, never on the UI thread.
 pub trait SecretStore: Send + Sync {
