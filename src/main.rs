@@ -18,6 +18,8 @@ mod remote;
 mod search;
 mod secrets;
 mod settings;
+mod statistics;
+mod statistics_page;
 mod tmdb;
 mod tracking;
 mod view;
@@ -133,6 +135,7 @@ fn run() -> ExitCode {
         posters.clone(),
     );
     history::start(&window, db.clone(), log.clone());
+    statistics_page::start(&window, db.clone(), metadata::Clock::system(), log.clone());
     // The Library detail pane: cached details first, TMDB only when stale.
     detail::start(
         &window,
@@ -530,7 +533,7 @@ mod tests {
         assert_eq!(app.get_selected_row(), -1);
         assert_eq!(app.get_page(), "library");
         let storage = app.get_storage();
-        assert_eq!(storage.schema, "3");
+        assert_eq!(storage.schema, "4");
         assert_eq!(storage.database, paths.database().display().to_string());
         assert!(paths.database().is_file() && paths.cache.is_dir());
         assert_eq!(app.global::<AppInfo>().get_version(), APP_VERSION);
@@ -598,7 +601,7 @@ mod tests {
         app.invoke_retry();
         ui.render();
         assert_eq!(app.get_startup_error(), "");
-        assert_eq!(app.get_storage().schema, "3");
+        assert_eq!(app.get_storage().schema, "4");
     }
 
     #[test]

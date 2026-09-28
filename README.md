@@ -21,18 +21,19 @@ everything into memory.
 
 ## Status
 
-R6 (production foundations), R7 (TMDB search), R8 (local-first library) and
-R9 (cache-first details, seasons and episodes) and R10 (personal tracking,
-progress and watch history) are implemented: find movies and TV series on TMDB
-with your own token, add them to a library stored in SQLite, browse, search,
-filter and sort it with cached posters, open each title's details — for a
-series its seasons and episodes — and track what you watched: movies and
-episodes, whole seasons, a personal 1–10 rating, series progress and a watch
-history. Everything works offline.
+R6 (production foundations), R7 (TMDB search), R8 (local-first library),
+R9 (cache-first details, seasons and episodes), R10 (personal tracking,
+progress and watch history) and R11 (statistics) are implemented: find movies
+and TV series on TMDB with your own token, add them to a library stored in
+SQLite, browse, search, filter and sort it with cached posters, open each
+title's details — for a series its seasons and episodes — track what you
+watched: movies and episodes, whole seasons, a personal 1–10 rating, series
+progress and a watch history, and see statistics about it. Everything works
+offline.
 
-**Not implemented yet:** statistics, calendar, notifications, a Home /
-Continue Watching page, backup and sync. See `IMPLEMENTATION_PLAN.md` and
-`docs/milestones/R6.md` to `R10.md`.
+**Not implemented yet:** calendar, notifications, a Home / Continue Watching
+page, backup and sync. See `IMPLEMENTATION_PLAN.md` and
+`docs/milestones/R6.md` to `R11.md`.
 
 ## Prerequisites
 
@@ -227,6 +228,41 @@ box, separate from the TMDB header and its Refresh button.
 
 See ADR-0016 to ADR-0019.
 
+## Statistics
+
+Statistics are computed locally from Bingee's local database each time the
+page opens or you choose a range (**30 days**, **12 months**, **All time**).
+Nothing is uploaded, stored as a separate counter or logged, and no TMDB token
+or network is needed. The page has two clearly separate parts:
+
+- **Viewing history** (the range applies): watch time, watches (movies and
+  episodes, rewatches included), movie and episode watches with how many
+  different movies and episodes they were, rewatches (every watch of something
+  watched before), watches per day / month / year, movies versus TV by known
+  watch time, and watches per genre. It comes from your watch history only:
+  unmarking a title or removing it from the Library does not change it;
+  **Remove from history** does.
+- **In your Library now**: your average rating (over rated titles only) and
+  the 1–10 distribution, movies and episodes marked watched, and how many
+  series are complete, in progress or not started. Only titles currently in
+  your Library count.
+
+Rules worth knowing:
+
+- **Watch time** uses the runtime saved with each watch, so a later TMDB
+  change does not alter it; a rewatch counts its runtime again. Watches with
+  no known runtime are not counted as zero: the page says how many there are.
+- **Genres**: a watch counts toward every genre of its title (episodes use the
+  series' genres), so genre totals add up to more than your watches. Genres
+  are the ones currently stored for the title.
+- **Complete** needs every regular season's episode list downloaded and every
+  regular episode watched; the page notes series with incomplete episode
+  lists. Specials never count toward progress, but watching them counts as a
+  watch and as watch time.
+- Days and months are your computer's local calendar.
+
+See ADR-0020 and ADR-0021.
+
 ## Run the benchmark fixture (R4 workload)
 
 The 1,000-title deterministic library, the spike database and the synthetic
@@ -290,10 +326,10 @@ a second and a corrupt-database start from an unrelated working directory,
 with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
 and is not signed.
 
-## What the app does (R10)
+## What the app does (R11)
 
 - **Sidebar**: Home, Library, History, Discover, Calendar, Statistics,
-  Settings, About. Home, Calendar and Statistics are labelled placeholders.
+  Settings, About. Home and Calendar are labelled placeholders.
 - **Library**: your titles from SQLite, with search, a Movie/TV filter, a
   sort menu, a virtualized list with posters, and states for an empty
   library, no matches and database errors. The detail pane shows cached
@@ -302,6 +338,8 @@ and is not signed.
   progress and bulk actions and the selected season's episodes with watched
   marks. Rows show your progress.
 - **History**: recent watches, newest first, with Remove from history.
+- **Statistics**: viewing history for 30 days, 12 months or all time, and the
+  current state of your Library, with empty and error states.
 - **Discover**: TMDB search over movies and TV series, with each result's
   type, year, poster and **In Library** state, a preview pane with **Add to
   Library**, **Load more**, keyboard navigation, and a clear state for a
@@ -323,7 +361,7 @@ and is not signed.
 - `src/paths.rs`: the per-OS data/cache/log policy (pure, tested for all
   three OSes on any host).
 - `src/settings.rs`: Bingee's own settings; today only `BINGEE_HOME`.
-- `src/database.rs`: `Database` (one owned connection), schemas v1 to v3,
+- `src/database.rs`: `Database` (one owned connection), schemas v1 to v4,
   migrations.
 - `src/library.rs`: library reads and writes: search with filter and sort,
   count, add, remove, membership, provider identity. No Slint, no network.
@@ -334,6 +372,10 @@ and is not signed.
   actions, watch history, coverage-aware progress, next episode, continue
   watching. SQLite only; no Slint, no network.
 - `src/history.rs`: the History page.
+- `src/statistics.rs`: statistics aggregates (viewing history per range,
+  genres, activity, current Library state and ratings). SQLite only; no Slint,
+  no network.
+- `src/statistics_page.rs`: the Statistics page (view model and range).
 - `src/detail.rs`: the Library detail pane (metadata and tracking): cache-first loading, refresh
   decisions, background requests, stale-answer protection, view models.
 - `src/view.rs`: the `slint::Model` over search results and the selection
@@ -408,8 +450,14 @@ them:
   episode_number, watched_at)`: one row per watch, rewatches included, indexed
   by time.
 
-Older databases are upgraded in place on first start (v1 → v2 → v3); library,
-identities, details, genres, seasons, episodes and coverage are kept. A future
+Schema v4 (R11, ADR-0021) adds `watch_events.runtime_minutes`: the runtime
+known when the watch was recorded (the movie's, or the episode's own), `NULL`
+when unknown. Upgrading fills it for existing watches from the runtimes stored
+at that moment.
+
+Older databases are upgraded in place on first start (v1 → v2 → v3 → v4);
+library, identities, details, genres, seasons, episodes, coverage and personal
+tracking are kept. A future
 backup of personal data is `library_entries`, the three tracking tables and
 `external_refs`, never the token, caches or logs.
 
@@ -430,8 +478,8 @@ result count or error category, and duration (never the query text). For
 details: whether an opened title came from the local cache and was fresh,
 stale or never fetched, each detail or season request with its outcome and
 duration, and answers dropped because another title or season is shown —
-never the response bodies. For tracking, only failed writes or reads (never
-what was watched). It is rotated to `bingee-desktop.log.1` above 1 MiB. There
+never the response bodies. For tracking and statistics, only failed writes or
+reads (never what was watched). It is rotated to `bingee-desktop.log.1` above 1 MiB. There
 is no telemetry, analytics or remote logging; no per-interaction events or
 secrets are logged.
 

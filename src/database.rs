@@ -19,7 +19,7 @@ const APPLICATION_ID: i32 = 0x4269_6E67;
 
 /// Step `n` (1-based) upgrades schema version `n - 1` to `n`. Never edit a
 /// step that has shipped: append a new one.
-const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3];
+const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3, SCHEMA_V4];
 
 const SCHEMA_V1: &str = "
 PRAGMA application_id = 1114205799;
@@ -212,6 +212,25 @@ CREATE TABLE watch_events (
 
 CREATE INDEX watch_events_by_time ON watch_events (watched_at);
 CREATE INDEX watch_events_by_media ON watch_events (local_media_id, media_type);
+";
+
+/// R11: each watch event keeps the runtime known when it was recorded
+/// (ADR-0021), so statistics do not change when a provider later changes a
+/// runtime. Events recorded before v4 get the runtime stored at upgrade time,
+/// or NULL when none is known; nothing is invented. Personal data only.
+const SCHEMA_V4: &str = "
+-- Minutes: the movie's runtime, or the episode's own runtime (never the
+-- series' typical episode length). NULL: unknown when recorded.
+ALTER TABLE watch_events ADD COLUMN runtime_minutes INTEGER CHECK (runtime_minutes > 0);
+
+UPDATE watch_events SET runtime_minutes = CASE media_type
+    WHEN 'movie' THEN (SELECT m.runtime_minutes FROM media AS m
+                       WHERE m.local_media_id = watch_events.local_media_id)
+    ELSE (SELECT e.runtime_minutes FROM episodes AS e
+          WHERE e.local_media_id = watch_events.local_media_id
+            AND e.season_number = watch_events.season_number
+            AND e.episode_number = watch_events.episode_number)
+END;
 ";
 
 /// The one connection to the library database. Owned by whoever needs it
@@ -438,8 +457,8 @@ mod tests {
     fn fresh_database_migrates_to_the_latest_schema() {
         let dir = TestDir::new("db-fresh");
         let db = open(&dir.0.join("bingee.db")).unwrap();
-        assert_eq!(MIGRATIONS.len(), 3);
-        assert_eq!(db.schema_version().unwrap(), 3);
+        assert_eq!(MIGRATIONS.len(), 4);
+        assert_eq!(db.schema_version().unwrap(), 4);
         let app_id: i32 = db
             .conn()
             .pragma_query_value(None, "application_id", |r| r.get(0))
@@ -498,7 +517,7 @@ mod tests {
         let id = v1_fixture(&path);
 
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 3);
+        assert_eq!(db.schema_version().unwrap(), 4);
         // Library membership, provider identity and poster references survive.
         let row: (i64, String, String, String, i64, Option<i64>) = db
             .conn()
@@ -550,7 +569,7 @@ mod tests {
         // Reopening the latest version writes nothing.
         drop(db);
         let before = std::fs::read(&path).unwrap();
-        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 3);
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 4);
         assert_eq!(std::fs::read(&path).unwrap(), before);
     }
 
@@ -565,7 +584,7 @@ mod tests {
         assert!(Database::init(conn, broken, &Log::stderr_only()).is_err());
         assert_eq!(std::fs::read(&path).unwrap(), before, "file changed");
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 3, "still upgradable");
+        assert_eq!(db.schema_version().unwrap(), 4, "still upgradable");
         assert!(!tables(db.conn()).contains(&"ok".to_owned()));
     }
 
@@ -623,13 +642,13 @@ mod tests {
     }
 
     #[test]
-    fn a_real_v2_file_upgrades_to_v3_and_keeps_everything() {
+    fn a_real_v2_file_upgrades_to_the_latest_schema_and_keeps_everything() {
         let dir = TestDir::new("db-v2-to-v3");
         let path = dir.0.join("bingee.db");
         let before = v2_fixture(&path);
 
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 3);
+        assert_eq!(db.schema_version().unwrap(), 4);
         // Library, identity, details, genres, seasons, episodes and coverage.
         assert_eq!(v2_rows(db.conn()), before);
         for table in ["media_tracking", "episode_tracking", "watch_events"] {
@@ -641,11 +660,11 @@ mod tests {
         }
         drop(db);
         let bytes = std::fs::read(&path).unwrap();
-        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 3);
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 4);
         assert_eq!(
             std::fs::read(&path).unwrap(),
             bytes,
-            "v3 reopen writes nothing"
+            "reopen writes nothing"
         );
     }
 
@@ -665,8 +684,136 @@ mod tests {
         assert!(!tables(&conn).contains(&"watch_events".to_owned()));
         drop(conn);
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 3, "still upgradable");
+        assert_eq!(db.schema_version().unwrap(), 4, "still upgradable");
         assert_eq!(v2_rows(db.conn()), rows);
+    }
+
+    /// Every R10 personal row, for the v3 -> v4 checks.
+    const V3_ROWS: &str = "
+        SELECT 'event', event_id, local_media_id, media_type, season_number, episode_number,
+               watched_at, NULL FROM watch_events
+        UNION ALL SELECT 'media', local_media_id, NULL, media_type, NULL, NULL, watched_at, rating
+                  FROM media_tracking
+        UNION ALL SELECT 'episode', local_media_id, NULL, media_type, season_number,
+                         episode_number, watched_at, NULL FROM episode_tracking
+        ORDER BY 1, 2, 5, 6";
+
+    fn v3_rows(conn: &Connection) -> Vec<Vec<rusqlite::types::Value>> {
+        let mut stmt = conn.prepare(V3_ROWS).unwrap();
+        stmt.query_map([], |row| (0..8).map(|i| row.get(i)).collect())
+            .unwrap()
+            .map(Result::unwrap)
+            .collect()
+    }
+
+    /// A schema v3 file as R10 wrote it: the v2 series (episode 1 is 45
+    /// minutes long, episode 2 has no runtime) and a 136-minute movie, with
+    /// watches of both, a rewatch, an event for an episode the provider no
+    /// longer lists, state and a rating. Returns (v2 rows, v3 rows).
+    fn v3_fixture(
+        path: &Path,
+    ) -> (
+        Vec<Vec<rusqlite::types::Value>>,
+        Vec<Vec<rusqlite::types::Value>>,
+    ) {
+        let v2 = v2_fixture(path);
+        let conn = Connection::open(path).unwrap();
+        let db = Database::init(conn, &MIGRATIONS[..3], &Log::stderr_only()).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 3);
+        let show: i64 = db
+            .conn()
+            .query_row("SELECT local_media_id FROM media", [], |r| r.get(0))
+            .unwrap();
+        let movie = insert_media(db.conn(), "movie", "The Matrix");
+        db.conn()
+            .execute_batch(&format!(
+                "UPDATE episodes SET runtime_minutes = 45
+                     WHERE local_media_id = {show} AND season_number = 1 AND episode_number = 1;
+                 UPDATE media SET runtime_minutes = 136 WHERE local_media_id = {movie};
+                 INSERT INTO media_tracking VALUES ({movie}, 'movie', 1800000200, 9);
+                 INSERT INTO episode_tracking VALUES ({show}, 'tv', 1, 1, 1800000000),
+                                                     ({show}, 'tv', 1, 2, 1800000100);
+                 INSERT INTO watch_events (local_media_id, media_type, season_number,
+                                           episode_number, watched_at)
+                 VALUES ({show}, 'tv', 1, 1, 1800000000), ({show}, 'tv', 1, 2, 1800000100),
+                        ({movie}, 'movie', NULL, NULL, 1800000150),
+                        ({movie}, 'movie', NULL, NULL, 1800000200),
+                        ({show}, 'tv', 1, 7, 1700000000);"
+            ))
+            .unwrap();
+        let v3 = v3_rows(db.conn());
+        assert_eq!(v3.len(), 8);
+        (v2, v3)
+    }
+
+    #[test]
+    fn a_real_v3_file_upgrades_to_v4_with_runtimes_from_stored_metadata() {
+        let dir = TestDir::new("db-v3-to-v4");
+        let path = dir.0.join("bingee.db");
+        let (v2, v3) = v3_fixture(&path);
+
+        let db = open(&path).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 4);
+        assert_eq!(v2_rows(db.conn()), v2, "provider data unchanged");
+        assert_eq!(v3_rows(db.conn()), v3, "personal data unchanged");
+        let runtimes: Vec<Option<i64>> = db
+            .conn()
+            .prepare("SELECT runtime_minutes FROM watch_events ORDER BY event_id")
+            .unwrap()
+            .query_map([], |r| r.get(0))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect();
+        // Known runtimes are copied; unknown and unlisted stay unknown.
+        assert_eq!(runtimes, [Some(45), None, Some(136), Some(136), None]);
+
+        // From now on a metadata change does not reach recorded events.
+        db.conn()
+            .execute(
+                "UPDATE media SET runtime_minutes = 150 WHERE media_type = 'movie'",
+                [],
+            )
+            .unwrap();
+        let movie_minutes: i64 = db
+            .conn()
+            .query_row(
+                "SELECT sum(runtime_minutes) FROM watch_events WHERE media_type = 'movie'",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(movie_minutes, 272);
+        assert!(constraint(
+            db.conn()
+                .execute("UPDATE watch_events SET runtime_minutes = 0", [])
+        ));
+        drop(db);
+        let bytes = std::fs::read(&path).unwrap();
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 4);
+        assert_eq!(
+            std::fs::read(&path).unwrap(),
+            bytes,
+            "reopen writes nothing"
+        );
+    }
+
+    #[test]
+    fn a_failed_v4_migration_leaves_a_v3_file_untouched() {
+        let dir = TestDir::new("db-v4-rollback");
+        let path = dir.0.join("bingee.db");
+        let (_, v3) = v3_fixture(&path);
+        let before = std::fs::read(&path).unwrap();
+        let broken = format!("{SCHEMA_V4}; NOT SQL");
+        let steps: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3, &broken];
+        let conn = Connection::open(&path).unwrap();
+        assert!(Database::init(conn, steps, &Log::stderr_only()).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), before, "file changed");
+        let conn = Connection::open(&path).unwrap();
+        assert_eq!(user_version(&conn).unwrap(), 3);
+        drop(conn);
+        let db = open(&path).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 4, "still upgradable");
+        assert_eq!(v3_rows(db.conn()), v3);
     }
 
     #[test]
@@ -754,7 +901,7 @@ mod tests {
         let before = std::fs::read(&path).unwrap();
         for _ in 0..3 {
             let db = open(&path).unwrap();
-            assert_eq!(db.schema_version().unwrap(), 3);
+            assert_eq!(db.schema_version().unwrap(), 4);
             let row: (String, String, i64) = db
                 .conn()
                 .query_row(
@@ -858,6 +1005,7 @@ mod tests {
             SCHEMA_V1,
             SCHEMA_V2,
             SCHEMA_V3,
+            SCHEMA_V4,
             "CREATE TABLE extra (x); THIS IS NOT SQL",
         ];
         let dir = TestDir::new("db-rollback");

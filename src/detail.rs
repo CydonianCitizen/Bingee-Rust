@@ -838,7 +838,7 @@ fn updated(fetched_at: Option<i64>, now: i64) -> String {
 }
 
 /// "57 min", "2 h 16 min".
-fn duration(minutes: u32) -> String {
+pub fn duration(minutes: u32) -> String {
     match (minutes / 60, minutes % 60) {
         (0, m) => format!("{m} min"),
         (h, 0) => format!("{h} h"),

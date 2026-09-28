@@ -13,6 +13,8 @@
 //!   out of the main count, and a series is complete only when every regular
 //!   season's episode list is fully downloaded and watched.
 //! * **One transaction per action**, with set-based SQL for whole seasons.
+//! * **Events keep their runtime.** A new event copies the runtime stored at
+//!   that moment (ADR-0021); a later metadata refresh does not change it.
 //!
 //! Plain Rust types, no Slint.
 
@@ -115,8 +117,9 @@ pub fn watch_movie(db: &Database, id: i64, now: i64, again: bool) -> Result<bool
         .map_err(write_failed)?;
     if changed > 0 {
         tx.execute(
-            "INSERT INTO watch_events (local_media_id, media_type, watched_at)
-             VALUES (?1, 'movie', ?2)",
+            "INSERT INTO watch_events (local_media_id, media_type, watched_at, runtime_minutes)
+             SELECT local_media_id, 'movie', ?2, runtime_minutes FROM media
+             WHERE local_media_id = ?1",
             params![id, now],
         )
         .map_err(write_failed)?;
@@ -198,8 +201,10 @@ pub fn watch_episode(
     if changed > 0 {
         tx.execute(
             "INSERT INTO watch_events (local_media_id, media_type, season_number, episode_number,
-                                       watched_at)
-             VALUES (?1, 'tv', ?2, ?3, ?4)",
+                                       watched_at, runtime_minutes)
+             SELECT local_media_id, 'tv', season_number, episode_number, ?4, runtime_minutes
+             FROM episodes
+             WHERE local_media_id = ?1 AND season_number = ?2 AND episode_number = ?3",
             params![id, season, episode, now],
         )
         .map_err(write_failed)?;
@@ -235,8 +240,9 @@ pub fn watch_season(db: &Database, id: i64, season: i64, now: i64) -> Result<usi
     let events = tx
         .execute(
             "INSERT INTO watch_events (local_media_id, media_type, season_number, episode_number,
-                                       watched_at)
-             SELECT e.local_media_id, 'tv', e.season_number, e.episode_number, ?3
+                                       watched_at, runtime_minutes)
+             SELECT e.local_media_id, 'tv', e.season_number, e.episode_number, ?3,
+                    e.runtime_minutes
              FROM episodes AS e
              WHERE e.local_media_id = ?1 AND e.season_number = ?2
                AND NOT EXISTS (SELECT 1 FROM episode_tracking AS t

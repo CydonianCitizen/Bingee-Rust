@@ -144,6 +144,47 @@ export struct HistoryRow {
     when: string,
 }
 
+// The Statistics page (`src/statistics_page.rs`): prepared text and bar
+// lengths only; every number is computed in Rust.
+export struct StatCard {
+    label: string,
+    value: string,
+    detail: string,
+}
+
+// One bar of a chart: `fraction` is its length from 0 to 1.
+export struct StatBar {
+    label: string,
+    value: string,
+    fraction: float,
+}
+
+export struct StatisticsView {
+    // "ready", "empty" (no watch history at all) or "error".
+    state: string,
+    notice: string,
+    // 0: 30 days, 1: 12 months, 2: all time.
+    range: int,
+    history-title: string,
+    // The first card is watch time.
+    cards: [StatCard],
+    activity-title: string,
+    activity: [StatBar],
+    // Movies' share of known watch time; negative when none is known.
+    movie-share: float,
+    movies-line: string,
+    tv-line: string,
+    split-note: string,
+    genres: [StatBar],
+    genre-note: string,
+    has-library: bool,
+    library-cards: [StatCard],
+    series: [StatBar],
+    series-note: string,
+    rating-summary: string,
+    ratings: [StatBar],
+}
+
 // The TMDB part of Settings (`tmdb_view` in src/remote.rs).
 export struct TmdbView {
     status: string,
@@ -175,6 +216,8 @@ global Theme {
     out property <color> error: #f28b82;
     out property <color> warning: #f2c46d;
     out property <color> ok: #7fd49a;
+    // Statistics: TV next to `accent` for movies.
+    out property <color> accent-alt: #c3a6ff;
 }
 
 // Poster image (decoded and cached in Rust), drawn over a gradient-and-initials
@@ -1709,6 +1752,365 @@ component HistoryPage {
     }
 }
 
+// A bordered box with a heading, for the Statistics page.
+component StatPanel inherits Rectangle {
+    in property <string> title;
+    in property <string> subtitle;
+    background: Theme.panel-bg;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: Theme.border;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 12px;
+        alignment: start;
+        HorizontalLayout {
+            spacing: 8px;
+            Text {
+                text: root.title;
+                font-size: 14px;
+                font-weight: 600;
+                color: Theme.text;
+            }
+            Text {
+                text: root.subtitle;
+                font-size: 12px;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                color: Theme.text-faint;
+                overflow: elide;
+            }
+        }
+        @children
+    }
+}
+
+component StatTile inherits Rectangle {
+    in property <StatCard> card;
+    in property <bool> hero;
+    // Tiles share a row by stretch alone, not by their text's width.
+    min-width: 0px;
+    preferred-width: 0px;
+    background: root.hero ? Theme.selected-bg : Theme.panel-bg;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: Theme.border;
+    VerticalLayout {
+        padding: 14px;
+        spacing: 4px;
+        alignment: start;
+        Text {
+            text: root.card.label;
+            font-size: 12px;
+            color: Theme.text-faint;
+            overflow: elide;
+        }
+        Text {
+            text: root.card.value;
+            font-size: root.hero ? 30px : 22px;
+            font-weight: 700;
+            color: Theme.text;
+            overflow: elide;
+        }
+        Text {
+            text: root.card.detail;
+            font-size: 12px;
+            color: Theme.text-muted;
+            wrap: word-wrap;
+        }
+    }
+}
+
+// Vertical bars with the value over each bar and a label under it.
+component ColumnChart {
+    in property <[StatBar]> bars;
+    in property <length> chart-height: 140px;
+    HorizontalLayout {
+        spacing: 3px;
+        for bar in root.bars: VerticalLayout {
+            horizontal-stretch: 1;
+            spacing: 4px;
+            Rectangle {
+                property <length> bar-height: bar.fraction > 0 ? max(2px, (self.height - 14px) * bar.fraction) : 1px;
+                height: root.chart-height;
+                Rectangle {
+                    y: parent.height - self.height;
+                    height: parent.bar-height;
+                    border-radius: 2px;
+                    background: bar.fraction > 0 ? Theme.accent : Theme.border;
+                }
+                Text {
+                    y: parent.height - parent.bar-height - 14px;
+                    height: 13px;
+                    width: parent.width;
+                    text: bar.value;
+                    font-size: 10px;
+                    horizontal-alignment: center;
+                    color: Theme.text-muted;
+                }
+            }
+            Text {
+                text: bar.label;
+                height: 14px;
+                font-size: 10px;
+                horizontal-alignment: center;
+                color: Theme.text-faint;
+            }
+        }
+    }
+}
+
+// A labelled horizontal bar.
+component BarRow {
+    in property <StatBar> bar;
+    in property <length> label-width: 140px;
+    in property <color> tint: Theme.accent;
+    height: 22px;
+    HorizontalLayout {
+        spacing: 10px;
+        Text {
+            width: root.label-width;
+            text: root.bar.label;
+            font-size: 13px;
+            vertical-alignment: center;
+            color: Theme.text;
+            overflow: elide;
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+            Rectangle {
+                x: 0;
+                y: (parent.height - self.height) / 2;
+                height: 8px;
+                width: parent.width;
+                border-radius: 4px;
+                background: Theme.hover-bg;
+            }
+            Rectangle {
+                x: 0;
+                y: (parent.height - self.height) / 2;
+                height: 8px;
+                width: parent.width * clamp(root.bar.fraction, 0, 1);
+                border-radius: 4px;
+                background: root.tint;
+            }
+        }
+        Text {
+            width: 150px;
+            text: root.bar.value;
+            font-size: 12px;
+            horizontal-alignment: right;
+            vertical-alignment: center;
+            color: Theme.text-muted;
+            overflow: elide;
+        }
+    }
+}
+
+component StatNote inherits Text {
+    font-size: 12px;
+    color: Theme.text-faint;
+    wrap: word-wrap;
+}
+
+component LegendLine {
+    in property <color> tint;
+    in property <string> text;
+    HorizontalLayout {
+        spacing: 8px;
+        VerticalLayout {
+            padding-top: 4px;
+            alignment: start;
+            Rectangle {
+                width: 10px;
+                height: 10px;
+                border-radius: 5px;
+                background: root.tint;
+            }
+        }
+        Text {
+            text: root.text;
+            font-size: 13px;
+            color: Theme.text;
+            wrap: word-wrap;
+            horizontal-stretch: 1;
+        }
+    }
+}
+
+// Viewing history and the current state of the Library, from SQLite
+// (`src/statistics_page.rs`).
+component StatisticsPage {
+    in property <StatisticsView> view;
+    callback range-selected(range: int);
+
+    ScrollView {
+        width: 100%;
+        height: 100%;
+        VerticalLayout {
+            padding: 24px;
+            padding-right: 20px;
+            spacing: 16px;
+            alignment: start;
+            HorizontalLayout {
+                spacing: 8px;
+                PageTitle {
+                    text: "Statistics";
+                }
+                Text {
+                    text: "Computed on this computer from your local database.";
+                    font-size: 13px;
+                    vertical-alignment: bottom;
+                    horizontal-stretch: 1;
+                    color: Theme.text-faint;
+                    overflow: elide;
+                }
+                for label[index] in ["30 days", "12 months", "All time"]: Button {
+                    text: label;
+                    primary: root.view.range == index;
+                    clicked => { root.range-selected(index); }
+                }
+            }
+            if root.view.state == "error": Text {
+                text: root.view.notice;
+                wrap: word-wrap;
+                font-size: 14px;
+                color: Theme.error;
+            }
+            if root.view.state == "empty": Rectangle {
+                background: Theme.panel-bg;
+                border-radius: 8px;
+                border-width: 1px;
+                border-color: Theme.border;
+                VerticalLayout {
+                    padding: 32px;
+                    spacing: 6px;
+                    Text {
+                        text: "No viewing statistics yet";
+                        horizontal-alignment: center;
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: Theme.text;
+                    }
+                    Text {
+                        text: "Mark a movie or an episode as watched to start building your history.";
+                        horizontal-alignment: center;
+                        wrap: word-wrap;
+                        font-size: 13px;
+                        color: Theme.text-muted;
+                    }
+                }
+            }
+            if root.view.state == "ready": VerticalLayout {
+                spacing: 12px;
+                SectionTitle {
+                    text: root.view.history-title;
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    for card[index] in root.view.cards: StatTile {
+                        card: card;
+                        hero: index == 0;
+                        horizontal-stretch: index == 0 ? 2 : 1;
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        spacing: 12px;
+                        StatPanel {
+                            title: root.view.activity-title;
+                            subtitle: "watch events";
+                            ColumnChart {
+                                bars: root.view.activity;
+                            }
+                        }
+                        StatPanel {
+                            vertical-stretch: 1;
+                            title: "Movies and TV";
+                            subtitle: "share of known watch time";
+                            if root.view.movie-share >= 0: Rectangle {
+                                height: 12px;
+                                border-radius: 6px;
+                                clip: true;
+                                background: Theme.accent-alt;
+                                Rectangle {
+                                    x: 0;
+                                    width: parent.width * root.view.movie-share;
+                                    background: Theme.accent;
+                                }
+                            }
+                            LegendLine {
+                                tint: Theme.accent;
+                                text: root.view.movies-line;
+                            }
+                            LegendLine {
+                                tint: Theme.accent-alt;
+                                text: root.view.tv-line;
+                            }
+                            if root.view.split-note != "": StatNote {
+                                text: root.view.split-note;
+                            }
+                        }
+                    }
+                    StatPanel {
+                        horizontal-stretch: 1;
+                        title: "Genres";
+                        subtitle: "watches per genre";
+                        for bar in root.view.genres: BarRow {
+                            bar: bar;
+                            label-width: 120px;
+                        }
+                        StatNote {
+                            text: root.view.genre-note;
+                        }
+                    }
+                }
+            }
+            if root.view.state != "error" && root.view.has-library: VerticalLayout {
+                spacing: 12px;
+                padding-top: 8px;
+                SectionTitle {
+                    text: "IN YOUR LIBRARY NOW";
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    for card in root.view.library-cards: StatTile {
+                        card: card;
+                        horizontal-stretch: 1;
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 12px;
+                    StatPanel {
+                        horizontal-stretch: 1;
+                        title: "Series progress";
+                        subtitle: "regular seasons; specials do not count";
+                        for bar in root.view.series: BarRow {
+                            bar: bar;
+                            label-width: 100px;
+                            tint: Theme.accent-alt;
+                        }
+                        if root.view.series-note != "": StatNote {
+                            text: root.view.series-note;
+                        }
+                    }
+                    StatPanel {
+                        horizontal-stretch: 1;
+                        title: "Your ratings";
+                        subtitle: root.view.rating-summary;
+                        ColumnChart {
+                            bars: root.view.ratings;
+                            chart-height: 90px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Shown instead of the library when the database cannot be opened, so a
 // failure never looks like an empty library.
 component StartupErrorPage {
@@ -1805,6 +2207,8 @@ export component AppWindow inherits Window {
     in property <[HistoryRow]> history-rows;
     in property <int> history-selected-row: -1;
     in property <string> history-notice;
+    // The Statistics page (src/statistics_page.rs).
+    in property <StatisticsView> statistics;
 
     callback query-changed(query: string);
     callback row-selected(row: int);
@@ -1844,6 +2248,9 @@ export component AppWindow inherits Window {
     callback history-opened();
     callback history-row-selected(row: int);
     callback history-delete(row: int);
+    // The Statistics page opened (reload), or a range was chosen.
+    callback statistics-opened();
+    callback statistics-range(range: int);
 
     private property <length> row-height: 80px;
     private property <string> shown: root.startup-error != "" && root.page != "settings" && root.page != "about" ? "error" : root.page;
@@ -1864,6 +2271,8 @@ export component AppWindow inherits Window {
         } else if root.shown == "history" {
             root.history-opened();
             history-page.focus-list();
+        } else if root.shown == "statistics" {
+            root.statistics-opened();
         }
     }
 
@@ -2094,11 +2503,11 @@ export component AppWindow inherits Window {
                 title: "Calendar";
                 body: "Upcoming episodes and releases will appear here in a later version.";
             }
-            if root.shown == "statistics": Placeholder {
+            if root.shown == "statistics": StatisticsPage {
                 width: 100%;
                 height: 100%;
-                title: "Statistics";
-                body: "Statistics about what you have watched will appear here in a later version.";
+                view: root.statistics;
+                range-selected(range) => { root.statistics-range(range); }
             }
             if root.shown == "settings": SettingsPage {
                 width: 100%;
