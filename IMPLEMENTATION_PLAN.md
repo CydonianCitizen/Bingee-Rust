@@ -355,8 +355,16 @@ PASS locally / cross-platform CI pending (16 September 2026). See
 
 ---
 
-## Next: R10 — Tracking
+## Production milestones R10–R14
 
-Watched state and progress for movies and episodes on top of the R9 episode
-keys and coverage, in separate personal tables. See the R10 prerequisites in
-`docs/milestones/R9.md`.
+| Milestone | Result | Record |
+| --- | --- | --- |
+| R10 — Personal tracking | PASS | `docs/milestones/R10.md`; schema v3 for movie and episode watched state, ratings and watch events. |
+| R11 — Statistics | PASS | `docs/milestones/R11.md`; schema v4 for historical runtime snapshots. |
+| R12 — Home and Calendar | PASS locally | `docs/milestones/R12.md`; local dashboard and month grid; no migration. |
+| R13 — Portable backup and restore | PASS locally | `docs/milestones/R13.md`, `docs/backup-v1.md`; typed JSON V1 and transactional replace. |
+| R14 — In-app refresh and Updates | PASS locally | `docs/milestones/R14.md`; schema v5 for preference and release events. |
+
+R12–R14 cross-platform CI is pending a user commit/push; the current session
+does not have permission to perform those Git operations. The timestamped
+report under `docs/run-reports/` records local gates and genuine limitations.

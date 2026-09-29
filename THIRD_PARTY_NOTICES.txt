@@ -53,6 +53,7 @@ Direct Rust dependencies
   ureq 3.4.2            MIT OR Apache-2.0 (HTTP client; default features:
                         rustls with ring, webpki-roots, gzip)
   keyring 4.2.0         MIT OR Apache-2.0 (OS credential store)
+  rfd 0.17.2            MIT (native file dialogs; Linux XDG portal)
   serde 1.0.229         MIT OR Apache-2.0
   serde_json 1.0.151    MIT OR Apache-2.0
   image 0.25.10         MIT OR Apache-2.0 (poster decoding; features "jpeg"

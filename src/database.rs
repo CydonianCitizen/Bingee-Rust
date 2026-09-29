@@ -19,7 +19,7 @@ const APPLICATION_ID: i32 = 0x4269_6E67;
 
 /// Step `n` (1-based) upgrades schema version `n - 1` to `n`. Never edit a
 /// step that has shipped: append a new one.
-const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3, SCHEMA_V4];
+const MIGRATIONS: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3, SCHEMA_V4, SCHEMA_V5];
 
 const SCHEMA_V1: &str = "
 PRAGMA application_id = 1114205799;
@@ -231,6 +231,33 @@ UPDATE watch_events SET runtime_minutes = CASE media_type
             AND e.season_number = watch_events.season_number
             AND e.episode_number = watch_events.episode_number)
 END;
+";
+
+/// R14: one local preference and durable, deduplicated episode release events.
+/// Read state references media, never an episode row, so provider refreshes
+/// cannot erase or reset it. Previous migrations remain unchanged.
+const SCHEMA_V5: &str = "
+CREATE TABLE app_settings (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    automatic_refresh_enabled INTEGER NOT NULL CHECK (automatic_refresh_enabled IN (0, 1))
+) STRICT;
+INSERT INTO app_settings (id, automatic_refresh_enabled) VALUES (1, 0);
+
+CREATE TABLE release_events (
+    event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    local_media_id INTEGER NOT NULL,
+    media_type TEXT NOT NULL CHECK (media_type = 'tv'),
+    season_number INTEGER NOT NULL CHECK (season_number >= 0),
+    episode_number INTEGER NOT NULL CHECK (episode_number >= 0),
+    event_type TEXT NOT NULL CHECK (event_type = 'new_episode'),
+    discovered_at INTEGER NOT NULL,
+    air_date TEXT CHECK (air_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+    read_at INTEGER,
+    UNIQUE (local_media_id, season_number, episode_number, event_type),
+    FOREIGN KEY (local_media_id, media_type)
+        REFERENCES media (local_media_id, media_type) ON DELETE RESTRICT
+) STRICT;
+CREATE INDEX release_events_by_time ON release_events (discovered_at DESC, event_id DESC);
 ";
 
 /// The one connection to the library database. Owned by whoever needs it
@@ -457,8 +484,8 @@ mod tests {
     fn fresh_database_migrates_to_the_latest_schema() {
         let dir = TestDir::new("db-fresh");
         let db = open(&dir.0.join("bingee.db")).unwrap();
-        assert_eq!(MIGRATIONS.len(), 4);
-        assert_eq!(db.schema_version().unwrap(), 4);
+        assert_eq!(MIGRATIONS.len(), 5);
+        assert_eq!(db.schema_version().unwrap(), 5);
         let app_id: i32 = db
             .conn()
             .pragma_query_value(None, "application_id", |r| r.get(0))
@@ -467,6 +494,7 @@ mod tests {
         assert_eq!(
             tables(db.conn()),
             [
+                "app_settings",
                 "episode_tracking",
                 "episodes",
                 "external_refs",
@@ -475,6 +503,7 @@ mod tests {
                 "media",
                 "media_genres",
                 "media_tracking",
+                "release_events",
                 "seasons",
                 "sqlite_sequence",
                 "watch_events"
@@ -517,7 +546,7 @@ mod tests {
         let id = v1_fixture(&path);
 
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 4);
+        assert_eq!(db.schema_version().unwrap(), 5);
         // Library membership, provider identity and poster references survive.
         let row: (i64, String, String, String, i64, Option<i64>) = db
             .conn()
@@ -569,7 +598,7 @@ mod tests {
         // Reopening the latest version writes nothing.
         drop(db);
         let before = std::fs::read(&path).unwrap();
-        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 4);
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 5);
         assert_eq!(std::fs::read(&path).unwrap(), before);
     }
 
@@ -584,7 +613,7 @@ mod tests {
         assert!(Database::init(conn, broken, &Log::stderr_only()).is_err());
         assert_eq!(std::fs::read(&path).unwrap(), before, "file changed");
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 4, "still upgradable");
+        assert_eq!(db.schema_version().unwrap(), 5, "still upgradable");
         assert!(!tables(db.conn()).contains(&"ok".to_owned()));
     }
 
@@ -648,7 +677,7 @@ mod tests {
         let before = v2_fixture(&path);
 
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 4);
+        assert_eq!(db.schema_version().unwrap(), 5);
         // Library, identity, details, genres, seasons, episodes and coverage.
         assert_eq!(v2_rows(db.conn()), before);
         for table in ["media_tracking", "episode_tracking", "watch_events"] {
@@ -660,7 +689,7 @@ mod tests {
         }
         drop(db);
         let bytes = std::fs::read(&path).unwrap();
-        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 4);
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 5);
         assert_eq!(
             std::fs::read(&path).unwrap(),
             bytes,
@@ -684,7 +713,7 @@ mod tests {
         assert!(!tables(&conn).contains(&"watch_events".to_owned()));
         drop(conn);
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 4, "still upgradable");
+        assert_eq!(db.schema_version().unwrap(), 5, "still upgradable");
         assert_eq!(v2_rows(db.conn()), rows);
     }
 
@@ -753,7 +782,7 @@ mod tests {
         let (v2, v3) = v3_fixture(&path);
 
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 4);
+        assert_eq!(db.schema_version().unwrap(), 5);
         assert_eq!(v2_rows(db.conn()), v2, "provider data unchanged");
         assert_eq!(v3_rows(db.conn()), v3, "personal data unchanged");
         let runtimes: Vec<Option<i64>> = db
@@ -789,7 +818,7 @@ mod tests {
         ));
         drop(db);
         let bytes = std::fs::read(&path).unwrap();
-        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 4);
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 5);
         assert_eq!(
             std::fs::read(&path).unwrap(),
             bytes,
@@ -812,8 +841,79 @@ mod tests {
         assert_eq!(user_version(&conn).unwrap(), 3);
         drop(conn);
         let db = open(&path).unwrap();
-        assert_eq!(db.schema_version().unwrap(), 4, "still upgradable");
+        assert_eq!(db.schema_version().unwrap(), 5, "still upgradable");
         assert_eq!(v3_rows(db.conn()), v3);
+    }
+
+    #[test]
+    fn v4_upgrades_to_v5_without_changing_personal_data() {
+        let dir = TestDir::new("db-v4-to-v5");
+        let path = dir.0.join("bingee.db");
+        v3_fixture(&path);
+        let conn = Connection::open(&path).unwrap();
+        let v4 = Database::init(conn, &MIGRATIONS[..4], &Log::stderr_only()).unwrap();
+        let before_v2 = v2_rows(v4.conn());
+        let before_v3 = v3_rows(v4.conn());
+        let before_runtimes: Vec<Option<i64>> = v4
+            .conn()
+            .prepare("SELECT runtime_minutes FROM watch_events ORDER BY event_id")
+            .unwrap()
+            .query_map([], |r| r.get(0))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect();
+        drop(v4);
+        let db = open(&path).unwrap();
+        assert_eq!(db.schema_version().unwrap(), 5);
+        assert_eq!(v2_rows(db.conn()), before_v2);
+        assert_eq!(v3_rows(db.conn()), before_v3);
+        let runtimes: Vec<Option<i64>> = db
+            .conn()
+            .prepare("SELECT runtime_minutes FROM watch_events ORDER BY event_id")
+            .unwrap()
+            .query_map([], |r| r.get(0))
+            .unwrap()
+            .map(Result::unwrap)
+            .collect();
+        assert_eq!(runtimes, before_runtimes);
+        let enabled: i64 = db
+            .conn()
+            .query_row(
+                "SELECT automatic_refresh_enabled FROM app_settings WHERE id = 1",
+                [],
+                |r| r.get(0),
+            )
+            .unwrap();
+        assert_eq!(enabled, 0);
+        let events: i64 = db
+            .conn()
+            .query_row("SELECT count(*) FROM release_events", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(events, 0);
+        drop(db);
+        let bytes = std::fs::read(&path).unwrap();
+        open(&path).unwrap();
+        assert_eq!(
+            std::fs::read(&path).unwrap(),
+            bytes,
+            "reopen writes nothing"
+        );
+    }
+
+    #[test]
+    fn failed_v5_migration_leaves_v4_file_unchanged() {
+        let dir = TestDir::new("db-v5-rollback");
+        let path = dir.0.join("bingee.db");
+        v3_fixture(&path);
+        let conn = Connection::open(&path).unwrap();
+        drop(Database::init(conn, &MIGRATIONS[..4], &Log::stderr_only()).unwrap());
+        let before = std::fs::read(&path).unwrap();
+        let broken = format!("{SCHEMA_V5}; NOT SQL");
+        let steps: &[&str] = &[SCHEMA_V1, SCHEMA_V2, SCHEMA_V3, SCHEMA_V4, &broken];
+        let conn = Connection::open(&path).unwrap();
+        assert!(Database::init(conn, steps, &Log::stderr_only()).is_err());
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        assert_eq!(open(&path).unwrap().schema_version().unwrap(), 5);
     }
 
     #[test]
@@ -901,7 +1001,7 @@ mod tests {
         let before = std::fs::read(&path).unwrap();
         for _ in 0..3 {
             let db = open(&path).unwrap();
-            assert_eq!(db.schema_version().unwrap(), 4);
+            assert_eq!(db.schema_version().unwrap(), 5);
             let row: (String, String, i64) = db
                 .conn()
                 .query_row(
@@ -1006,6 +1106,7 @@ mod tests {
             SCHEMA_V2,
             SCHEMA_V3,
             SCHEMA_V4,
+            SCHEMA_V5,
             "CREATE TABLE extra (x); THIS IS NOT SQL",
         ];
         let dir = TestDir::new("db-rollback");

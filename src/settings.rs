@@ -10,6 +10,9 @@
 
 use std::path::PathBuf;
 
+use crate::database::Database;
+use crate::error::AppError;
+
 /// Environment variable behind `Settings::home_override`.
 pub const HOME_OVERRIDE: &str = "BINGEE_HOME";
 
@@ -27,4 +30,26 @@ impl Settings {
             home_override: std::env::var_os(HOME_OVERRIDE).map(PathBuf::from),
         }
     }
+}
+
+/// Automatic remote maintenance is opt-in. The preference lives in the
+/// durable database and is included in backup V1.
+pub fn automatic_refresh(db: &Database) -> Result<bool, AppError> {
+    db.conn()
+        .query_row(
+            "SELECT automatic_refresh_enabled FROM app_settings WHERE id = 1",
+            [],
+            |r| r.get(0),
+        )
+        .map_err(|e| AppError::database("Automatic refresh setting could not be read.", e))
+}
+
+pub fn set_automatic_refresh(db: &Database, enabled: bool) -> Result<(), AppError> {
+    db.conn()
+        .execute(
+            "UPDATE app_settings SET automatic_refresh_enabled = ?1 WHERE id = 1",
+            [enabled],
+        )
+        .map(|_| ())
+        .map_err(|e| AppError::database("Automatic refresh setting could not be saved.", e))
 }

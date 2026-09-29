@@ -2,6 +2,10 @@
 // in Windows release builds. Ignored on other platforms.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod backup;
+mod backup_page;
+mod calendar;
+mod dashboard;
 mod database;
 mod detail;
 mod diagnostics;
@@ -9,11 +13,15 @@ mod error;
 #[cfg(any(test, feature = "benchmark-fixture"))]
 mod fixture;
 mod history;
+mod home;
 mod library;
 mod metadata;
 mod network;
 mod paths;
 mod poster;
+mod refresh;
+mod release;
+mod release_page;
 mod remote;
 mod search;
 mod secrets;
@@ -135,15 +143,33 @@ fn run() -> ExitCode {
         posters.clone(),
     );
     history::start(&window, db.clone(), log.clone());
+    backup_page::start(
+        &window,
+        db.clone(),
+        metadata::Clock::system(),
+        log.clone(),
+        backup_page::NativeDialogs,
+    );
+    dashboard::start(&window, db.clone(), metadata::Clock::system(), log.clone());
+    release_page::start(&window, db.clone(), metadata::Clock::system(), log.clone());
     statistics_page::start(&window, db.clone(), metadata::Clock::system(), log.clone());
     // The Library detail pane: cached details first, TMDB only when stale.
     detail::start(
         &window,
-        db,
-        client,
-        token,
-        network,
+        db.clone(),
+        client.clone(),
+        token.clone(),
+        network.clone(),
         posters.clone(),
+        metadata::Clock::system(),
+        log.clone(),
+    );
+    refresh::start(
+        &window,
+        db,
+        token,
+        client,
+        network,
         metadata::Clock::system(),
         log.clone(),
     );
@@ -303,6 +329,48 @@ fn open_production(
 fn connect_library(window: &AppWindow, view: Rc<LibraryView<UserLibrary>>, log: Arc<Log>) {
     view::connect(window, view.clone(), log.clone());
     window.set_library_controls(true);
+    window.on_open_library_media({
+        let (view, window) = (view.clone(), window.as_weak());
+        move |id, season, episode| {
+            let Some(window) = window.upgrade() else {
+                return;
+            };
+            window.invoke_clear_library_search();
+            window.set_page("library".into());
+            if let Some(row) = view
+                .results
+                .borrow()
+                .iter()
+                .position(|item| item.id == i64::from(id))
+            {
+                view.select_row(row);
+                view::show_selection(&window, &view);
+                window.invoke_reveal_row(row as i32);
+            } else {
+                // History may name a title no longer in Library. Its cached
+                // metadata still opens; the list has no selected row.
+                window.set_selected_id(id);
+            }
+            if season >= 0
+                && let Some(row) = window
+                    .get_detail_seasons()
+                    .iter()
+                    .position(|s| s.number == season)
+            {
+                window.invoke_detail_season_selected(row as i32);
+                if episode >= 0 {
+                    let label = format!("E{episode}");
+                    if let Some(row) = window
+                        .get_detail_episodes()
+                        .iter()
+                        .position(|e| e.label == label)
+                    {
+                        window.invoke_detail_episode_selected(row as i32);
+                    }
+                }
+            }
+        }
+    });
     window.on_library_options_changed({
         let (view, window, log) = (view.clone(), window.as_weak(), log.clone());
         move |filter, sort| {
@@ -474,6 +542,20 @@ mod tests {
             });
         }
 
+        pub fn save_png(&mut self, path: &std::path::Path) {
+            self.render();
+            let (width, height) = self.size;
+            let image = image::RgbImage::from_fn(width, height, |x, y| {
+                let value = self.buffer[(y * width + x) as usize].0;
+                image::Rgb([
+                    (((value >> 11) & 31) * 255 / 31) as u8,
+                    (((value >> 5) & 63) * 255 / 63) as u8,
+                    ((value & 31) * 255 / 31) as u8,
+                ])
+            });
+            image.save(path).unwrap();
+        }
+
         /// Moves the Slint clock forward and fires due timers.
         pub fn advance(&self, by: std::time::Duration) {
             self.clock.set(self.clock.get() + by);
@@ -533,7 +615,7 @@ mod tests {
         assert_eq!(app.get_selected_row(), -1);
         assert_eq!(app.get_page(), "library");
         let storage = app.get_storage();
-        assert_eq!(storage.schema, "4");
+        assert_eq!(storage.schema, "5");
         assert_eq!(storage.database, paths.database().display().to_string());
         assert!(paths.database().is_file() && paths.cache.is_dir());
         assert_eq!(app.global::<AppInfo>().get_version(), APP_VERSION);
@@ -544,6 +626,7 @@ mod tests {
             "history",
             "discover",
             "calendar",
+            "updates",
             "statistics",
             "settings",
             "about",
@@ -552,6 +635,82 @@ mod tests {
             app.set_page(page.into());
             ui.render();
         }
+    }
+
+    fn offscreen_pages(width: u32, height: u32) {
+        use crate::metadata::tests::{episode, season, series, stored};
+        let folder = std::path::PathBuf::from("target/offscreen-r12-r14");
+        std::fs::create_dir_all(&folder).unwrap();
+        let mut ui = Headless::new(width, height);
+        let app = ui.app.clone_strong();
+        let db = SharedDb::default();
+        db.set(Database::open_in_memory());
+        let (clock, _) = metadata::Clock::fake(1_800_000_000);
+        dashboard::start(
+            &app,
+            db.clone(),
+            clock.clone(),
+            Arc::new(Log::stderr_only()),
+        );
+        release_page::start(&app, db.clone(), clock, Arc::new(Log::stderr_only()));
+        let picture = |ui: &mut Headless, name: &str| {
+            ui.save_png(&folder.join(format!("{width}x{height}-{name}.png")));
+        };
+        app.set_page("home".into());
+        picture(&mut ui, "home-empty");
+        app.set_page("updates".into());
+        picture(&mut ui, "updates-empty");
+        db.with(|db| {
+            let id = stored(db, MediaType::Tv, 9, "Offline series");
+            metadata::save(
+                db,
+                id,
+                &series("Offline series", vec![season(1, Some(2))]),
+                1,
+            )?;
+            let today = calendar::local_date(db, 1_800_000_000)?;
+            let mut episodes = vec![episode(1, 1), episode(1, 2)];
+            episodes[1].air_date = Some(today.clone());
+            metadata::save_episodes(db, id, 1, &episodes, 1)?;
+            tracking::watch_episode(db, id, 1, 1, 1_799_999_000, false)?;
+            db.conn()
+                .execute(
+                    "INSERT INTO release_events (local_media_id, media_type,
+                season_number, episode_number, event_type, discovered_at, air_date)
+                VALUES (?1, 'tv', 1, 2, 'new_episode', ?2, ?3)",
+                    rusqlite::params![id, 1_799_999_900, today],
+                )
+                .unwrap();
+            Ok(())
+        })
+        .unwrap();
+        app.set_page("home".into());
+        picture(&mut ui, "home-populated");
+        app.set_page("calendar".into());
+        picture(&mut ui, "calendar-populated");
+        app.set_page("updates".into());
+        picture(&mut ui, "updates-populated");
+        app.set_backup_status("Backup exported to Documents/Bingee-backup.json".into());
+        app.set_backup_file("Documents/Bingee-backup.json".into());
+        app.set_backup_preview(
+            "Validated backup: 1 title, 1 watch event. Confirm to replace current Bingee data."
+                .into(),
+        );
+        app.set_backup_ready(true);
+        app.set_page("settings".into());
+        picture(&mut ui, "settings-backup");
+    }
+
+    #[test]
+    #[ignore]
+    fn offscreen_pages_1280() {
+        offscreen_pages(1280, 800);
+    }
+
+    #[test]
+    #[ignore]
+    fn offscreen_pages_1700() {
+        offscreen_pages(1700, 1100);
     }
 
     #[test]
@@ -601,7 +760,7 @@ mod tests {
         app.invoke_retry();
         ui.render();
         assert_eq!(app.get_startup_error(), "");
-        assert_eq!(app.get_storage().schema, "4");
+        assert_eq!(app.get_storage().schema, "5");
     }
 
     #[test]

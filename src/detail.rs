@@ -168,6 +168,9 @@ pub fn start(
         d.fetch_details(false);
         d.fetch_episodes(false);
         d.render();
+        if let Some(window) = d.window.upgrade() {
+            window.invoke_refresh_token_changed();
+        }
     }));
     // The library may have selected a title before this was connected.
     detail.select(window.get_selected_id());
@@ -410,6 +413,8 @@ impl Detail {
     fn library_changed(&self) {
         if let Some(window) = self.window.upgrade() {
             window.invoke_library_changed();
+            window.invoke_metadata_changed();
+            window.invoke_release_events_changed();
         }
     }
 
@@ -473,6 +478,13 @@ impl Detail {
     /// Starts a detail request if the policy wants one (never fetched, or
     /// stale) or `force` is set, a token exists and none is on its way.
     fn fetch_details(&self, force: bool) {
+        if self
+            .window
+            .upgrade()
+            .is_none_or(|window| window.get_page() != "library")
+        {
+            return;
+        }
         let mut state = self.state();
         let (Some(id), Some(details)) = (state.id, &state.details) else {
             return;
@@ -566,6 +578,13 @@ impl Detail {
     /// Starts an episode request for the shown season if its episodes were
     /// never fetched, are stale, or `force` is set.
     fn fetch_episodes(&self, force: bool) {
+        if self
+            .window
+            .upgrade()
+            .is_none_or(|window| window.get_page() != "library")
+        {
+            return;
+        }
         let mut state = self.state();
         let (Some(id), Some(number)) = (state.id, state.season) else {
             return;

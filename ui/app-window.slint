@@ -144,6 +144,32 @@ export struct HistoryRow {
     when: string,
 }
 
+export struct HomeRow {
+    section: string,
+    title: string,
+    detail: string,
+}
+
+export struct CalendarDay {
+    number: string,
+    date: string,
+    count: int,
+    in-month: bool,
+    today: bool,
+}
+
+export struct CalendarEventRow {
+    title: string,
+    detail: string,
+}
+
+export struct UpdateRow {
+    title: string,
+    detail: string,
+    when: string,
+    unread: bool,
+}
+
 // The Statistics page (`src/statistics_page.rs`): prepared text and bar
 // lengths only; every number is computed in Rust.
 export struct StatCard {
@@ -330,6 +356,7 @@ component Sidebar inherits Rectangle {
             { id: "history", label: "History" },
             { id: "discover", label: "Discover" },
             { id: "calendar", label: "Calendar" },
+            { id: "updates", label: "Updates" },
             { id: "statistics", label: "Statistics" },
         ]: NavItem {
             label: item.label;
@@ -1208,25 +1235,18 @@ component StorageRows {
     }
 }
 
-component Placeholder {
-    in property <string> title;
-    in property <string> body;
-    VerticalLayout {
-        padding: 24px;
-        spacing: 10px;
-        alignment: start;
-        PageTitle {
-            text: root.title;
-        }
-        Paragraph {
-            text: root.body;
-        }
-    }
-}
-
 component SettingsPage {
     in property <Storage> storage;
     in property <TmdbView> tmdb;
+    in property <string> backup-status;
+    in property <string> backup-file;
+    in property <string> backup-preview;
+    in property <bool> backup-ready;
+    in property <bool> automatic-refresh-enabled;
+    callback automatic-refresh-toggle();
+    callback backup-export();
+    callback backup-select();
+    callback backup-confirm();
     // The token being typed: a password field, cleared by Rust once saved.
     in-out property <string> token-input;
     callback open-about();
@@ -1302,6 +1322,12 @@ component SettingsPage {
                     clicked => { root.tmdb-remove(); }
                 }
             }
+            SectionTitle { text: "AUTOMATIC METADATA REFRESH"; }
+            Paragraph { text: "Runs only while Bingee Desktop is open. Checks stale Library titles without changing watched state or ratings."; }
+            Button {
+                text: root.automatic-refresh-enabled ? "Automatic refresh: On" : "Automatic refresh: Off";
+                clicked => { root.automatic-refresh-toggle(); }
+            }
             SectionTitle {
                 text: "LOCAL DATA";
             }
@@ -1311,6 +1337,25 @@ component SettingsPage {
             StorageRows {
                 storage: root.storage;
             }
+            SectionTitle { text: "BACKUP AND RESTORE"; }
+            Paragraph { text: "Export a portable JSON backup of your Library, tracking, ratings and history. Your TMDB token, image cache and logs are excluded."; }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 10px;
+                Button { text: "Export backup"; clicked => { root.backup-export(); } }
+                Button { text: "Choose backup to restore"; clicked => { root.backup-select(); } }
+            }
+            if root.backup-file != "": Paragraph { text: "Selected: \{root.backup-file}"; }
+            if root.backup-preview != "": Paragraph { text: root.backup-preview; }
+            if root.backup-ready: HorizontalLayout {
+                alignment: start;
+                Button {
+                    text: "Confirm replace with selected backup";
+                    primary: true;
+                    clicked => { root.backup-confirm(); }
+                }
+            }
+            if root.backup-status != "": Paragraph { text: root.backup-status; }
             SectionTitle {
                 text: "ABOUT";
             }
@@ -1625,6 +1670,149 @@ component HistoryItem inherits Rectangle {
     }
 }
 
+component HomePage {
+    in property <[HomeRow]> rows;
+    in property <string> summary;
+    in property <string> notice;
+    in-out property <int> selected-row: 0;
+    callback open-row(row: int);
+    callback open-discover();
+
+    public function focus-list() { home-focus.focus(); }
+    VerticalLayout {
+        padding: 24px;
+        spacing: 14px;
+        PageTitle { text: "Home"; }
+        Paragraph { text: root.summary; }
+        if root.notice != "": Paragraph { text: root.notice; }
+        Rectangle {
+            vertical-stretch: 1;
+            home-focus := FocusScope {
+                key-pressed(event) => {
+                    if event.text == Key.UpArrow {
+                        root.selected-row = max(0, root.selected-row - 1);
+                    } else if event.text == Key.DownArrow {
+                        root.selected-row = min(root.rows.length - 1, root.selected-row + 1);
+                    } else if event.text == Key.Home {
+                        root.selected-row = 0;
+                    } else if event.text == Key.End {
+                        root.selected-row = root.rows.length - 1;
+                    } else if event.text == Key.Return {
+                        if root.selected-row >= 0 { root.open-row(root.selected-row); }
+                    } else { return reject; }
+                    return accept;
+                }
+                ScrollView {
+                    width: 100%; height: 100%;
+                    VerticalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        for item[index] in root.rows: Button {
+                            width: 100%;
+                            text: "\{item.section}   ·   \{item.title}   —   \{item.detail}";
+                            primary: index == root.selected-row && home-focus.has-focus;
+                            clicked => { root.selected-row = index; root.open-row(index); }
+                        }
+                    }
+                }
+            }
+            if root.rows.length == 0: VerticalLayout {
+                alignment: center;
+                Paragraph { text: "Your Library is ready. Add a movie or series to begin."; }
+            }
+        }
+        HorizontalLayout {
+            alignment: start;
+            Button { text: "Discover"; clicked => { root.open-discover(); } }
+        }
+    }
+}
+
+component CalendarPage {
+    in property <string> month-label;
+    in property <[CalendarDay]> days;
+    in property <[CalendarEventRow]> events;
+    in property <string> selected-date;
+    in property <string> notice;
+    in property <int> selected-day: 0;
+    callback shift-month(amount: int);
+    callback select-day(day: int);
+    callback open-event(row: int);
+
+    public function focus-grid() { grid-focus.focus(); }
+    VerticalLayout {
+        padding: 24px;
+        spacing: 12px;
+        HorizontalLayout {
+            spacing: 12px;
+            PageTitle { text: "Calendar"; }
+            Rectangle { horizontal-stretch: 1; }
+            Button { text: "Previous"; clicked => { root.shift-month(-1); } }
+            Text { text: root.month-label; vertical-alignment: center; color: Theme.text; font-size: 16px; }
+            Button { text: "Next"; clicked => { root.shift-month(1); } }
+        }
+        if root.notice != "": Paragraph { text: root.notice; }
+        HorizontalLayout {
+            for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]: Text {
+                horizontal-stretch: 1;
+                text: day; horizontal-alignment: center;
+                color: Theme.text-muted;
+            }
+        }
+        grid-focus := FocusScope {
+            key-pressed(event) => {
+                if event.text == Key.LeftArrow { root.select-day(max(0, root.selected-day - 1)); }
+                else if event.text == Key.RightArrow { root.select-day(min(41, root.selected-day + 1)); }
+                else if event.text == Key.UpArrow { root.select-day(max(0, root.selected-day - 7)); }
+                else if event.text == Key.DownArrow { root.select-day(min(41, root.selected-day + 7)); }
+                else if event.text == Key.Home { root.select-day(floor(root.selected-day / 7) * 7); }
+                else if event.text == Key.End { root.select-day(floor(root.selected-day / 7) * 7 + 6); }
+                else if event.text == Key.PageUp { root.shift-month(-1); }
+                else if event.text == Key.PageDown { root.shift-month(1); }
+                else if event.text == Key.Return {
+                    if root.events.length > 0 { root.open-event(0); }
+                } else { return reject; }
+                return accept;
+            }
+            VerticalLayout {
+                spacing: 4px;
+                for week in [0, 1, 2, 3, 4, 5]: HorizontalLayout {
+                    spacing: 4px;
+                    for column in [0, 1, 2, 3, 4, 5, 6]: Button {
+                        horizontal-stretch: 1;
+                        height: 48px;
+                        text: root.days[week * 7 + column].count > 0
+                            ? "\{root.days[week * 7 + column].number}\{root.days[week * 7 + column].today ? " •" : ""} · \{root.days[week * 7 + column].count}"
+                            : "\{root.days[week * 7 + column].number}\{root.days[week * 7 + column].today ? " •" : ""}";
+                        enabled: root.days.length == 42;
+                        primary: root.selected-day == week * 7 + column;
+                        clicked => { root.select-day(week * 7 + column); grid-focus.focus(); }
+                    }
+                }
+            }
+        }
+        SectionTitle { text: root.selected-date; }
+        Rectangle {
+            vertical-stretch: 1;
+            ScrollView {
+                width: 100%; height: 100%;
+                VerticalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    for item[index] in root.events: Button {
+                        width: 100%;
+                        text: "\{item.title}   ·   \{item.detail}";
+                        clicked => { root.open-event(index); }
+                    }
+                    if root.events.length == 0: Paragraph {
+                        text: "No locally known episodes on this date.";
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Recent watches from SQLite, newest first (`src/history.rs`).
 component HistoryPage {
     in property <[HistoryRow]> rows;
@@ -1747,6 +1935,90 @@ component HistoryPage {
                 font-size: 12px;
                 color: Theme.text-faint;
                 overflow: elide;
+            }
+        }
+    }
+}
+
+component UpdatesPage {
+    in property <[UpdateRow]> rows;
+    in property <int> selected-row;
+    in property <int> unread-count;
+    in property <string> notice;
+    callback open-row(row: int);
+    callback select-row(row: int);
+    callback mark-all-read();
+
+    public function focus-list() { updates-focus.focus(); }
+
+    VerticalLayout {
+        padding: 24px;
+        spacing: 14px;
+        HorizontalLayout {
+            spacing: 12px;
+            PageTitle { text: "Updates"; }
+            Text {
+                text: root.unread-count == 1 ? "1 unread" : "\{root.unread-count} unread";
+                color: Theme.text-muted;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+            }
+            Button {
+                text: "Mark all read";
+                enabled: root.unread-count > 0;
+                clicked => { root.mark-all-read(); }
+            }
+        }
+        if root.notice != "": Paragraph { text: root.notice; }
+        Rectangle {
+            vertical-stretch: 1;
+            updates-focus := FocusScope {
+                key-pressed(event) => {
+                    if event.text == Key.UpArrow {
+                        root.select-row(max(0, root.selected-row - 1));
+                    } else if event.text == Key.DownArrow {
+                        root.select-row(min(root.rows.length - 1, root.selected-row + 1));
+                    } else if event.text == Key.Home {
+                        root.select-row(0);
+                    } else if event.text == Key.End {
+                        root.select-row(root.rows.length - 1);
+                    } else if event.text == Key.Return {
+                        root.open-row(root.selected-row);
+                    } else {
+                        return reject;
+                    }
+                    return accept;
+                }
+                ListView {
+                    width: 100%; height: 100%;
+                    for item[index] in root.rows: Rectangle {
+                        height: 68px;
+                        background: index == root.selected-row ? Theme.panel-bg : transparent;
+                        border-width: 1px;
+                        border-color: Theme.border;
+                        VerticalLayout {
+                            padding: 8px;
+                            spacing: 2px;
+                            Text {
+                                text: item.unread ? "●  \{item.title}" : item.title;
+                                color: Theme.text;
+                                font-weight: item.unread ? 700 : 500;
+                                overflow: elide;
+                            }
+                            Text { text: "\{item.detail} · \{item.when}"; color: Theme.text-muted; overflow: elide; }
+                        }
+                        TouchArea {
+                            clicked => { root.select-row(index); root.open-row(index); updates-focus.focus(); }
+                        }
+                    }
+                }
+            }
+            if root.rows.length == 0: Text {
+                text: "No episode updates yet. New episodes found during refresh appear here.";
+                color: Theme.text-muted;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                wrap: word-wrap;
             }
         }
     }
@@ -2187,6 +2459,15 @@ export component AppWindow inherits Window {
     in property <MediaRow> discover-detail;
     in property <TmdbView> tmdb;
     in-out property <string> tmdb-token-input;
+    in property <string> backup-status;
+    in property <string> backup-file;
+    in property <string> backup-preview;
+    in property <bool> backup-ready;
+    in property <bool> automatic-refresh-enabled;
+    in property <[UpdateRow]> updates-rows;
+    in property <int> updates-selected-row: -1;
+    in property <int> updates-unread;
+    in property <string> updates-notice;
     // Whether the selected Discover result is in the library.
     in property <bool> discover-in-library;
     // The production Library shows its filter, sort and Remove action; the
@@ -2207,6 +2488,15 @@ export component AppWindow inherits Window {
     in property <[HistoryRow]> history-rows;
     in property <int> history-selected-row: -1;
     in property <string> history-notice;
+    in property <[HomeRow]> home-rows;
+    in property <string> home-summary;
+    in property <string> home-notice;
+    in property <string> calendar-month;
+    in property <[CalendarDay]> calendar-days;
+    in property <[CalendarEventRow]> calendar-events;
+    in property <string> calendar-date;
+    in property <string> calendar-notice;
+    in property <int> calendar-selected-day: 0;
     // The Statistics page (src/statistics_page.rs).
     in property <StatisticsView> statistics;
 
@@ -2222,6 +2512,17 @@ export component AppWindow inherits Window {
     callback tmdb-save(token: string);
     callback tmdb-check();
     callback tmdb-remove();
+    callback backup-export();
+    callback backup-select();
+    callback backup-confirm();
+    callback automatic-refresh-toggle();
+    callback refresh-token-changed();
+    callback metadata-changed();
+    callback release-events-changed();
+    callback updates-opened();
+    callback updates-select(row: int);
+    callback updates-open(row: int);
+    callback updates-mark-all-read();
     callback discover-add();
     // filter: "all", "movie" or "tv"; sort: 0 recently added, 1 title.
     callback library-options-changed(filter: string, sort: int);
@@ -2248,6 +2549,19 @@ export component AppWindow inherits Window {
     callback history-opened();
     callback history-row-selected(row: int);
     callback history-delete(row: int);
+    callback home-opened();
+    callback home-select(row: int);
+    callback calendar-opened();
+    callback calendar-shift(amount: int);
+    callback calendar-select-day(day: int);
+    callback calendar-open-event(row: int);
+    callback open-library-media(id: int, season: int, episode: int);
+    public function clear-library-search() {
+        search.text = "";
+        root.library-filter = "all";
+        root.library-options-changed("all", root.library-sort);
+        root.query-changed("");
+    }
     // The Statistics page opened (reload), or a range was chosen.
     callback statistics-opened();
     callback statistics-range(range: int);
@@ -2271,6 +2585,15 @@ export component AppWindow inherits Window {
         } else if root.shown == "history" {
             root.history-opened();
             history-page.focus-list();
+        } else if root.shown == "home" {
+            root.home-opened();
+            home-page.focus-list();
+        } else if root.shown == "calendar" {
+            root.calendar-opened();
+            calendar-page.focus-grid();
+        } else if root.shown == "updates" {
+            root.updates-opened();
+            updates-page.focus-list();
         } else if root.shown == "statistics" {
             root.statistics-opened();
         }
@@ -2476,11 +2799,15 @@ export component AppWindow inherits Window {
                 row-selected(row) => { root.history-row-selected(row); }
                 delete-row(row) => { root.history-delete(row); }
             }
-            if root.shown == "home": Placeholder {
+            home-page := HomePage {
                 width: 100%;
                 height: 100%;
-                title: "Home";
-                body: "An overview of what to watch next will appear here in a later version.";
+                visible: root.shown == "home";
+                rows: root.home-rows;
+                summary: root.home-summary;
+                notice: root.home-notice;
+                open-row(row) => { root.home-select(row); }
+                open-discover => { root.page = "discover"; }
             }
             // Kept alive like the library, so the query survives navigation.
             discover-page := DiscoverPage {
@@ -2497,11 +2824,31 @@ export component AppWindow inherits Window {
                 open-settings => { root.page = "settings"; }
                 add => { root.discover-add(); }
             }
-            if root.shown == "calendar": Placeholder {
+            calendar-page := CalendarPage {
                 width: 100%;
                 height: 100%;
-                title: "Calendar";
-                body: "Upcoming episodes and releases will appear here in a later version.";
+                visible: root.shown == "calendar";
+                month-label: root.calendar-month;
+                days: root.calendar-days;
+                events: root.calendar-events;
+                selected-date: root.calendar-date;
+                notice: root.calendar-notice;
+                selected-day: root.calendar-selected-day;
+                shift-month(amount) => { root.calendar-shift(amount); }
+                select-day(day) => { root.calendar-select-day(day); }
+                open-event(row) => { root.calendar-open-event(row); }
+            }
+            updates-page := UpdatesPage {
+                width: 100%;
+                height: 100%;
+                visible: root.shown == "updates";
+                rows: root.updates-rows;
+                selected-row: root.updates-selected-row;
+                unread-count: root.updates-unread;
+                notice: root.updates-notice;
+                select-row(row) => { root.updates-select(row); }
+                open-row(row) => { root.updates-open(row); }
+                mark-all-read => { root.updates-mark-all-read(); }
             }
             if root.shown == "statistics": StatisticsPage {
                 width: 100%;
@@ -2515,6 +2862,15 @@ export component AppWindow inherits Window {
                 storage: root.storage;
                 tmdb: root.tmdb;
                 token-input <=> root.tmdb-token-input;
+                backup-status: root.backup-status;
+                backup-file: root.backup-file;
+                backup-preview: root.backup-preview;
+                backup-ready: root.backup-ready;
+                automatic-refresh-enabled: root.automatic-refresh-enabled;
+                automatic-refresh-toggle => { root.automatic-refresh-toggle(); }
+                backup-export => { root.backup-export(); }
+                backup-select => { root.backup-select(); }
+                backup-confirm => { root.backup-confirm(); }
                 tmdb-save(token) => { root.tmdb-save(token); }
                 tmdb-check => { root.tmdb-check(); }
                 tmdb-remove => { root.tmdb-remove(); }

@@ -510,6 +510,16 @@ pub fn save_episodes(
 ) -> Result<(), AppError> {
     let tx = Transaction::new_unchecked(db.conn(), TransactionBehavior::Immediate)
         .map_err(write_failed)?;
+    let announce: bool = tx
+        .query_row(
+            "SELECT EXISTS (SELECT 1 FROM seasons AS s JOIN library_entries AS l
+            ON l.local_media_id = s.local_media_id
+            WHERE s.local_media_id = ?1 AND s.season_number = ?2
+              AND s.episodes_fetched_at IS NOT NULL)",
+            params![id, season],
+            |r| r.get(0),
+        )
+        .map_err(write_failed)?;
     // The season row carries the coverage and is the episodes' parent. It
     // exists after a series detail fetch; this keeps a direct season fetch
     // working, and its foreign key still refuses a movie.
@@ -528,6 +538,19 @@ pub fn save_episodes(
         .map_err(write_failed)?;
     }
     for episode in episodes {
+        if announce {
+            tx.execute(
+                "INSERT INTO release_events (local_media_id, media_type, season_number,
+                    episode_number, event_type, discovered_at, air_date)
+                 SELECT ?1, 'tv', ?2, ?3, 'new_episode', ?4, ?5
+                 WHERE NOT EXISTS (SELECT 1 FROM episodes WHERE local_media_id = ?1
+                     AND season_number = ?2 AND episode_number = ?3)
+                 ON CONFLICT (local_media_id, season_number, episode_number, event_type)
+                 DO NOTHING",
+                params![id, season, episode.number, now, episode.air_date],
+            )
+            .map_err(write_failed)?;
+        }
         // OR REPLACE: the episode number is the key, and a provider that moves
         // an episode id to another number replaces that one row rather than
         // failing the whole season.

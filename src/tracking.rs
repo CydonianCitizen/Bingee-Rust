@@ -545,6 +545,7 @@ pub fn continue_watching(db: &Database) -> Result<Vec<i64>, AppError> {
             "SELECT t.local_media_id FROM episode_tracking AS t
              JOIN episodes AS e USING (local_media_id, season_number, episode_number)
              JOIN library_entries AS l ON l.local_media_id = t.local_media_id
+             JOIN media AS m ON m.local_media_id = t.local_media_id
              WHERE t.season_number >= 1
              GROUP BY t.local_media_id
              HAVING EXISTS (SELECT 1 FROM episodes AS u
@@ -553,7 +554,7 @@ pub fn continue_watching(db: &Database) -> Result<Vec<i64>, AppError> {
                        WHERE v.local_media_id = u.local_media_id
                          AND v.season_number = u.season_number
                          AND v.episode_number = u.episode_number))
-             ORDER BY max(t.watched_at) DESC, t.local_media_id DESC",
+             ORDER BY max(t.watched_at) DESC, bingee_fold(m.title), t.local_media_id",
         )
         .map_err(read_failed)?;
     let rows = stmt.query_map([], |row| row.get(0)).map_err(read_failed)?;

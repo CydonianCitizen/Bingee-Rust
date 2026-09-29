@@ -23,17 +23,18 @@ everything into memory.
 
 R6 (production foundations), R7 (TMDB search), R8 (local-first library),
 R9 (cache-first details, seasons and episodes), R10 (personal tracking,
-progress and watch history) and R11 (statistics) are implemented: find movies
+progress and watch history), R11 (statistics), R12 (Home and Calendar),
+R13 (portable backup/restore) and R14 (in-app metadata refresh and Updates)
+are implemented: find movies
 and TV series on TMDB with your own token, add them to a library stored in
 SQLite, browse, search, filter and sort it with cached posters, open each
 title's details — for a series its seasons and episodes — track what you
 watched: movies and episodes, whole seasons, a personal 1–10 rating, series
-progress and a watch history, and see statistics about it. Everything works
-offline.
+progress and a watch history, and see statistics about it. Home, Calendar,
+backups and stored updates work offline. Automatic metadata refresh is
+optional and runs only while the app is open.
 
-**Not implemented yet:** calendar, notifications, a Home / Continue Watching
-page, backup and sync. See `IMPLEMENTATION_PLAN.md` and
-`docs/milestones/R6.md` to `R11.md`.
+See `IMPLEMENTATION_PLAN.md` and `docs/milestones/R6.md` to `R14.md`.
 
 ## Prerequisites
 
@@ -326,10 +327,15 @@ a second and a corrupt-database start from an unrelated working directory,
 with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
 and is not signed.
 
-## What the app does (R11)
+## What the app does (R14)
 
-- **Sidebar**: Home, Library, History, Discover, Calendar, Statistics,
-  Settings, About. Home and Calendar are labelled placeholders.
+- **Sidebar**: Home, Library, History, Discover, Calendar, Updates,
+  Statistics, Settings, About.
+- **Home**: Continue Watching, Up Next, recent watches, Coming Soon, and a
+  Library summary, all read from local data.
+- **Calendar**: month grid and selected-day episodes for Library series,
+  using stored air dates. Incomplete episode coverage is indicated.
+- **Updates**: persistent newly discovered episode events with read state.
 - **Library**: your titles from SQLite, with search, a Movie/TV filter, a
   sort menu, a virtualized list with posters, and states for an empty
   library, no matches and database errors. The detail pane shows cached
@@ -346,8 +352,8 @@ and is not signed.
   missing or rejected token, no network, rate limiting, TMDB errors and no
   results.
 - **Settings**: the TMDB token (validate and save, check, replace, remove),
-  where the database, data, cache and log live, the schema version, and a
-  link to About.
+  opt-in automatic metadata refresh, portable JSON backup and restore,
+  data locations, schema version, and a link to About.
 - **About**: version, Rust/Slint/SQLite credits, the "Made with Slint"
   widget, TMDB logo and notice, license status, data locations.
 - **Startup error page** instead of an empty library when the database
@@ -360,8 +366,8 @@ and is not signed.
   `--r4-latency` dispatch.
 - `src/paths.rs`: the per-OS data/cache/log policy (pure, tested for all
   three OSes on any host).
-- `src/settings.rs`: Bingee's own settings; today only `BINGEE_HOME`.
-- `src/database.rs`: `Database` (one owned connection), schemas v1 to v4,
+- `src/settings.rs`: environment paths and the persisted automatic-refresh preference.
+- `src/database.rs`: `Database` (one owned connection), schemas v1 to v5,
   migrations.
 - `src/library.rs`: library reads and writes: search with filter and sort,
   count, add, remove, membership, provider identity. No Slint, no network.
@@ -455,11 +461,15 @@ known when the watch was recorded (the movie's, or the episode's own), `NULL`
 when unknown. Upgrading fills it for existing watches from the runtimes stored
 at that moment.
 
-Older databases are upgraded in place on first start (v1 → v2 → v3 → v4);
+Schema v5 (R14, ADR-0026 and ADR-0027) adds `app_settings` and durable,
+deduplicated `release_events`. The preference and event read state are
+included in backup V1.
+
+Older databases are upgraded in place on first start (v1 → v2 → v3 → v4 → v5);
 library, identities, details, genres, seasons, episodes, coverage and personal
-tracking are kept. A future
-backup of personal data is `library_entries`, the three tracking tables and
-`external_refs`, never the token, caches or logs.
+tracking are kept. Backup V1 exports metadata, identities, membership,
+personal tracking, watch history, settings and release events; never the
+token, caches or logs. See `docs/backup-v1.md`.
 
 Migrations: `PRAGMA user_version` is the schema version and `PRAGMA
 application_id` marks the file as Bingee's. All pending steps run in one
