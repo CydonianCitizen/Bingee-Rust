@@ -365,20 +365,36 @@ PASS locally / cross-platform CI pending (16 September 2026). See
 | R13 — Portable backup and restore | PASS locally | `docs/milestones/R13.md`, `docs/backup-v1.md`; typed JSON V1 and transactional replace. |
 | R14 — In-app refresh and Updates | PASS locally | `docs/milestones/R14.md`; schema v5 for preference and release events. |
 
-R12–R14 cross-platform CI is pending a user commit/push; the current session
-does not have permission to perform those Git operations. The timestamped
-report under `docs/run-reports/` records local gates and genuine limitations.
+R12–R16 are pushed in `ceb1079`. Its normal CI passes on Windows and Linux;
+macOS fails a backup safety-copy test's directory-alias assertion. The local
+fix awaits a user commit/push and native revalidation. See
+`docs/run-reports/2026-09-30-r16-ci-closure.md`.
+
+Rechecked on 1 October 2026: GitHub `main` is still `ceb1079`; both fixes
+and related reports remain local. R16 is PARTIAL and R17 is NOT STARTED.
+See `docs/run-reports/2026-10-01-r16-revalidation.md` for source identity and
+the independently retrieved platform job results.
 
 ## Hardening and release milestones R15–R17
 
 | Milestone | Result | Record |
 | --- | --- | --- |
 | R15 — Hardening and data hygiene | PASS for local exit gate; broader crash/UI coverage partial | `docs/milestones/R15.md`, ADR-0028 |
-| R16 — Distribution and installers | PARTIAL | `docs/milestones/R16.md`; Windows installer verified, macOS/Linux native builds and CI pending |
-| R17 — Final performance and release candidate | NOT STARTED | R16 technical cross-platform artifact gate has not passed |
+| R16 — Distribution and installers | BLOCKED; local fixes ready | Windows native CI artifacts and smoke verified; macOS test failure and Linux runtime prerequisite need CI revalidation. `docs/run-reports/2026-09-30-r16-ci-closure.md` |
+| R17 — Final performance and release candidate | NOT STARTED; R16 gate unmet | `docs/run-reports/2026-09-30-r17-gate-status.md`; no RC freeze or final measurements claimed |
 
 The application version is `0.1.0-rc.1` in Cargo metadata, but the release
 candidate is not approved. The current run report under `docs/run-reports/`
 lists release blockers and the exact remaining checks.
 
-R17 technical work starts after Windows, macOS and Linux package builds, package structure checks, and normal cross-platform build/tests pass. Signing, notarization and external licensing decisions may remain pending. Those decisions still block public distribution.
+R17 technical work starts after the pushed revision passes Windows, macOS and Linux package builds, package structure/manifest checks, required process smoke, and normal cross-platform build/tests. Interactive GUI validation may remain explicitly unperformed at the R16 gate. Signing, notarization and external licensing decisions may remain pending. Those decisions still block public distribution.
+
+R17 is a feature freeze. Its final validation covers migration and Backup V1
+compatibility, deterministic end-to-end regression, startup and idle CPU,
+process-private memory and repeated-use soak, cache/handle/thread stability,
+SQLite and page timings, UI-thread responsiveness, refresh stress,
+keyboard/accessibility, package/upgrade regression, security/privacy sanity,
+and the consolidated release checklist. Measure before optimizing; fix proven
+defects. A headless application exercise establishes deterministic behavior
+and callback timing, not real interactive smoothness. No R18 or release
+publication is authorized by this continuation.

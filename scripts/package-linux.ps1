@@ -33,9 +33,11 @@ Bingee Desktop release candidate
 Run ./install.sh to install into ~/.local/bin and your XDG data directory.
 Run ./uninstall.sh to remove application files only. Both scripts leave your
 Library, cache and logs untouched. The executable also runs from this folder.
-Linux requires fontconfig, OpenGL/EGL or a working software renderer, and a
-Secret Service implementation for secure TMDB token storage. No terminal is
-required after desktop installation. This tarball is unsigned.
+Linux requires fontconfig, OpenGL/EGL or a working software renderer, and
+libxkbcommon-x11 for X11 sessions (Debian/Ubuntu: libxkbcommon-x11-0). This
+keyboard library is loaded at runtime, so ldd does not list it. A Secret
+Service implementation is required for secure TMDB token storage. No terminal
+is required after desktop installation. This tarball is unsigned.
 '@ | Set-Content (Join-Path $doc 'README.txt') -Encoding utf8NoBOM
     $archive = Join-Path $dist "bingee-desktop-linux-$arch.tar.gz"
     if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }

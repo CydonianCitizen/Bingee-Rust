@@ -1,0 +1,24 @@
+[
+  {
+    "platform": "Windows",
+    "artifact_filename": "bingee-desktop-windows-x64-setup.exe",
+    "artifact_type": "exe",
+    "architecture": "X64",
+    "application_version": "0.1.0-rc.1",
+    "file_size": 10024408,
+    "sha256": "97904ab899849ec8c40ed084a1757fe45d3afca5d9afe78324806639d5ac6b82",
+    "build_commit": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+    "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  {
+    "platform": "Windows",
+    "artifact_filename": "bingee-desktop-windows-x64.zip",
+    "artifact_type": "zip",
+    "architecture": "X64",
+    "application_version": "0.1.0-rc.1",
+    "file_size": 13736162,
+    "sha256": "0398f54a45486118c5f6cf85e94794a38e01d6beef302d61e537ddd97656c598",
+    "build_commit": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+    "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  }
+]

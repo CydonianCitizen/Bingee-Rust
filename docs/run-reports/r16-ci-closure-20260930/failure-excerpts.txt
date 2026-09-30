@@ -1,0 +1,80 @@
+macOS packaging job 109767955374
+2026-09-30T06:27:10.4104110Z macOS
+2026-09-30T06:27:10.4104420Z 26.6.2
+2026-09-30T06:27:13.6037290Z   stable-aarch64-apple-darwin unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:13.6357470Z   stable-aarch64-apple-darwin unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:13.6637090Z rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:13.7280730Z cargo 1.98.1 (797e8a9bc 2026-08-05)
+2026-09-30T06:33:08.2121770Z error: test failed, to rerun pass `--bin bingee-desktop`
+2026-09-30T06:33:08.2123230Z test fixture::tests::only_visible_posters_load_and_the_cache_stays_bounded ... ok
+2026-09-30T06:33:08.2123720Z 
+2026-09-30T06:33:08.2224710Z failures:
+2026-09-30T06:33:08.2356080Z 
+2026-09-30T06:33:08.2458110Z ---- backup::tests::pre_restore_safety_copy_keeps_previous_portable_state stdout ----
+2026-09-30T06:33:08.2569830Z 2026-09-30T06:32:52Z INFO Migrating the database from schema version 0 to 5
+2026-09-30T06:33:08.2671330Z 2026-09-30T06:32:52Z INFO Migration to schema version 5 complete
+2026-09-30T06:33:08.2773000Z 
+2026-09-30T06:33:08.2877860Z thread 'backup::tests::pre_restore_safety_copy_keeps_previous_portable_state' (49705) panicked at src/backup.rs:1226:9:
+2026-09-30T06:33:08.2981290Z assertion `left == right` failed
+2026-09-30T06:33:08.3084720Z   left: Some("/private/var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/bingee-test-pre-restore-safety-15347")
+2026-09-30T06:33:08.3187130Z  right: Some("/var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/bingee-test-pre-restore-safety-15347")
+2026-09-30T06:33:08.3288680Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-09-30T06:33:08.3389610Z 
+2026-09-30T06:33:08.3490080Z 
+2026-09-30T06:33:08.3590800Z failures:
+2026-09-30T06:33:08.3692040Z     backup::tests::pre_restore_safety_copy_keeps_previous_portable_state
+2026-09-30T06:33:08.3793360Z 
+2026-09-30T06:33:08.3896920Z test result: FAILED. 213 passed; 1 failed; 13 ignored; 0 measured; 0 filtered out; finished in 15.56s
+2026-09-30T06:33:08.3998930Z 
+2026-09-30T06:33:08.4196290Z ##[error]Process completed with exit code 101.
+
+macOS cross-platform job 109767955879
+2026-09-30T06:34:28.7655640Z test tmdb::tests::no_server_is_offline_and_a_slow_one_times_out ... ok
+2026-09-30T06:34:35.4061590Z test fixture::tests::only_visible_posters_load_and_the_cache_stays_bounded ... ok
+2026-09-30T06:34:35.4062260Z 
+2026-09-30T06:34:35.4062500Z failures:
+2026-09-30T06:34:35.4062590Z 
+2026-09-30T06:34:35.4062850Z ---- backup::tests::pre_restore_safety_copy_keeps_previous_portable_state stdout ----
+2026-09-30T06:34:35.4081240Z 2026-09-30T06:34:16Z INFO Migrating the database from schema version 0 to 5
+2026-09-30T06:34:35.4081790Z 2026-09-30T06:34:16Z INFO Migration to schema version 5 complete
+2026-09-30T06:34:35.4082130Z 
+2026-09-30T06:34:35.4082560Z thread 'backup::tests::pre_restore_safety_copy_keeps_previous_portable_state' (51905) panicked at src/backup.rs:1226:9:
+2026-09-30T06:34:35.4083320Z assertion `left == right` failed
+2026-09-30T06:34:35.4083900Z   left: Some("/private/var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/bingee-test-pre-restore-safety-16367")
+2026-09-30T06:34:35.4084800Z  right: Some("/var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/bingee-test-pre-restore-safety-16367")
+2026-09-30T06:34:35.4085490Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-09-30T06:34:35.4085950Z 
+2026-09-30T06:34:35.4085950Z 
+2026-09-30T06:34:35.4086190Z failures:
+2026-09-30T06:34:35.4087180Z     backup::tests::pre_restore_safety_copy_keeps_previous_portable_state
+2026-09-30T06:34:35.4087590Z 
+
+Linux packaging job 109767955518
+2026-09-30T06:27:07.7068028Z Ubuntu
+2026-09-30T06:27:07.7068384Z 24.04.5
+2026-09-30T06:27:07.7070016Z Image: ubuntu-24.04
+2026-09-30T06:27:07.7071328Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260920.314/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-30T06:27:09.7995778Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:09.8107583Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:09.8196836Z rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:09.8634640Z cargo 1.98.1 (797e8a9bc 2026-08-05)
+2026-09-30T06:27:09.9832716Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-09-30T06:27:10.1644315Z Get:29 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [454 kB]
+2026-09-30T06:27:10.1713060Z Get:30 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [503 kB]
+2026-09-30T06:37:18.9197350Z     Finished `release` profile [optimized] target(s) in 4m 59s
+2026-09-30T06:37:21.7832319Z License material: 523 resolved crates in /home/runner/work/Bingee-Rust/Bingee-Rust/dist/bingee-desktop-linux-x86_64/share/doc/bingee-desktop/licenses
+2026-09-30T06:37:23.5011979Z Archive: /home/runner/work/Bingee-Rust/Bingee-Rust/dist/bingee-desktop-linux-x86_64.tar.gz, 16895826 bytes, SHA-256 4FAD22F0899E7406F5D0D18436E0ADFA9D9D5DD9CE1811EA1ACDFD14A3634F7D
+2026-09-30T06:37:24.0460407Z 2026-09-30T06:37:23Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, linux x86_64)
+2026-09-30T06:37:24.0460762Z 
+2026-09-30T06:37:24.0461269Z thread 'main' (28240) panicked at /home/runner/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/xkbcommon-dl-0.4.2/src/x11.rs:59:28:
+2026-09-30T06:37:24.0461820Z Library libxkbcommon-x11.so could not be loaded.
+2026-09-30T06:37:24.0462197Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-09-30T06:37:24.0476042Z ##[error]Process completed with exit code 1.
+2026-09-30T06:37:23.5479953Z [36;1mset -e[0m
+2026-09-30T06:37:23.5480102Z [36;1mcat launch.log[0m
+2026-09-30T06:37:23.5480269Z [36;1mtest "$status" -eq 124[0m
+2026-09-30T06:37:23.5480468Z [36;1mtest -f "$scratch/profile/data/bingee.db"[0m
+2026-09-30T06:37:23.5516572Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-30T06:37:23.5516837Z ##[endgroup]
+2026-09-30T06:37:24.0460407Z 2026-09-30T06:37:23Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, linux x86_64)
+2026-09-30T06:37:24.0460762Z 

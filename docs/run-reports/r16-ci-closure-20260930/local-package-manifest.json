@@ -1,0 +1,38 @@
+[
+  {
+    "platform": "Windows",
+    "artifact_filename": "bingee-desktop-windows-x64-setup.exe",
+    "architecture": "X64",
+    "application_version": "0.1.0-rc.1",
+    "file_size": 10018977,
+    "sha256": "f6b1d663a2a19c77386a08cdba3f69af96a040c5fbd3337e2e49b3828172692e",
+    "build_commit": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+    "dirty_worktree": true,
+    "provenance": "local rebuild; not a GitHub CI artifact",
+    "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  {
+    "platform": "Windows",
+    "artifact_filename": "bingee-desktop-windows-x64.zip",
+    "architecture": "X64",
+    "application_version": "0.1.0-rc.1",
+    "file_size": 13728157,
+    "sha256": "3542e790014ae02288982935b9144368a765cf8dfb4941ff5236ac273cf256ad",
+    "build_commit": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+    "dirty_worktree": true,
+    "provenance": "local rebuild; not a GitHub CI artifact",
+    "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  {
+    "platform": "Windows",
+    "artifact_filename": "bingee-desktop.exe",
+    "architecture": "X64",
+    "application_version": "0.1.0-rc.1",
+    "file_size": 28831232,
+    "sha256": "b614f198f2c9569e9fee847974639bc99ee2bad6e3f9a134aedf8bdcd29f0273",
+    "build_commit": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+    "dirty_worktree": true,
+    "provenance": "local rebuild; not a GitHub CI artifact",
+    "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  }
+]

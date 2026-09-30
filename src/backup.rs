@@ -1223,7 +1223,11 @@ mod tests {
         populated(&db);
         let before = export(&db, NOW).unwrap();
         let path = pre_restore_safety(&db, NOW).unwrap().unwrap();
-        assert_eq!(path.parent(), Some(dir.0.as_path()));
+        // SQLite resolves directory aliases, including macOS's /var symlink.
+        assert_eq!(
+            path.parent().unwrap().canonicalize().unwrap(),
+            dir.0.canonicalize().unwrap()
+        );
         assert_eq!(read_from_path(&path).unwrap(), before);
         assert!(
             pre_restore_safety(&Database::open_in_memory(), NOW)

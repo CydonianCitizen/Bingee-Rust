@@ -52,7 +52,9 @@ See `IMPLEMENTATION_PLAN.md` and `docs/milestones/R6.md` to `R14.md`.
 - Linux: gcc or clang, `pkg-config`, and the fontconfig development package
   (`libfontconfig-dev` on Debian/Ubuntu). That is the only system library
   needed at build time: Wayland, X11, xkbcommon and EGL/GL are loaded at run
-  time, so a desktop session needs them installed. Checked by CI only.
+  time, so a desktop session needs them installed. X11 sessions require
+  `libxkbcommon-x11` (`libxkbcommon-x11-0` on Debian/Ubuntu); it is loaded
+  dynamically and does not appear in `ldd`. Checked by CI only.
 - macOS: Xcode command line tools. Checked by CI only.
 
 ## Run Bingee Desktop
@@ -339,8 +341,11 @@ tarball with a `.desktop` file, icon and user-level install/uninstall scripts.
 All packages include `THIRD_PARTY_NOTICES.txt` and a `licenses/` directory.
 The GitHub Actions `release-artifacts` workflow runs on pushes to `main` or
 manual dispatch, builds and uploads all three platform packages, and does not
-publish a release. The
-macOS and Linux scripts have not run locally or in CI in this session.
+publish a release. Native CI for `ceb1079` built the Linux tarball, but its
+X11 smoke failed on a missing runtime library; macOS was blocked by a test
+path assertion. Local fixes await a user commit/push and native revalidation.
+See `docs/run-reports/2026-09-30-r16-ci-closure.md` for independent build,
+package and runtime results. R17 remains gated until R16 technical checks pass.
 
 ## What the app does (R14)
 

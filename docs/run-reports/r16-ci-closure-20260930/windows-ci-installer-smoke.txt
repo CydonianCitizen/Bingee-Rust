@@ -1,0 +1,1 @@
+Installer smoke passed: install, launch, schema v5 profile, reinstall, uninstall, data retained. Portable smoke covers graceful exit. Evidence: C:\Users\thoma\Documents\Projects\bingee-rust\target\r16-closure-20260930\ci-installer-smoke\run-20260930070127494-12848

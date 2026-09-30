@@ -28,7 +28,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends pkg-config libfontconfig-dev xvfb xauth desktop-file-utils
+          # Winit loads this X11 keyboard library at runtime; ldd cannot detect it.
+          sudo apt-get install -y --no-install-recommends pkg-config libfontconfig-dev libxkbcommon-x11-0 xvfb xauth desktop-file-utils
       - name: Normal build and tests
         shell: bash
         run: |

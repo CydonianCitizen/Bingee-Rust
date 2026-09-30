@@ -1,0 +1,56 @@
+[
+  {
+    "command": "cargo fmt --check",
+    "exit_code": 0,
+    "elapsed_seconds": 0.5687691,
+    "log": "gate-0.log"
+  },
+  {
+    "command": "cargo check --locked",
+    "exit_code": 0,
+    "elapsed_seconds": 14.2456954,
+    "log": "gate-1.log"
+  },
+  {
+    "command": "cargo test --locked",
+    "exit_code": 0,
+    "elapsed_seconds": 21.8229617,
+    "log": "gate-2.log"
+  },
+  {
+    "command": "cargo test --all-features --locked",
+    "exit_code": 0,
+    "elapsed_seconds": 49.351429,
+    "log": "gate-3.log"
+  },
+  {
+    "command": "cargo test --features benchmark-fixture --locked",
+    "exit_code": 0,
+    "elapsed_seconds": 56.2346961,
+    "log": "gate-4.log"
+  },
+  {
+    "command": "cargo clippy --locked --all-targets --all-features -- -D warnings",
+    "exit_code": 0,
+    "elapsed_seconds": 15.6109766,
+    "log": "gate-5.log"
+  },
+  {
+    "command": "cargo clippy --locked --all-targets -- -D warnings",
+    "exit_code": 0,
+    "elapsed_seconds": 18.3896691,
+    "log": "gate-6.log"
+  },
+  {
+    "command": "cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings",
+    "exit_code": 0,
+    "elapsed_seconds": 21.6281894,
+    "log": "gate-7.log"
+  },
+  {
+    "command": "cargo build --release --locked",
+    "exit_code": 0,
+    "elapsed_seconds": 146.1552879,
+    "log": "gate-8.log"
+  }
+]

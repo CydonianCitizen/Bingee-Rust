@@ -1,0 +1,3 @@
+gate-2.log: test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 19.14s
+gate-3.log: test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 22.35s
+gate-4.log: test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 21.73s

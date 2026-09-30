@@ -1,0 +1,23 @@
+{
+  "artifacts": [
+    {
+      "id": 11081891065,
+      "name": "bingee-Windows-X64",
+      "size_in_bytes": 22189902,
+      "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11081891065",
+      "archive_download_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11081891065/zip",
+      "expired": false,
+      "created_at": "2026-09-30T06:47:34Z",
+      "expires_at": "2026-12-29T06:27:04Z",
+      "updated_at": "2026-09-30T06:47:34Z",
+      "digest": "sha256:39ef87093c4389405aa0ae003d6fdbf7509df30a67af72fad34626bd5325258c",
+      "workflow_run": {
+        "id": 36678282283,
+        "repository_id": 1365792500,
+        "head_repository_id": 1365792500,
+        "head_branch": "main",
+        "head_sha": "ceb10794eccc356268b402ff9a6cadf1844848b5"
+      }
+    }
+  ]
+}

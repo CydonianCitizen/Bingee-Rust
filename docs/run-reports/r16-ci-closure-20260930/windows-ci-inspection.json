@@ -1,0 +1,19 @@
+{
+  "artifact_id": 11081891065,
+  "build_commit": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+  "outer_zip_digest_matches": true,
+  "package_manifest_entries": 2,
+  "manifest_fields_sizes_hashes_verified": true,
+  "portable_file_count": 697,
+  "portable_checksum_count": 696,
+  "portable_checksums_match": true,
+  "pe_machine": "x64",
+  "pe_subsystem": "Windows GUI",
+  "readme_version": "0.1.0-rc.1",
+  "installer_product_version": "0.1.0-rc.1",
+  "installer_xml_manifest": "valid",
+  "requested_execution_level": "asInvoker",
+  "visual_verification": false,
+  "clean_pc_verification": false,
+  "nonempty_upgrade_verification": false
+}

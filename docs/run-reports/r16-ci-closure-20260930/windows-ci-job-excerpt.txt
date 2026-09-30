@@ -1,0 +1,17 @@
+﻿2026-09-30T06:27:07.9916366Z Current runner version: '2.337.0'
+2026-09-30T06:27:07.9949099Z Microsoft Windows Server 2025
+2026-09-30T06:27:24.9266651Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:25.0125435Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:25.6856114Z rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T06:27:27.4584197Z cargo 1.98.1 (797e8a9bc 2026-08-05)
+2026-09-30T06:36:26.9207382Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 72.82s
+2026-09-30T06:38:07.8295396Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 34.02s
+2026-09-30T06:47:00.2908048Z License material: 387 resolved crates in D:\a\Bingee-Rust\Bingee-Rust\dist\bingee-desktop-windows-x64\licenses
+2026-09-30T06:47:10.4397747Z Installer:   D:\a\Bingee-Rust\Bingee-Rust\dist\bingee-desktop-windows-x64-setup.exe, 10024408 bytes, SHA-256 97904AB899849EC8C40ED084A1757FE45D3AFCA5D9AFE78324806639D5AC6B82
+2026-09-30T06:47:10.4399226Z Source:      ceb10794eccc356268b402ff9a6cadf1844848b5
+2026-09-30T06:47:10.4718026Z Executable:  28853248 bytes, SHA-256 1DC6E9B88CD57DF84ACAC8B73B1A7EBF246A6F348068E36100BA29E99EA4D489
+2026-09-30T06:47:10.4718520Z Crates:      325 listed in THIRD_PARTY_NOTICES.txt
+2026-09-30T06:47:10.4962532Z Total:       32849723 bytes in 697 files
+2026-09-30T06:47:10.5119873Z ZIP:         D:\a\Bingee-Rust\Bingee-Rust\dist\bingee-desktop-windows-x64.zip, 13736162 bytes, SHA-256 0398F54A45486118C5F6CF85E94794A38E01D6BEEF302D61E537DDD97656C598
+2026-09-30T06:47:34.4537807Z SHA256 digest of uploaded artifact zip is 39ef87093c4389405aa0ae003d6fdbf7509df30a67af72fad34626bd5325258c
+2026-09-30T06:47:34.7398860Z Artifact bingee-Windows-X64.zip successfully finalized. Artifact ID 11081891065
