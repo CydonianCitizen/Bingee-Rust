@@ -76,9 +76,12 @@ Slint crates listed above. The packaging script appends the exact list of
 crates and license expressions for the packaged target, generated from
 Cargo.lock with `cargo metadata`.
 
-Several of these licenses require their full text to accompany binary
-distributions. Bingee Desktop does not bundle those texts yet. Generate them
-(for example with cargo-about) before any public distribution.
+Release packages include `licenses/`, with a crate-index and available
+crate-supplied license and notice files. Where a published crate contains no
+license file, the package includes the corresponding standard license text
+from `licenses/common/`, plus the crate's declared license expression in
+`licenses/INDEX.txt`. Slint's own `LICENSES/` files are included for all Slint
+crates. These files are generated for each target from locked Cargo metadata.
 
 
 TMDB (The Movie Database)

@@ -368,3 +368,17 @@ PASS locally / cross-platform CI pending (16 September 2026). See
 R12–R14 cross-platform CI is pending a user commit/push; the current session
 does not have permission to perform those Git operations. The timestamped
 report under `docs/run-reports/` records local gates and genuine limitations.
+
+## Hardening and release milestones R15–R17
+
+| Milestone | Result | Record |
+| --- | --- | --- |
+| R15 — Hardening and data hygiene | PASS for local exit gate; broader crash/UI coverage partial | `docs/milestones/R15.md`, ADR-0028 |
+| R16 — Distribution and installers | PARTIAL | `docs/milestones/R16.md`; Windows installer verified, macOS/Linux native builds and CI pending |
+| R17 — Final performance and release candidate | NOT STARTED | R16 technical cross-platform artifact gate has not passed |
+
+The application version is `0.1.0-rc.1` in Cargo metadata, but the release
+candidate is not approved. The current run report under `docs/run-reports/`
+lists release blockers and the exact remaining checks.
+
+R17 technical work starts after Windows, macOS and Linux package builds, package structure checks, and normal cross-platform build/tests pass. Signing, notarization and external licensing decisions may remain pending. Those decisions still block public distribution.

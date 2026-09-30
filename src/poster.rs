@@ -16,7 +16,9 @@ use std::time::{Duration, Instant, SystemTime};
 
 use slint::{Image, Rgb8Pixel, SharedPixelBuffer};
 
+use crate::database::Database;
 use crate::diagnostics::Log;
+use crate::error::AppError;
 use crate::network::Network;
 use crate::tmdb::{TmdbClient, TmdbError};
 
@@ -31,6 +33,7 @@ const RETRY_AFTER: Duration = Duration::from_secs(60);
 const MAX_SIDE: u32 = 4096;
 /// Temp files older than this belong to no running download.
 const STALE_TEMP: Duration = Duration::from_secs(3600);
+const UNUSED_AGE: Duration = Duration::from_secs(30 * 24 * 3600);
 const PREFIX: &str = "tmdb-w185-";
 
 /// A poster file at TMDB in our size. Built only from a validated path, so
@@ -75,7 +78,12 @@ impl DiskCache {
 
     fn read(&self, key: &PosterKey) -> io::Result<Option<Vec<u8>>> {
         match fs::read(self.dir.join(key.name())) {
-            Ok(bytes) => Ok(Some(bytes)),
+            Ok(bytes) => {
+                if let Ok(file) = File::options().write(true).open(self.dir.join(key.name())) {
+                    let _ = file.set_modified(SystemTime::now());
+                }
+                Ok(Some(bytes))
+            }
             Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(None),
             Err(err) => Err(err),
         }
@@ -125,6 +133,64 @@ impl DiskCache {
             .filter(|entry| fs::remove_file(entry.path()).is_ok())
             .count()
     }
+
+    /// Counts only Bingee poster files. Unknown files and symlinks are ignored.
+    pub fn usage(&self) -> (usize, u64) {
+        let Ok(entries) = fs::read_dir(&self.dir) else {
+            return (0, 0);
+        };
+        entries
+            .flatten()
+            .filter_map(|entry| {
+                let name = entry.file_name();
+                let name = name.to_str()?;
+                if !own_name(name) || !entry.file_type().ok()?.is_file() {
+                    return None;
+                }
+                Some(entry.metadata().ok()?.len())
+            })
+            .fold((0, 0), |(count, bytes), len| (count + 1, bytes + len))
+    }
+
+    /// Explicit cleanup: preserve referenced and recently used posters.
+    /// Failure to inspect or remove a file leaves it in place.
+    pub fn clean_unused(&self, referenced: &HashSet<PosterKey>) -> usize {
+        let Ok(entries) = fs::read_dir(&self.dir) else {
+            return 0;
+        };
+        entries
+            .flatten()
+            .filter(|entry| {
+                let name = entry.file_name();
+                let Some(name) = name.to_str() else {
+                    return false;
+                };
+                let Some(key) = key_from_name(name) else {
+                    return false;
+                };
+                if referenced.contains(&key) || !entry.file_type().is_ok_and(|kind| kind.is_file())
+                {
+                    return false;
+                }
+                entry
+                    .metadata()
+                    .and_then(|m| m.modified())
+                    .ok()
+                    .and_then(|time| time.elapsed().ok())
+                    .is_some_and(|age| age > UNUSED_AGE)
+            })
+            .filter(|entry| fs::remove_file(entry.path()).is_ok())
+            .count()
+    }
+}
+
+fn key_from_name(name: &str) -> Option<PosterKey> {
+    let path = format!("/{}", name.strip_prefix(PREFIX)?);
+    PosterKey::tmdb(&path).filter(|key| key.name() == name)
+}
+
+fn own_name(name: &str) -> bool {
+    key_from_name(name).is_some()
 }
 
 /// Decodes and checks a poster. Refuses anything that is not a readable JPEG
@@ -287,6 +353,35 @@ impl Posters {
 
     pub fn stats(&self) -> Stats {
         self.state().stats
+    }
+
+    pub fn disk_usage(&self) -> (usize, u64) {
+        self.disk.as_ref().map_or((0, 0), DiskCache::usage)
+    }
+
+    pub fn clean_unused(&self, db: &Database) -> Result<(usize, usize), AppError> {
+        let Some(disk) = &self.disk else {
+            return Ok((0, 0));
+        };
+        let mut referenced = HashSet::new();
+        let mut stmt = db
+            .conn()
+            .prepare(
+                "SELECT poster_path FROM media WHERE poster_path IS NOT NULL
+            UNION ALL SELECT poster_path FROM seasons WHERE poster_path IS NOT NULL",
+            )
+            .map_err(|error| AppError::database("Poster references could not be read.", error))?;
+        let paths = stmt
+            .query_map([], |row| row.get::<_, String>(0))
+            .map_err(|error| AppError::database("Poster references could not be read.", error))?;
+        for path in paths {
+            if let Some(key) = PosterKey::tmdb(&path.map_err(|error| {
+                AppError::database("Poster references could not be read.", error)
+            })?) {
+                referenced.insert(key);
+            }
+        }
+        Ok((disk.clean_temp(), disk.clean_unused(&referenced)))
     }
 
     /// No load is running (tests wait for this).
@@ -515,6 +610,34 @@ pub mod tests {
             disk.read(&poster).unwrap().is_some(),
             "cached posters untouched"
         );
+    }
+
+    #[test]
+    fn cleanup_keeps_references_recent_files_and_unknown_files() {
+        let dir = TestDir::new("poster-cleanup");
+        let disk = DiskCache::new(dir.0.join("posters"));
+        fs::create_dir_all(&disk.dir).unwrap();
+        for name in ["old", "used", "recent"] {
+            disk.write(&key(&format!("/{name}.jpg")), b"poster")
+                .unwrap();
+        }
+        fs::write(disk.dir.join("user.txt"), b"keep").unwrap();
+        let old = SystemTime::now() - UNUSED_AGE - Duration::from_secs(3600);
+        for name in ["old", "used"] {
+            File::options()
+                .write(true)
+                .open(disk.dir.join(key(&format!("/{name}.jpg")).name()))
+                .unwrap()
+                .set_modified(old)
+                .unwrap();
+        }
+        let references = HashSet::from([key("/used.jpg")]);
+        assert_eq!(disk.usage(), (3, 18));
+        assert_eq!(disk.clean_unused(&references), 1);
+        assert_eq!(disk.usage(), (2, 12));
+        assert!(disk.dir.join("user.txt").exists());
+        assert!(disk.dir.join(key("/used.jpg").name()).exists());
+        assert!(disk.dir.join(key("/recent.jpg").name()).exists());
     }
 
     #[test]

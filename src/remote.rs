@@ -1216,7 +1216,7 @@ mod tests {
             let store = Arc::new(MemoryStore::with(GOOD));
             let poster_dir = online_paths.cache.join("posters");
             let posters = remote_with(&ui, &base, &store, db.clone(), Some(poster_dir.clone()));
-            crate::start(
+            let profile_lock = crate::start(
                 &app,
                 Ok(online_paths),
                 Arc::new(Log::stderr_only()),
@@ -1281,6 +1281,7 @@ mod tests {
             let stats = posters.stats();
             assert_eq!(stats.downloads, 2, "{stats:?}");
             ui.render();
+            profile_lock.borrow_mut().take();
         })
         .join()
         .unwrap();

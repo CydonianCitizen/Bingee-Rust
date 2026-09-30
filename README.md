@@ -34,6 +34,12 @@ progress and a watch history, and see statistics about it. Home, Calendar,
 backups and stored updates work offline. Automatic metadata refresh is
 optional and runs only while the app is open.
 
+Core R15 hardening is implemented locally: one process owns a profile, Settings can
+check database integrity and clean unused metadata/posters, and backup export
+works on filesystems without hard links. R16 packaging is in progress. The
+version is `0.1.0-rc.1`, sourced from `Cargo.toml`; this is not a release-ready
+declaration. See the latest report in `docs/run-reports/`.
+
 See `IMPLEMENTATION_PLAN.md` and `docs/milestones/R6.md` to `R14.md`.
 
 ## Prerequisites
@@ -312,20 +318,29 @@ secret store, and a scripted HTTP server on `127.0.0.1` instead of TMDB. `.githu
 Windows, Ubuntu and macOS, plus clippy for the default and fixture-only
 feature sets.
 
-## Portable Windows package
+## Release packaging
 
 ```powershell
-pwsh -NoProfile -File scripts/package-windows.ps1        # -> dist/bingee-desktop-windows-x64/
+pwsh -NoProfile -File scripts/get-inno.ps1                # signed Inno Setup 6.7.3 into target/tools/
+pwsh -NoProfile -File scripts/package-windows.ps1 -RequireInstaller
 pwsh -NoProfile -File scripts/smoke-windows-package.ps1 -WorkDir $env:TEMP\bingee-smoke
+pwsh -NoProfile -File scripts/smoke-windows-installer.ps1 -WorkDir $env:TEMP\bingee-installer-smoke
 ```
 
-The package holds `bingee-desktop.exe`, `THIRD_PARTY_NOTICES.txt` (with the
-generated list of linked crates), `README.txt` and `SHA256SUMS.txt`. It writes
-nothing to its own folder, so it may live in a read-only location. It needs
-the Visual C++ 2015–2022 Redistributable (x64). The smoke test runs a fresh,
-a second and a corrupt-database start from an unrelated working directory,
-with `LOCALAPPDATA` redirected to a temporary folder. It is not an installer
-and is not signed.
+Windows output: `dist/bingee-desktop-windows-x64-setup.exe`, a portable ZIP,
+and the unpacked folder. The installer is per-user. Uninstall leaves Library,
+cache and logs in `%LOCALAPPDATA%`. Install the Microsoft Visual C++
+2015–2022 Redistributable (x64) before launch if absent. Artifacts are unsigned.
+
+On macOS, run `pwsh -NoProfile -File scripts/package-macos.ps1` to build
+`Bingee Desktop.app` and a tarball. It is unsigned and not notarized. On
+Linux, run `pwsh -NoProfile -File scripts/package-linux.ps1` to build a
+tarball with a `.desktop` file, icon and user-level install/uninstall scripts.
+All packages include `THIRD_PARTY_NOTICES.txt` and a `licenses/` directory.
+The GitHub Actions `release-artifacts` workflow runs on pushes to `main` or
+manual dispatch, builds and uploads all three platform packages, and does not
+publish a release. The
+macOS and Linux scripts have not run locally or in CI in this session.
 
 ## What the app does (R14)
 
@@ -353,7 +368,7 @@ and is not signed.
   results.
 - **Settings**: the TMDB token (validate and save, check, replace, remove),
   opt-in automatic metadata refresh, portable JSON backup and restore,
-  data locations, schema version, and a link to About.
+  data locations, schema version, explicit storage check/cleanup, and About.
 - **About**: version, Rust/Slint/SQLite credits, the "Made with Slint"
   widget, TMDB logo and notice, license status, data locations.
 - **Startup error page** instead of an empty library when the database
@@ -548,8 +563,9 @@ which is a top-level sidebar entry and shows the `AboutSlint` widget.
 
 `THIRD_PARTY_NOTICES.txt` records this, SQLite (public domain), the direct
 dependencies and their licenses; the packaging script appends every linked
-crate with its license expression. Full license texts of the permissive
-crates are not bundled yet; that is required before public distribution.
+crate with its license expression. Release packages bundle available
+crate-supplied license files and standard texts for crates that omit them.
+See `docs/release-licensing.md` for remaining legal decisions.
 
 The license of Bingee Desktop itself is not decided
 (see `docs/adr/0001-rust-slint-spike.md`).

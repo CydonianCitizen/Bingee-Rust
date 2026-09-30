@@ -19,6 +19,7 @@ mod metadata;
 mod network;
 mod paths;
 mod poster;
+mod profile_lock;
 mod refresh;
 mod release;
 mod release_page;
@@ -32,6 +33,7 @@ mod tmdb;
 mod tracking;
 mod view;
 
+use std::cell::RefCell;
 use std::path::Path;
 use std::process::ExitCode;
 use std::rc::Rc;
@@ -44,6 +46,7 @@ use library::{MediaType, Sort};
 use network::Network;
 use paths::AppPaths;
 use poster::{PosterKey, Posters};
+use profile_lock::ProfileLock;
 use secrets::KeyringStore;
 use settings::Settings;
 use slint::{ComponentHandle, Model, SharedString};
@@ -130,7 +133,7 @@ fn run() -> ExitCode {
         log.clone(),
     );
     let db = SharedDb::default();
-    start(&window, paths, log.clone(), db.clone(), posters.clone());
+    let profile_lock = start(&window, paths, log.clone(), db.clone(), posters.clone());
     // Independent of the library: a database failure does not stop remote
     // search, and no network failure reaches the database.
     let token = remote::start(
@@ -150,6 +153,7 @@ fn run() -> ExitCode {
         log.clone(),
         backup_page::NativeDialogs,
     );
+    start_maintenance(&window, db.clone(), posters.clone(), log.clone());
     dashboard::start(&window, db.clone(), metadata::Clock::system(), log.clone());
     release_page::start(&window, db.clone(), metadata::Clock::system(), log.clone());
     statistics_page::start(&window, db.clone(), metadata::Clock::system(), log.clone());
@@ -174,8 +178,53 @@ fn run() -> ExitCode {
         log.clone(),
     );
     let result = window.run();
+    profile_lock.borrow_mut().take();
     log.info(posters.stats());
     finish(result, &log)
+}
+
+fn start_maintenance(window: &AppWindow, db: SharedDb, posters: Arc<Posters>, log: Arc<Log>) {
+    window.on_maintenance_inspect({
+        let (window, db, posters, log) = (window.as_weak(), db.clone(), posters.clone(), log.clone());
+        move || {
+            let result = db.with(Database::quick_check);
+            let Some(window) = window.upgrade() else { return };
+            match result {
+                Ok(()) => {
+                    let (count, bytes) = posters.disk_usage();
+                    window.set_maintenance_status(format!(
+                        "Database check passed. Poster cache: {count} files, {bytes} bytes on disk. Decoded RAM budget: {} MiB.",
+                        poster::RAM_BUDGET / (1024 * 1024)
+                    ).into());
+                }
+                Err(error) => {
+                    log.error(format_args!("Storage check: {error}"));
+                    window.set_maintenance_status(error.message.into());
+                }
+            }
+        }
+    });
+    window.on_maintenance_clean({
+        let window = window.as_weak();
+        move || {
+            let result = db.with(|db| {
+                db.quick_check()?;
+                let metadata = db.clean_orphan_metadata()?;
+                let (temp, unused) = posters.clean_unused(db)?;
+                Ok((metadata, temp, unused))
+            });
+            let Some(window) = window.upgrade() else { return };
+            match result {
+                Ok((metadata, temp, unused)) => window.set_maintenance_status(format!(
+                    "Removed {metadata} untracked metadata records, {unused} old unreferenced posters and {temp} stale temporary files. Library and personal history retained."
+                ).into()),
+                Err(error) => {
+                    log.error(format_args!("Storage cleanup: {error}"));
+                    window.set_maintenance_status(error.message.into());
+                }
+            }
+        }
+    });
 }
 
 /// The poster service, announcing finished posters to the window.
@@ -259,22 +308,25 @@ fn start(
     log: Arc<Log>,
     db: SharedDb,
     posters: Arc<Posters>,
-) {
+) -> Rc<RefCell<Option<ProfileLock>>> {
     set_app_info(window);
     let paths = Rc::new(paths);
-    load_library(window, &paths, &log, &db, &posters);
+    let profile_lock = Rc::new(RefCell::new(None));
+    load_library(window, &paths, &log, &db, &posters, &profile_lock);
     window.on_retry({
         let window = window.as_weak();
+        let profile_lock = profile_lock.clone();
         move || {
             if let Some(window) = window.upgrade() {
                 log.info("Retrying");
-                load_library(&window, &paths, &log, &db, &posters);
+                load_library(&window, &paths, &log, &db, &posters, &profile_lock);
             }
         }
     });
     window.on_quit(|| {
         let _ = slint::quit_event_loop();
     });
+    profile_lock
 }
 
 fn load_library(
@@ -283,9 +335,10 @@ fn load_library(
     log: &Arc<Log>,
     db: &SharedDb,
     posters: &Arc<Posters>,
+    profile_lock: &RefCell<Option<ProfileLock>>,
 ) {
     let opened = match paths {
-        Ok(paths) => open_production(paths, log, db, posters),
+        Ok(paths) => open_production(paths, log, db, posters, profile_lock),
         Err(err) => Err(AppError::new(err.kind, err.message.clone())),
     };
     match opened {
@@ -309,8 +362,12 @@ fn open_production(
     log: &Log,
     db: &SharedDb,
     posters: &Arc<Posters>,
+    profile_lock: &RefCell<Option<ProfileLock>>,
 ) -> Result<(LibraryView<UserLibrary>, u32), AppError> {
     paths.create_dirs()?;
+    if profile_lock.borrow().is_none() {
+        *profile_lock.borrow_mut() = Some(ProfileLock::acquire(&paths.data)?);
+    }
     let path = paths.database();
     log.info(format_args!("Database {}", path.display()));
     let database = Database::open(&path, log)?;
@@ -635,6 +692,63 @@ mod tests {
             app.set_page(page.into());
             ui.render();
         }
+    }
+
+    /// Release-mode local UI soak over the large synthetic history.
+    #[test]
+    #[ignore]
+    fn r15_large_library_soak() {
+        let dir = TestDir::new("r15-soak");
+        let paths = test_paths(&dir);
+        paths.create_dirs().unwrap();
+        crate::statistics::tests::large_history(
+            &Database::open(&paths.database(), &Log::stderr_only()).unwrap(),
+        );
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let db = SharedDb::default();
+        let log = Arc::new(Log::stderr_only());
+        let posters = poster::tests::offline();
+        let profile_lock = start(&app, Ok(paths), log.clone(), db.clone(), posters);
+        let (clock, _) = metadata::Clock::fake(crate::statistics::tests::NOW);
+        dashboard::start(&app, db.clone(), clock.clone(), log.clone());
+        history::start(&app, db.clone(), log.clone());
+        statistics_page::start(&app, db.clone(), clock.clone(), log.clone());
+        release_page::start(&app, db, clock, log);
+        for cycle in 0..100 {
+            for page in [
+                "home",
+                "library",
+                "discover",
+                "history",
+                "statistics",
+                "calendar",
+                "updates",
+                "settings",
+                "about",
+            ] {
+                app.set_page(page.into());
+                match page {
+                    "home" => app.invoke_home_opened(),
+                    "library" => {
+                        app.invoke_query_changed("movie".into());
+                        app.invoke_query_changed("".into());
+                        app.invoke_row_selected(cycle % 20);
+                    }
+                    "history" => app.invoke_history_opened(),
+                    "statistics" => app.invoke_statistics_opened(),
+                    "calendar" => app.invoke_calendar_opened(),
+                    "updates" => app.invoke_updates_opened(),
+                    _ => {}
+                }
+                ui.render();
+            }
+            if cycle % 10 == 0 {
+                println!("soak cycle {cycle}");
+                std::thread::sleep(std::time::Duration::from_millis(250));
+            }
+        }
+        profile_lock.borrow_mut().take();
     }
 
     fn offscreen_pages(width: u32, height: u32) {

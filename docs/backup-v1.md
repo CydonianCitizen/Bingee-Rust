@@ -54,3 +54,14 @@ back. No TMDB request occurs during export or restore.
 
 Credentials, cache images, logs, temporary files, benchmark fixtures, and
 diagnostics are excluded. Poster and still paths are included as metadata.
+
+The suggested filename is `bingee-backup.json`; the extension is not trusted
+for validation. Export writes and syncs a same-folder temporary file first.
+Where supported, a hard link publishes the complete file atomically without
+overwriting an existing destination. On other filesystems, Bingee opens the
+destination exclusively, copies and syncs it. If the process dies during the
+fallback copy, a truncated file may remain at the selected name; parsing and
+full V1 validation reject it. A normal copy error removes the incomplete file.
+Temporary files have a `.bingee-<pid>-<nanoseconds>.tmp` suffix. Bingee does
+not scan arbitrary backup folders to delete old files. A stale temporary file
+can be removed manually after confirming no export is running.

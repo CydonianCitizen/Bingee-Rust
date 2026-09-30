@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Bingee Desktop
+Exec=bingee-desktop
+Icon=bingee-desktop
+Terminal=false
+Categories=AudioVideo;Video;

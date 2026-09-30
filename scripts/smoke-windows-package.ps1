@@ -31,8 +31,9 @@ Set-StrictMode -Version Latest
 $package = (Resolve-Path (Join-Path $PSScriptRoot '../dist/bingee-desktop-windows-x64')).Path
 $exe = Join-Path $package 'bingee-desktop.exe'
 $WorkDir = [IO.Path]::GetFullPath($WorkDir)
+if ($WorkDir -eq [IO.Path]::GetPathRoot($WorkDir)) { throw 'WorkDir cannot be a filesystem root.' }
 if ($WorkDir.StartsWith($package, [StringComparison]::OrdinalIgnoreCase)) { throw 'WorkDir must be outside the package.' }
-if (Test-Path $WorkDir) { Remove-Item -LiteralPath $WorkDir -Recurse -Force }
+$WorkDir = Join-Path $WorkDir ("run-{0}-{1}" -f [DateTime]::UtcNow.ToString('yyyyMMddHHmmssfff'), $PID)
 $cwd = Join-Path $WorkDir 'cwd'
 New-Item -ItemType Directory -Force -Path $cwd | Out-Null
 if (Get-Process bingee-desktop -ErrorAction SilentlyContinue) { throw 'Close running Bingee instances first.' }
@@ -45,7 +46,7 @@ function Invoke-Launch([string]$Label, [string]$LocalAppData) {
     $env:BINGEE_HOME = $null
     try {
         $timer = [Diagnostics.Stopwatch]::StartNew()
-        $process = Start-Process -FilePath $exe -WorkingDirectory $cwd -PassThru -RedirectStandardError $stderr
+        $process = Start-Process -FilePath $exe -WorkingDirectory $cwd -WindowStyle Hidden -PassThru -RedirectStandardError $stderr
     } finally {
         $env:LOCALAPPDATA, $env:BINGEE_HOME = $saved
     }
@@ -99,7 +100,41 @@ $text = Get-Content $log -Raw
 if (([regex]::Matches($text, 'Migrating the database')).Count -ne 1) { throw 'second: migrated again.' }
 if (([regex]::Matches($text, 'Library opened: schema version 5')).Count -ne 2) { throw 'second: library not opened.' }
 
-# 3. Corrupt database.
+# 3. Two live processes contend; an idle hard kill leaves a usable profile.
+$before = Get-Bytes $db
+$saved = $env:LOCALAPPDATA, $env:BINGEE_HOME
+$env:LOCALAPPDATA = $userDir
+$env:BINGEE_HOME = $null
+try {
+    $owner = Start-Process -FilePath $exe -WorkingDirectory $cwd -WindowStyle Hidden -PassThru
+    $contender = $null
+    try {
+        $deadline = [DateTime]::UtcNow.AddSeconds(30)
+        do {
+            Start-Sleep -Milliseconds 50
+            $owner.Refresh()
+            if ($owner.HasExited) { throw 'lock owner exited early.' }
+            if ([DateTime]::UtcNow -gt $deadline) { throw 'lock owner did not open.' }
+        } until ($owner.MainWindowHandle -ne 0)
+        $contender = Start-Process -FilePath $exe -WorkingDirectory $cwd -WindowStyle Hidden -PassThru
+        $deadline = [DateTime]::UtcNow.AddSeconds(30)
+        do {
+            Start-Sleep -Milliseconds 50
+            $contender.Refresh()
+            if ($contender.HasExited) { throw 'contender exited before showing its message.' }
+            if ([DateTime]::UtcNow -gt $deadline) { throw 'contender did not report the lock.' }
+        } until ((Get-Content $log -Raw).Contains('already open for this profile'))
+    } finally {
+        if ($contender -and -not $contender.HasExited) { $contender.Kill(); $contender.WaitForExit() }
+        if (-not $owner.HasExited) { $owner.Kill(); $owner.WaitForExit() }
+    }
+} finally {
+    $env:LOCALAPPDATA, $env:BINGEE_HOME = $saved
+}
+$afterCrash = Invoke-Launch 'after-idle-kill' $userDir
+if ((Get-Bytes $db) -ne $before) { throw 'idle kill or restart changed the database.' }
+
+# 4. Corrupt database.
 $badProfile = Join-Path $WorkDir 'profile-corrupt'
 $badRoot = Join-Path $badProfile 'Bingee Desktop'
 $badDb = Join-Path $badRoot 'data\bingee.db'
@@ -109,12 +144,13 @@ $garbage = [byte[]]::new(8192); [Array]::Fill($garbage, [byte]0x5a)
 $badBefore = Get-Bytes $badDb
 $corrupt = Invoke-Launch 'corrupt' $badProfile
 if ((Get-Bytes $badDb) -ne $badBefore) { throw 'corrupt: the database file changed.' }
-if (@(Get-ChildItem (Split-Path $badDb)).Count -ne 1) { throw 'corrupt: extra files next to the database.' }
+$badFiles = @(Get-ChildItem (Split-Path $badDb) | Select-Object -ExpandProperty Name | Sort-Object)
+if (Compare-Object $badFiles @('bingee.db', 'bingee.lock')) { throw "corrupt: unexpected files next to the database: $badFiles" }
 $badText = Get-Content (Join-Path $badRoot 'logs\bingee-desktop.log') -Raw
 if (-not $badText.Contains('ERROR Startup failed: InvalidData error: The library database is damaged')) { throw "corrupt: failure not logged: $badText" }
 
-# 4. The fixture flag in a default build.
-$fixture = Start-Process -FilePath $exe -ArgumentList '--benchmark-fixture' -WorkingDirectory $cwd -PassThru -Wait
+# 5. The fixture flag in a default build.
+$fixture = Start-Process -FilePath $exe -ArgumentList '--benchmark-fixture' -WorkingDirectory $cwd -WindowStyle Hidden -PassThru -Wait
 if ($fixture.ExitCode -ne 1) { throw "fixture flag: expected exit code 1, got $($fixture.ExitCode)." }
 
 $packageAfter = @(Get-ChildItem $package -Recurse -File | ForEach-Object { $_.FullName + '|' + (Get-FileHash $_.FullName).Hash })
@@ -126,9 +162,9 @@ $summary = [ordered]@{
     package = $package
     executable_sha256 = (Get-FileHash $exe).Hash
     database = @{ path = $db; bytes = (Get-Item $db).Length }
-    runs = @($fresh, $second, $corrupt)
+    runs = @($fresh, $second, $afterCrash, $corrupt)
     fixture_flag_exit_code = $fixture.ExitCode
-    verdict = 'fresh, second and corrupt-database starts from an unrelated working directory; data only in the per-user folders; corrupt file untouched; package unchanged; graceful exits'
+    verdict = 'fresh, reopen, live lock contention, idle hard kill recovery and corrupt-database starts; user data preserved; package unchanged'
 }
 $summary | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $WorkDir 'smoke.json') -Encoding utf8NoBOM
 $summary | ConvertTo-Json -Depth 5

@@ -8,21 +8,22 @@ use std::fmt::Display;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, PoisonError};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// A log above this size is moved to `<name>.log.1` (replacing the previous
-/// one) when the app starts, so the two files stay below about 2 MiB.
+/// one) when it fills, so the two files stay near 2 MiB.
 const MAX_BYTES: u64 = 1024 * 1024;
 
 pub struct Log {
-    file: Option<File>,
+    file: Mutex<Option<File>>,
     path: Option<PathBuf>,
 }
 
 impl Log {
     pub fn stderr_only() -> Self {
         Self {
-            file: None,
+            file: Mutex::new(None),
             path: None,
         }
     }
@@ -30,12 +31,13 @@ impl Log {
     /// Appends to `path`. If it cannot be opened, logs to stderr only: a
     /// missing log must not stop the app.
     pub fn open(path: &Path) -> Self {
-        if std::fs::metadata(path).is_ok_and(|meta| meta.len() > MAX_BYTES) {
-            let _ = std::fs::rename(path, path.with_extension("log.1"));
+        if std::fs::metadata(path).is_ok_and(|meta| meta.len() > MAX_BYTES) && rotate(path).is_err()
+        {
+            return Self::stderr_only();
         }
         match OpenOptions::new().create(true).append(true).open(path) {
             Ok(file) => Self {
-                file: Some(file),
+                file: Mutex::new(Some(file)),
                 path: Some(path.to_owned()),
             },
             Err(err) => {
@@ -62,9 +64,20 @@ impl Log {
         if echo {
             eprint!("{line}");
         }
-        if let Some(mut file) = self.file.as_ref() {
-            // Nowhere left to report a failed log write.
-            let _ = file.write_all(line.as_bytes());
+        let mut file = self.file.lock().unwrap_or_else(PoisonError::into_inner);
+        if file.as_ref().is_some_and(|open| {
+            open.metadata()
+                .is_ok_and(|m| m.len() + line.len() as u64 > MAX_BYTES)
+        }) {
+            *file = None;
+            if let Some(path) = &self.path
+                && rotate(path).is_ok()
+            {
+                *file = OpenOptions::new().create(true).append(true).open(path).ok();
+            }
+        }
+        if let Some(open) = file.as_mut() {
+            let _ = open.write_all(line.as_bytes());
         }
     }
 
@@ -80,6 +93,18 @@ impl Log {
             default(info);
         }));
     }
+}
+
+fn rotate(path: &Path) -> std::io::Result<()> {
+    let previous = path.with_extension("log.1");
+    if previous.exists() {
+        std::fs::remove_file(&previous)?;
+    }
+    if std::fs::metadata(path)?.len() > MAX_BYTES * 2 {
+        // An oversized legacy log cannot remain as the retained copy.
+        return std::fs::remove_file(path);
+    }
+    std::fs::rename(path, previous)
 }
 
 /// `YYYY-MM-DDTHH:MM:SSZ`, without a date/time dependency.
@@ -156,5 +181,23 @@ mod tests {
         let log = Log::open(&dir.0.join("no-such-folder").join("x.log"));
         assert_eq!(log.path(), None);
         log.info("still fine");
+    }
+
+    #[test]
+    fn long_session_log_remains_bounded() {
+        let dir = TestDir::new("log-runtime-rotation");
+        let path = dir.0.join("bingee-desktop.log");
+        let log = Log::open(&path);
+        let message = "x".repeat(1024);
+        for _ in 0..2200 {
+            log.write("INFO", &message, false);
+        }
+        assert!(std::fs::metadata(&path).unwrap().len() <= MAX_BYTES);
+        assert!(
+            std::fs::metadata(path.with_extension("log.1"))
+                .unwrap()
+                .len()
+                <= MAX_BYTES
+        );
     }
 }

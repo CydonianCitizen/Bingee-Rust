@@ -4,7 +4,7 @@
 
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, OpenOptions};
-use std::io::Write;
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 
 use rusqlite::{Row, Transaction, TransactionBehavior, params};
@@ -829,8 +829,9 @@ pub fn restore(db: &Database, backup: &BackupV1) -> Result<(), AppError> {
     tx.commit().map_err(write_error)
 }
 
-/// Create a new backup file without truncating an existing one. A same-folder
-/// hard link publishes the fully written file without replacing another file.
+/// Create a new backup file without truncating an existing one. Hard links
+/// publish atomically where supported. The fallback creates the destination
+/// exclusively; interrupted copies are invalid JSON and cannot be restored.
 pub fn export_to_path(db: &Database, path: &Path, now: i64) -> Result<(), AppError> {
     if path.exists() {
         return Err(invalid(
@@ -840,8 +841,14 @@ pub fn export_to_path(db: &Database, path: &Path, now: i64) -> Result<(), AppErr
     let backup = export(db, now)?;
     let bytes = serde_json::to_vec_pretty(&backup)
         .map_err(|e| invalid("Backup could not be serialized.").with_source(e))?;
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|e| {
+            invalid("System clock could not name the backup temporary file.").with_source(e)
+        })?
+        .as_nanos();
     let mut temp = path.as_os_str().to_os_string();
-    temp.push(format!(".{}.tmp", std::process::id()));
+    temp.push(format!(".bingee-{}-{nanos}.tmp", std::process::id()));
     let temp = Path::new(&temp);
     let result = (|| {
         let mut file = OpenOptions::new()
@@ -852,10 +859,8 @@ pub fn export_to_path(db: &Database, path: &Path, now: i64) -> Result<(), AppErr
         file.write_all(&bytes)
             .and_then(|_| file.sync_all())
             .map_err(|e| AppError::filesystem("Backup file could not be written.", e))?;
-        // Hard-link creation fails if the destination appeared after our
-        // existence check; rename would replace that file on Unix.
-        fs::hard_link(temp, path).map_err(|e| {
-            AppError::filesystem("Backup file could not be finalized on this filesystem.", e)
+        finalize(temp, path, |source, destination| {
+            fs::hard_link(source, destination)
         })?;
         let _ = fs::remove_file(temp);
         Ok(())
@@ -864,6 +869,44 @@ pub fn export_to_path(db: &Database, path: &Path, now: i64) -> Result<(), AppErr
         let _ = fs::remove_file(temp);
     }
     result
+}
+
+fn finalize(
+    temp: &Path,
+    path: &Path,
+    hard_link: impl FnOnce(&Path, &Path) -> io::Result<()>,
+) -> Result<(), AppError> {
+    match hard_link(temp, path) {
+        Ok(()) => Ok(()),
+        Err(error) if error.kind() == io::ErrorKind::AlreadyExists => Err(invalid(
+            "A file already exists at that backup path. Choose a new name.",
+        )),
+        Err(_) => {
+            let source = fs::File::open(temp)
+                .map_err(|e| AppError::filesystem("Backup file could not be finalized.", e))?;
+            copy_new(source, path)
+        }
+    }
+}
+
+fn copy_new(mut source: impl Read, path: &Path) -> Result<(), AppError> {
+    let mut dest = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .map_err(|e| {
+            AppError::filesystem("Backup destination is not writable or already exists.", e)
+        })?;
+    let result = io::copy(&mut source, &mut dest).and_then(|_| dest.sync_all());
+    drop(dest);
+    if let Err(error) = result {
+        let _ = fs::remove_file(path);
+        return Err(AppError::filesystem(
+            "Backup file could not be finalized.",
+            error,
+        ));
+    }
+    Ok(())
 }
 
 /// Before a user-confirmed replacement, retain the current portable state
@@ -1106,6 +1149,11 @@ mod tests {
         populated(&db);
         let path = dir.0.join("backup.json");
         export_to_path(&db, &path, NOW).unwrap();
+        assert_eq!(
+            fs::read_dir(&dir.0).unwrap().count(),
+            1,
+            "no temporary file remains"
+        );
         let original = fs::read(&path).unwrap();
         assert!(export_to_path(&db, &path, NOW).is_err());
         assert_eq!(fs::read(&path).unwrap(), original);
@@ -1114,6 +1162,54 @@ mod tests {
         assert_eq!(export(&target, NOW).unwrap(), export(&db, NOW).unwrap());
         assert!(export_to_path(&db, &dir.0.join("missing").join("no.json"), NOW).is_err());
         assert!(read_from_path(&dir.0.join("missing.json")).is_err());
+    }
+
+    #[test]
+    fn finalization_falls_back_without_hard_links_and_never_overwrites() {
+        let dir = TestDir::new("backup-finalize");
+        let temp = dir.0.join("complete.tmp");
+        let path = dir.0.join("backup.json");
+        fs::write(&temp, b"{\"format\":\"bingee-backup\"}").unwrap();
+        finalize(&temp, &path, |_, _| {
+            Err(io::Error::new(io::ErrorKind::Unsupported, "no links"))
+        })
+        .unwrap();
+        let original = fs::read(&path).unwrap();
+        assert!(
+            finalize(&temp, &path, |_, _| Err(io::Error::new(
+                io::ErrorKind::Unsupported,
+                "no links"
+            )))
+            .is_err()
+        );
+        assert_eq!(fs::read(&path).unwrap(), original);
+
+        let linked = dir.0.join("linked.json");
+        finalize(&temp, &linked, |source, destination| {
+            fs::hard_link(source, destination)
+        })
+        .unwrap();
+        assert_eq!(fs::read(&linked).unwrap(), original);
+    }
+
+    #[test]
+    fn interrupted_fallback_removes_incomplete_destination() {
+        struct Interrupted(bool);
+        impl Read for Interrupted {
+            fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+                if self.0 {
+                    Err(io::Error::other("simulated copy failure"))
+                } else {
+                    self.0 = true;
+                    buf[..3].copy_from_slice(b"{\"a");
+                    Ok(3)
+                }
+            }
+        }
+        let dir = TestDir::new("backup-interruption");
+        let path = dir.0.join("partial.json");
+        assert!(copy_new(Interrupted(false), &path).is_err());
+        assert!(!path.exists());
     }
 
     #[test]

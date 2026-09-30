@@ -1243,6 +1243,9 @@ component SettingsPage {
     in property <string> backup-preview;
     in property <bool> backup-ready;
     in property <bool> automatic-refresh-enabled;
+    in property <string> maintenance-status;
+    callback maintenance-inspect();
+    callback maintenance-clean();
     callback automatic-refresh-toggle();
     callback backup-export();
     callback backup-select();
@@ -1337,6 +1340,13 @@ component SettingsPage {
             StorageRows {
                 storage: root.storage;
             }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 10px;
+                Button { text: "Check storage"; clicked => { root.maintenance-inspect(); } }
+                Button { text: "Clean unused data"; clicked => { root.maintenance-clean(); } }
+            }
+            if root.maintenance-status != "": Paragraph { text: root.maintenance-status; }
             SectionTitle { text: "BACKUP AND RESTORE"; }
             Paragraph { text: "Export a portable JSON backup of your Library, tracking, ratings and history. Your TMDB token, image cache and logs are excluded."; }
             HorizontalLayout {
@@ -2464,6 +2474,7 @@ export component AppWindow inherits Window {
     in property <string> backup-preview;
     in property <bool> backup-ready;
     in property <bool> automatic-refresh-enabled;
+    in property <string> maintenance-status;
     in property <[UpdateRow]> updates-rows;
     in property <int> updates-selected-row: -1;
     in property <int> updates-unread;
@@ -2516,6 +2527,8 @@ export component AppWindow inherits Window {
     callback backup-select();
     callback backup-confirm();
     callback automatic-refresh-toggle();
+    callback maintenance-inspect();
+    callback maintenance-clean();
     callback refresh-token-changed();
     callback metadata-changed();
     callback release-events-changed();
@@ -2867,7 +2880,10 @@ export component AppWindow inherits Window {
                 backup-preview: root.backup-preview;
                 backup-ready: root.backup-ready;
                 automatic-refresh-enabled: root.automatic-refresh-enabled;
+                maintenance-status: root.maintenance-status;
                 automatic-refresh-toggle => { root.automatic-refresh-toggle(); }
+                maintenance-inspect => { root.maintenance-inspect(); }
+                maintenance-clean => { root.maintenance-clean(); }
                 backup-export => { root.backup-export(); }
                 backup-select => { root.backup-select(); }
                 backup-confirm => { root.backup-confirm(); }

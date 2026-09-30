@@ -1,0 +1,140 @@
+name: release artifacts
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Toolchain
+        shell: bash
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy
+          rustup default stable
+          rustc --version
+          cargo --version
+      - name: Linux build prerequisites
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends pkg-config libfontconfig-dev xvfb xauth desktop-file-utils
+      - name: Normal build and tests
+        shell: bash
+        run: |
+          cargo fmt --check
+          cargo check --locked
+          cargo test --locked
+          cargo test --all-features --locked
+          cargo clippy --locked --all-targets --all-features -- -D warnings
+      - name: Windows installer compiler
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/get-inno.ps1
+      - name: Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/package-windows.ps1 -RequireInstaller
+      - name: macOS bundle
+        if: runner.os == 'macOS'
+        shell: pwsh
+        run: ./scripts/package-macos.ps1
+      - name: Linux tarball
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: ./scripts/package-linux.ps1
+      - name: Windows package structure
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          foreach ($path in @('dist/bingee-desktop-windows-x64-setup.exe', 'dist/bingee-desktop-windows-x64.zip', 'dist/bingee-desktop-windows-x64/bingee-desktop.exe', 'dist/bingee-desktop-windows-x64/licenses/INDEX.txt', 'dist/bingee-desktop-windows-x64/THIRD_PARTY_NOTICES.txt')) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing $path" }
+          }
+      - name: macOS bundle structure
+        if: runner.os == 'macOS'
+        shell: pwsh
+        run: |
+          $bundle = 'dist/Bingee Desktop.app/Contents'
+          foreach ($path in @("$bundle/MacOS/bingee-desktop", "$bundle/Info.plist", "$bundle/Resources/bingee-icon.svg", "$bundle/Resources/licenses/INDEX.txt", "$bundle/Resources/THIRD_PARTY_NOTICES.txt")) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing $path" }
+          }
+          plutil -lint "$bundle/Info.plist"
+          if ($LASTEXITCODE -ne 0) { throw 'Invalid Info.plist' }
+          $id = (plutil -extract CFBundleIdentifier raw -o - "$bundle/Info.plist").Trim()
+          if ($id -ne 'io.github.cydoniancitizen.bingee-desktop') { throw "Wrong bundle ID: $id" }
+          $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+          $short = (plutil -extract CFBundleShortVersionString raw -o - "$bundle/Info.plist").Trim()
+          if ($short -ne ($version -replace '-.*$', '')) { throw "Wrong bundle version: $short" }
+          $binary = file -b "$bundle/MacOS/bingee-desktop"
+          if ($binary -notmatch 'Mach-O 64-bit' -or $binary -notmatch (uname -m)) { throw "Wrong executable format or architecture: $binary" }
+          otool -L "$bundle/MacOS/bingee-desktop"
+          if ($LASTEXITCODE -ne 0) { throw 'otool failed' }
+          $archive = "dist/bingee-desktop-macos-$(uname -m).tar.gz"
+          $entries = @(tar -tzf $archive)
+          if ($LASTEXITCODE -ne 0 -or $entries -notcontains 'Bingee Desktop.app/Contents/Info.plist') { throw 'Archive inspection failed' }
+      - name: Linux package structure and headless smoke
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="dist/bingee-desktop-linux-$(uname -m)"
+          bin="$package/bin/bingee-desktop"
+          test -x "$bin"
+          test -f "$package/share/applications/bingee-desktop.desktop"
+          test -f "$package/share/icons/hicolor/scalable/apps/bingee-desktop.svg"
+          test -f "$package/share/doc/bingee-desktop/licenses/INDEX.txt"
+          test -f "$package/share/doc/bingee-desktop/THIRD_PARTY_NOTICES.txt"
+          desktop-file-validate "$package/share/applications/bingee-desktop.desktop"
+          file "$bin" | grep -q 'ELF 64-bit'
+          if ldd "$bin" | grep -q 'not found'; then exit 1; fi
+          tar -tzf "dist/bingee-desktop-linux-$(uname -m).tar.gz" | grep '/bin/bingee-desktop$' >/dev/null
+          bin="$(realpath "$bin")"
+          scratch="$(mktemp -d)"
+          mkdir -p "$scratch/home"
+          cd "$scratch"
+          set +e
+          HOME="$scratch/home" BINGEE_HOME="$scratch/profile" SLINT_BACKEND=winit-software timeout 20s xvfb-run -a "$bin" >launch.log 2>&1
+          status=$?
+          set -e
+          cat launch.log
+          test "$status" -eq 124
+          test -f "$scratch/profile/data/bingee.db"
+      - name: Artifact manifest
+        shell: pwsh
+        run: |
+          $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+          $files = Get-ChildItem dist -File | Where-Object { $_.Name -match '\.(exe|zip|tar\.gz)$' }
+          $manifest = @($files | ForEach-Object {
+            [ordered]@{
+              platform = $env:RUNNER_OS
+              artifact_filename = $_.Name
+              artifact_type = if ($_.Name.EndsWith('.tar.gz')) { 'tar.gz' } else { $_.Extension.TrimStart('.') }
+              architecture = $env:RUNNER_ARCH
+              application_version = $version
+              file_size = $_.Length
+              sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              build_commit = $env:GITHUB_SHA
+              toolchain = (rustc --version).Trim()
+            }
+          })
+          if (-not $manifest.Count) { throw 'No package artifacts' }
+          ConvertTo-Json -InputObject $manifest -Depth 3 | Set-Content dist/PACKAGE-MANIFEST.json -Encoding utf8NoBOM
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bingee-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            dist/*.zip
+            dist/*.exe
+            dist/*.tar.gz
+            dist/PACKAGE-MANIFEST.json
+          if-no-files-found: error

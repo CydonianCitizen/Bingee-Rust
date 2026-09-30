@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Builds the portable Windows x64 package: dist/bingee-desktop-windows-x64/.
+Builds the portable Windows x64 ZIP and an installer when Inno Setup 6 is present.
 
 .DESCRIPTION
 PowerShell 7 on Windows x64, from any working directory. It builds the release
@@ -9,12 +9,13 @@ directory from scratch, copies the executable, the notices and a README,
 writes SHA256SUMS.txt, and prints the sizes.
 
 The package holds no writable data: the application keeps its library in the
-per-user folders (ADR-0006), so the package folder may be read-only. It is not
-an installer, and nothing is signed or zipped.
+per-user folders (ADR-0006), so the package folder may be read-only.
+Signing is a separate release step.
 
 .EXAMPLE
 pwsh -NoProfile -File scripts/package-windows.ps1
 #>
+param([switch] $RequireInstaller)
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -30,6 +31,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'cargo build --release --locked failed.' }
 
     $package = Join-Path $root 'dist/bingee-desktop-windows-x64'
+    $dist = [IO.Path]::GetFullPath((Join-Path $root 'dist'))
+    if ([IO.Path]::GetFullPath($package) -ne (Join-Path $dist 'bingee-desktop-windows-x64')) { throw 'Unexpected package path.' }
     if (Test-Path $package) { Remove-Item -LiteralPath $package -Recurse -Force }
     New-Item -ItemType Directory -Path $package | Out-Null
     Copy-Item 'target/release/bingee-desktop.exe' $package
@@ -56,6 +59,8 @@ try {
     $notices += '', "Crates linked into this build ($target, $($crates.Count) crates)", ('-' * 60)
     $notices += $crates | ForEach-Object { '  {0} {1}: {2}' -f $_.name, $_.version, $_.license }
     $notices | Set-Content (Join-Path $package 'THIRD_PARTY_NOTICES.txt') -Encoding utf8NoBOM
+    & (Join-Path $PSScriptRoot 'package-licenses.ps1') -Package $package -Target $target -Offline
+    if ($LASTEXITCODE -ne 0) { throw 'License collection failed.' }
 
     $commit = (git rev-parse HEAD).Trim()
     $dirty = if (git status --porcelain) { ' plus uncommitted changes' } else { '' }
@@ -66,9 +71,9 @@ Bingee Desktop $version - portable Windows x64 package
 =====================================================
 
 Bingee Desktop is a local-first desktop tracker for movies and TV series,
-built with Rust and Slint. This is a development build, not a public release.
-The license of Bingee Desktop itself is not decided yet; third-party licenses
-are in THIRD_PARTY_NOTICES.txt and in the app's About page.
+built with Rust and Slint. This is a release candidate build, not a stable release.
+The license of Bingee Desktop itself is not decided yet; third-party notices
+and license texts are in THIRD_PARTY_NOTICES.txt and licenses/.
 
 Run
   Start bingee-desktop.exe: double-click it, or run it from any shell and any
@@ -78,6 +83,7 @@ Run
 Layout
   bingee-desktop.exe      the application
   THIRD_PARTY_NOTICES.txt licenses and attribution
+  licenses/               dependency license texts
   SHA256SUMS.txt          checksums of the files as packaged
 
 Your data
@@ -93,7 +99,7 @@ Your data
 Requirements
   Windows 10 or 11, x64.
   Microsoft Visual C++ 2015-2022 Redistributable (x64), for VCRUNTIME140.dll.
-  Most machines already have it.
+  Install it before launching Bingee Desktop if it is absent.
   OpenGL 2.0 or newer (default FemtoVG renderer). If the window stays blank,
   for example in a VM or over Remote Desktop, set SLINT_BACKEND=winit-software
   to try Slint's software renderer (not tested).
@@ -110,11 +116,27 @@ Build
 
     $exe = Get-Item (Join-Path $package 'bingee-desktop.exe')
     $total = (Get-ChildItem $package -Recurse -File | Measure-Object Length -Sum).Sum
+    $zip = Join-Path $dist 'bingee-desktop-windows-x64.zip'
+    if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
+    Compress-Archive -Path $package -DestinationPath $zip -CompressionLevel Optimal
+    $compiler = @((Join-Path $root 'target/tools/inno6/ISCC.exe'), 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe', 'C:\Program Files\Inno Setup 6\ISCC.exe') |
+        Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if ($compiler) {
+        & $compiler "/DVersion=$version" (Join-Path $PSScriptRoot 'bingee-desktop.iss')
+        if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed.' }
+        $installer = Join-Path $dist 'bingee-desktop-windows-x64-setup.exe'
+        Write-Output "Installer:   $installer, $((Get-Item $installer).Length) bytes, SHA-256 $((Get-FileHash $installer).Hash)"
+    } elseif ($RequireInstaller) {
+        throw 'Inno Setup 6 is required for the Windows installer.'
+    } else {
+        Write-Output 'Installer:   unavailable locally (Inno Setup 6 not installed)'
+    }
     Write-Output "Package:     $package"
     Write-Output "Source:      $commit$dirty"
     Write-Output "Executable:  $($exe.Length) bytes, SHA-256 $((Get-FileHash $exe.FullName).Hash)"
     Write-Output "Crates:      $($crates.Count) listed in THIRD_PARTY_NOTICES.txt"
     Write-Output "Total:       $total bytes in $(@(Get-ChildItem $package -Recurse -File).Count) files"
+    Write-Output "ZIP:         $zip, $((Get-Item $zip).Length) bytes, SHA-256 $((Get-FileHash $zip).Hash)"
 } finally {
     Pop-Location
 }

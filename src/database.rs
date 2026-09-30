@@ -7,6 +7,7 @@
 
 use std::path::Path;
 use std::sync::{Arc, Mutex, PoisonError};
+use std::time::Duration;
 
 use rusqlite::functions::FunctionFlags;
 use rusqlite::{Connection, ErrorCode, TransactionBehavior};
@@ -298,6 +299,38 @@ impl Database {
     pub fn schema_version(&self) -> Result<u32, AppError> {
         user_version(&self.conn).map_err(read_error)
     }
+
+    /// Explicit diagnostics; no full scan on normal startup.
+    pub fn quick_check(&self) -> Result<(), AppError> {
+        let answer: String = self
+            .conn
+            .query_row("PRAGMA quick_check", [], |row| row.get(0))
+            .map_err(read_error)?;
+        let broken: i64 = self
+            .conn
+            .query_row("SELECT count(*) FROM pragma_foreign_key_check", [], |row| {
+                row.get(0)
+            })
+            .map_err(read_error)?;
+        if answer == "ok" && broken == 0 {
+            Ok(())
+        } else {
+            Err(AppError::new(
+                ErrorKind::InvalidData,
+                "Database integrity check failed. No data was changed.",
+            ))
+        }
+    }
+
+    /// Explicit maintenance. Every personal reference protects its media row.
+    pub fn clean_orphan_metadata(&self) -> Result<usize, AppError> {
+        self.conn.execute("DELETE FROM media WHERE NOT EXISTS
+            (SELECT 1 FROM library_entries WHERE local_media_id = media.local_media_id)
+            AND NOT EXISTS (SELECT 1 FROM media_tracking WHERE local_media_id = media.local_media_id)
+            AND NOT EXISTS (SELECT 1 FROM episode_tracking WHERE local_media_id = media.local_media_id)
+            AND NOT EXISTS (SELECT 1 FROM watch_events WHERE local_media_id = media.local_media_id)
+            AND NOT EXISTS (SELECT 1 FROM release_events WHERE local_media_id = media.local_media_id)", []).map_err(read_error)
+    }
 }
 
 /// The user's database, shared by the Library page and Discover: empty until
@@ -330,6 +363,10 @@ impl SharedDb {
 
 fn configure(conn: &Connection) -> Result<(), AppError> {
     let setup = || -> rusqlite::Result<bool> {
+        // Rollback journal stays SQLite's default DELETE. FULL is explicit:
+        // user data is more important than benchmark throughput.
+        conn.pragma_update(None, "synchronous", "FULL")?;
+        conn.busy_timeout(Duration::from_secs(5))?;
         conn.pragma_update(None, "foreign_keys", true)?;
         // Unicode-aware lowercase for search: SQLite's lower() folds ASCII
         // only. Used in queries, never in the schema, so other tools can
@@ -1019,6 +1056,82 @@ mod tests {
             before,
             "reopening wrote to the file"
         );
+    }
+
+    #[test]
+    fn maintenance_keeps_every_personal_reference() {
+        let db = Database::open_in_memory();
+        let conn = db.conn();
+        let orphan = insert_media(conn, "movie", "Unused");
+        let library = insert_media(conn, "movie", "Library");
+        let rating = insert_media(conn, "movie", "Rated");
+        let episode = insert_media(conn, "tv", "Episode tracked");
+        let history = insert_media(conn, "movie", "History");
+        let release = insert_media(conn, "tv", "Release");
+        conn.execute("INSERT INTO library_entries VALUES (?1, 1)", [library])
+            .unwrap();
+        conn.execute("INSERT INTO media_tracking (local_media_id, media_type, rating) VALUES (?1, 'movie', 8)", [rating]).unwrap();
+        conn.execute(
+            "INSERT INTO episode_tracking VALUES (?1, 'tv', 1, 1, 1)",
+            [episode],
+        )
+        .unwrap();
+        conn.execute("INSERT INTO watch_events (local_media_id, media_type, watched_at) VALUES (?1, 'movie', 1)", [history]).unwrap();
+        conn.execute("INSERT INTO release_events (local_media_id, media_type, season_number, episode_number, event_type, discovered_at) VALUES (?1, 'tv', 1, 1, 'new_episode', 1)", [release]).unwrap();
+        assert_eq!(db.clean_orphan_metadata().unwrap(), 1);
+        assert_eq!(
+            conn.query_row("SELECT count(*) FROM media", [], |r| r.get::<_, i64>(0))
+                .unwrap(),
+            5
+        );
+        assert_eq!(
+            conn.query_row(
+                "SELECT count(*) FROM media WHERE local_media_id = ?1",
+                [orphan],
+                |r| r.get::<_, i64>(0)
+            )
+            .unwrap(),
+            0
+        );
+        db.quick_check().unwrap();
+    }
+
+    #[test]
+    fn integrity_check_reports_foreign_key_damage() {
+        let db = Database::open_in_memory();
+        db.quick_check().unwrap();
+        db.conn()
+            .pragma_update(None, "foreign_keys", false)
+            .unwrap();
+        db.conn()
+            .execute("INSERT INTO library_entries VALUES (999, 1)", [])
+            .unwrap();
+        db.conn().pragma_update(None, "foreign_keys", true).unwrap();
+        assert!(db.quick_check().is_err());
+    }
+
+    #[test]
+    fn file_connection_uses_durable_rollback_journal() {
+        let dir = TestDir::new("db-durability");
+        let db = open(&dir.0.join("bingee.db")).unwrap();
+        let journal: String = db
+            .conn()
+            .pragma_query_value(None, "journal_mode", |r| r.get(0))
+            .unwrap();
+        let synchronous: i64 = db
+            .conn()
+            .pragma_query_value(None, "synchronous", |r| r.get(0))
+            .unwrap();
+        let foreign_keys: i64 = db
+            .conn()
+            .pragma_query_value(None, "foreign_keys", |r| r.get(0))
+            .unwrap();
+        let timeout: i64 = db
+            .conn()
+            .pragma_query_value(None, "busy_timeout", |r| r.get(0))
+            .unwrap();
+        assert_eq!(journal, "delete");
+        assert_eq!((synchronous, foreign_keys, timeout), (2, 1, 5_000));
     }
 
     #[test]
