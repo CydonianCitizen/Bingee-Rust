@@ -293,10 +293,22 @@ component NavItem inherits Rectangle {
     callback clicked;
     height: 34px;
     border-radius: 6px;
+    forward-focus: nav-focus;
+    border-width: nav-focus.has-focus ? 1px : 0;
+    border-color: Theme.accent;
     background: root.active ? Theme.selected-bg : touch.has-hover ? Theme.hover-bg : transparent;
     accessible-role: button;
     accessible-label: root.label;
     accessible-action-default => { root.clicked(); }
+    nav-focus := FocusScope {
+        key-pressed(event) => {
+            if event.text == Key.Return || event.text == " " {
+                root.clicked();
+                return accept;
+            }
+            return reject;
+        }
+    }
     HorizontalLayout {
         padding-right: 12px;
         spacing: 10px;
@@ -1090,6 +1102,8 @@ component MediaDetailPane inherits Rectangle {
             }
             Rectangle {
                 vertical-stretch: 1;
+                border-width: episode-focus.has-focus && root.episode-row < 0 ? 1px : 0px;
+                border-color: Theme.accent;
                 episode-focus := FocusScope {
                     enabled: root.season.state == "episodes";
                     key-pressed(event) => {
@@ -1982,6 +1996,8 @@ component UpdatesPage {
         if root.notice != "": Paragraph { text: root.notice; }
         Rectangle {
             vertical-stretch: 1;
+            border-width: updates-focus.has-focus && root.rows.length == 0 ? 1px : 0px;
+            border-color: Theme.accent;
             updates-focus := FocusScope {
                 key-pressed(event) => {
                     if event.text == Key.UpArrow {
@@ -2005,7 +2021,12 @@ component UpdatesPage {
                         height: 68px;
                         background: index == root.selected-row ? Theme.panel-bg : transparent;
                         border-width: 1px;
-                        border-color: Theme.border;
+                        border-color: index == root.selected-row && updates-focus.has-focus ? Theme.accent : Theme.border;
+                        accessible-role: list-item;
+                        accessible-label: item.title + " · " + item.detail;
+                        accessible-item-selectable: true;
+                        accessible-item-selected: index == root.selected-row;
+                        accessible-action-default => { root.select-row(index); root.open-row(index); updates-focus.focus(); }
                         VerticalLayout {
                             padding: 8px;
                             spacing: 2px;

@@ -1,0 +1,31 @@
+warn: could not canonicalize path C:\Users\thoma
+   Compiling bingee-desktop v0.1.0-rc.1 (C:\Users\thoma\Documents\Projects\bingee-rust)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 42.71s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 1 test
+2026-10-01T22:22:06Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r17-complete-journey-12728\data\bingee.db
+2026-10-01T22:22:06Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T22:22:06Z INFO Migration to schema version 5 complete
+2026-10-01T22:22:06Z INFO Library opened: schema version 5, 0 titles
+2026-10-01T22:22:06Z INFO TMDB token read from the credential store; check: valid
+2026-10-01T22:22:06Z INFO TMDB image configuration not loaded, using the default: not found at TMDB (HTTP 404)
+2026-10-01T22:22:06Z INFO TMDB search #2 movie page 1: unreadable TMDB response: missing field `total_results` at line 1 column 73 in 2 ms
+2026-10-01T22:22:06Z INFO TMDB search #2 tv page 1: unreadable TMDB response: missing field `total_results` at line 1 column 73 in 2 ms
+
+thread '<unnamed>' (22768) panicked at src\main.rs:637:17:
+timed out waiting for two identities
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'r17_validation::r17_search_track_refresh_backup_restore_offline' (1952) panicked at src\r17_validation.rs:181:10:
+called `Result::unwrap()` on an `Err` value: Any { .. }
+test r17_validation::r17_search_track_refresh_backup_restore_offline ... FAILED
+
+failures:
+
+failures:
+    r17_validation::r17_search_track_refresh_backup_restore_offline
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 232 filtered out; finished in 10.58s
+
+error: test failed, to rerun pass `--bin bingee-desktop`

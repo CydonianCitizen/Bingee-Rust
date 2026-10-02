@@ -1,0 +1,9 @@
+{
+  "app": "0.1.0-rc.1",
+  "schema": 5,
+  "backup": 1,
+  "file_version": null,
+  "product_version": null,
+  "product_name": null,
+  "package_executable_matches_build": true
+}

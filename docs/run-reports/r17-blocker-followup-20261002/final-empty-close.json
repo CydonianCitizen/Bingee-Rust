@@ -1,0 +1,28 @@
+{
+  "name": "final-empty",
+  "mode": "empty",
+  "scale": "1",
+  "pid": 22044,
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\final-empty",
+  "binary_sha256": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016",
+  "launched_utc": "2026-10-02T07:21:19.1461283Z",
+  "responsive_window_ms": 1127.9614,
+  "handle": 3475234,
+  "threads": 12,
+  "handles": 285,
+  "database_before": null,
+  "exit_code": 0,
+  "process_exited": true,
+  "exited_utc": "2026-10-02T07:22:47.3924732Z",
+  "close_method": "Alt+F4 after final empty native usable-startup check",
+  "close_request_to_exit_ms": 299.4732,
+  "database_after": "3B5581CEB514D7E9FF3F96D26672072F0229DD85BC8436CEE45639C41850489D",
+  "exclusive_database_and_lock_open": true,
+  "log_tail": [
+    "2026-10-02T07:21:20Z INFO Migrating the database from schema version 0 to 5",
+    "2026-10-02T07:21:20Z INFO Migration to schema version 5 complete",
+    "2026-10-02T07:21:20Z INFO Library opened: schema version 5, 0 titles",
+    "2026-10-02T07:22:47Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 0 failures, 0 evictions",
+    "2026-10-02T07:22:47Z INFO Bingee Desktop closed"
+  ]
+}

@@ -1,0 +1,20 @@
+## main...origin/main
+ M IMPLEMENTATION_PLAN.md
+ M README.md
+ M docs/milestones/R16.md
+ M docs/release-checklist.md
+ M docs/release-licensing.md
+ M src/backup.rs
+ M src/main.rs
+ M ui/app-window.slint
+?? docs/known-limitations.md
+?? docs/run-reports/2026-10-01-r16-native-revalidation.md
+?? docs/run-reports/2026-10-01-r17-technical-validation.md
+?? docs/run-reports/2026-10-01-r18-rc-stabilization.md
+?? docs/run-reports/2026-10-02-r17-release-validation.md
+?? docs/run-reports/r16-native-revalidation-20261001/
+?? docs/run-reports/r17-blocker-followup-20261002/
+?? docs/run-reports/r17-continuation-20261002/
+?? docs/run-reports/r17-validation-20261001/
+?? docs/run-reports/r18-stabilization-20261001/
+?? src/r17_validation.rs

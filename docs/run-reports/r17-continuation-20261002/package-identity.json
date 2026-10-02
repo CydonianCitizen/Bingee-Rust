@@ -1,0 +1,21 @@
+{
+  "checksum_entries": 696,
+  "portable_checksums_pass": true,
+  "files": [
+    {
+      "path": "target/release/bingee-desktop.exe",
+      "bytes": 28834816,
+      "sha256": "A2AF9139B9204D060263A87E5420DC44AE4EADA7F68DC23FEC063CEC39D5E158"
+    },
+    {
+      "path": "dist/bingee-desktop-windows-x64.zip",
+      "bytes": 13729310,
+      "sha256": "36634487C0A6436601F495E869A252526F022E320F5CDE2ADFD4DA780044058F"
+    },
+    {
+      "path": "dist/bingee-desktop-windows-x64-setup.exe",
+      "bytes": 10021453,
+      "sha256": "9BB1B3221219BC533B8E794DAE7C08318ECCA14397CEA8437F8070620F3D59BA"
+    }
+  ]
+}

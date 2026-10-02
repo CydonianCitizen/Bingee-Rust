@@ -1,0 +1,14 @@
+{
+  "name": "interim-off-backup-calendar",
+  "mode": "off",
+  "scale": "1.25",
+  "pid": 10304,
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\interim-off-backup-calendar",
+  "binary_sha256": "DD0D0513F00858D2D82FA61589E231C020233224D0C1524144678B902CCA9B6A",
+  "launched_utc": "2026-10-02T06:50:38.7895062Z",
+  "responsive_window_ms": 1236.3207,
+  "handle": 11733068,
+  "threads": 13,
+  "handles": 312,
+  "database_before": "EAD2806EFF781F2E551690E8FE8F78E8F039BE8CE4D724AA09FDDDAB2CA31670"
+}

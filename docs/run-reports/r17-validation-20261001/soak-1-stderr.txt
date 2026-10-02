@@ -1,0 +1,233 @@
+2026-10-01T10:46:36Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:46:36Z INFO Migration to schema version 5 complete
+2026-10-01T10:46:44Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r17-product-22684\data\bingee.db
+2026-10-01T10:46:44Z INFO Library opened: schema version 5, 1000 titles
+2026-10-01T10:46:44Z INFO TMDB token read from the credential store; check: valid
+2026-10-01T10:46:44Z INFO Detail tmdb/tv/10149 (#1000) season 1: episodes stale, fetching
+2026-10-01T10:46:44Z INFO Automatic refresh cycle started: 100 due requests
+2026-10-01T10:46:44Z INFO TMDB image configuration not loaded, using the default: TMDB server error (HTTP 503)
+2026-10-01T10:46:44Z INFO Detail tmdb/tv/10149 (#1000): refreshed in 1 ms
+2026-10-01T10:46:44Z INFO Detail tmdb/tv/10149 (#1000) season 1: 23 episodes saved in 1 ms
+2026-10-01T10:46:45Z INFO Detail #850: shown from the local cache (stale)
+2026-10-01T10:46:45Z INFO TMDB search #2 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:45Z INFO TMDB search #2 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:45Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:46:45Z INFO Migration to schema version 5 complete
+2026-10-01T10:46:46Z INFO Detail #851: shown from the local cache (stale)
+2026-10-01T10:46:46Z INFO TMDB search #3 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:46Z INFO TMDB search #3 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:46Z INFO TMDB search #4 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:46Z INFO TMDB search #4 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:47Z INFO TMDB search #5 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:47Z INFO TMDB search #5 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:48Z INFO TMDB search #6 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:48Z INFO TMDB search #6 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:48Z INFO TMDB search #7 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:48Z INFO TMDB search #7 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:49Z INFO TMDB search #8 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:49Z INFO TMDB search #8 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:49Z INFO TMDB search #9 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:49Z INFO TMDB search #9 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:50Z INFO TMDB search #10 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:50Z INFO TMDB search #10 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:50Z INFO TMDB search #11 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:50Z INFO TMDB search #11 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:51Z INFO Automatic refresh cycle: considered 100, refreshed 100, failures 0
+2026-10-01T10:46:51Z INFO TMDB search #12 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:51Z INFO TMDB search #12 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:51Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:46:51Z INFO Migration to schema version 5 complete
+2026-10-01T10:46:52Z INFO TMDB search #13 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:52Z INFO TMDB search #13 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:52Z INFO TMDB search #14 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:52Z INFO TMDB search #14 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:52Z INFO TMDB search #15 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:52Z INFO TMDB search #15 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:53Z INFO TMDB search #16 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:53Z INFO TMDB search #16 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:53Z INFO TMDB search #17 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:53Z INFO TMDB search #17 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:53Z INFO TMDB search #18 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:53Z INFO TMDB search #18 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:54Z INFO TMDB search #19 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:54Z INFO TMDB search #19 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:54Z INFO TMDB search #20 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:54Z INFO TMDB search #20 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:54Z INFO TMDB search #21 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:54Z INFO TMDB search #21 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:55Z INFO TMDB search #22 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:55Z INFO TMDB search #22 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:55Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:46:55Z INFO Migration to schema version 5 complete
+2026-10-01T10:46:56Z INFO TMDB search #23 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:56Z INFO TMDB search #23 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:56Z INFO TMDB search #24 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:56Z INFO TMDB search #24 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:56Z INFO TMDB search #25 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:56Z INFO TMDB search #25 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:57Z INFO TMDB search #26 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:57Z INFO TMDB search #26 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:57Z INFO TMDB search #27 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:57Z INFO TMDB search #27 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:57Z INFO TMDB search #28 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:57Z INFO TMDB search #28 movie page 1: 1 results in 0 ms
+2026-10-01T10:46:58Z INFO TMDB search #29 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:58Z INFO TMDB search #29 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:58Z INFO TMDB search #30 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:58Z INFO TMDB search #30 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:58Z INFO TMDB search #31 tv page 1: 0 results in 1 ms
+2026-10-01T10:46:58Z INFO TMDB search #31 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:59Z INFO TMDB search #32 tv page 1: 0 results in 0 ms
+2026-10-01T10:46:59Z INFO TMDB search #32 movie page 1: 1 results in 1 ms
+2026-10-01T10:46:59Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:46:59Z INFO Migration to schema version 5 complete
+2026-10-01T10:47:00Z INFO TMDB search #33 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:00Z INFO TMDB search #33 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:01Z INFO TMDB search #34 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:01Z INFO TMDB search #34 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:01Z INFO TMDB search #35 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:01Z INFO TMDB search #35 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:02Z INFO TMDB search #36 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:02Z INFO TMDB search #36 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:02Z INFO TMDB search #37 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:02Z INFO TMDB search #37 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:03Z INFO TMDB search #38 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:03Z INFO TMDB search #38 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:03Z INFO TMDB search #39 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:03Z INFO TMDB search #39 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:03Z INFO TMDB search #40 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:03Z INFO TMDB search #40 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:04Z INFO TMDB search #41 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:04Z INFO TMDB search #41 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:04Z INFO TMDB search #42 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:04Z INFO TMDB search #42 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:04Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:47:04Z INFO Migration to schema version 5 complete
+2026-10-01T10:47:05Z INFO TMDB search #43 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:05Z INFO TMDB search #43 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:06Z INFO TMDB search #44 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:06Z INFO TMDB search #44 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:06Z INFO TMDB search #45 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:06Z INFO TMDB search #45 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:07Z INFO TMDB search #46 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:07Z INFO TMDB search #46 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:07Z INFO TMDB search #47 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:07Z INFO TMDB search #47 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:08Z INFO TMDB search #48 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:08Z INFO TMDB search #48 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:08Z INFO TMDB search #49 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:08Z INFO TMDB search #49 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:08Z INFO TMDB search #50 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:08Z INFO TMDB search #50 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:09Z INFO TMDB search #51 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:09Z INFO TMDB search #51 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:09Z INFO TMDB search #52 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:09Z INFO TMDB search #52 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:10Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:47:10Z INFO Migration to schema version 5 complete
+2026-10-01T10:47:10Z INFO TMDB search #53 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:10Z INFO TMDB search #53 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:11Z INFO TMDB search #54 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:11Z INFO TMDB search #54 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:11Z INFO TMDB search #55 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:11Z INFO TMDB search #55 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:12Z INFO TMDB search #56 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:12Z INFO TMDB search #56 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:12Z INFO TMDB search #57 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:12Z INFO TMDB search #57 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:12Z INFO TMDB search #58 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:12Z INFO TMDB search #58 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:13Z INFO TMDB search #59 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:13Z INFO TMDB search #59 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:13Z INFO TMDB search #60 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:13Z INFO TMDB search #60 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:13Z INFO TMDB search #61 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:13Z INFO TMDB search #61 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:14Z INFO TMDB search #62 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:14Z INFO TMDB search #62 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:14Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:47:14Z INFO Migration to schema version 5 complete
+2026-10-01T10:47:15Z INFO TMDB search #63 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:15Z INFO TMDB search #63 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:15Z INFO TMDB search #64 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:15Z INFO TMDB search #64 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:15Z INFO TMDB search #65 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:15Z INFO TMDB search #65 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:16Z INFO TMDB search #66 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:16Z INFO TMDB search #66 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:16Z INFO TMDB search #67 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:16Z INFO TMDB search #67 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:16Z INFO TMDB search #68 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:16Z INFO TMDB search #68 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:17Z INFO TMDB search #69 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:17Z INFO TMDB search #69 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:17Z INFO TMDB search #70 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:17Z INFO TMDB search #70 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:17Z INFO TMDB search #71 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:17Z INFO TMDB search #71 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:18Z INFO TMDB search #72 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:18Z INFO TMDB search #72 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:18Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:47:18Z INFO Migration to schema version 5 complete
+2026-10-01T10:47:18Z INFO TMDB search #73 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:18Z INFO TMDB search #73 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:19Z INFO TMDB search #74 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:19Z INFO TMDB search #74 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:19Z INFO TMDB search #75 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:19Z INFO TMDB search #75 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:19Z INFO TMDB search #76 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:19Z INFO TMDB search #76 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:20Z INFO TMDB search #77 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:20Z INFO TMDB search #77 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:20Z INFO TMDB search #78 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:20Z INFO TMDB search #78 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #79 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #79 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #80 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #80 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #81 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #81 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #82 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:21Z INFO TMDB search #82 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:22Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:47:22Z INFO Migration to schema version 5 complete
+2026-10-01T10:47:22Z INFO TMDB search #83 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:22Z INFO TMDB search #83 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:23Z INFO TMDB search #84 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:23Z INFO TMDB search #84 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:23Z INFO TMDB search #85 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:23Z INFO TMDB search #85 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:23Z INFO TMDB search #86 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:23Z INFO TMDB search #86 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:24Z INFO TMDB search #87 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:24Z INFO TMDB search #87 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:24Z INFO TMDB search #88 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:24Z INFO TMDB search #88 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:24Z INFO TMDB search #89 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:24Z INFO TMDB search #89 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:25Z INFO TMDB search #90 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:25Z INFO TMDB search #90 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:25Z INFO TMDB search #91 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:25Z INFO TMDB search #91 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:25Z INFO TMDB search #92 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:25Z INFO TMDB search #92 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:26Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:47:26Z INFO Migration to schema version 5 complete
+2026-10-01T10:47:26Z INFO TMDB search #93 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:26Z INFO TMDB search #93 movie page 1: 1 results in 1 ms
+2026-10-01T10:47:27Z INFO TMDB search #94 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:27Z INFO TMDB search #94 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:27Z INFO TMDB search #95 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:27Z INFO TMDB search #95 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:27Z INFO TMDB search #96 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:27Z INFO TMDB search #96 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:28Z INFO TMDB search #97 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:28Z INFO TMDB search #97 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:28Z INFO TMDB search #98 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:28Z INFO TMDB search #98 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:28Z INFO TMDB search #99 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:28Z INFO TMDB search #99 tv page 1: 0 results in 0 ms
+2026-10-01T10:47:29Z INFO TMDB search #100 movie page 1: 1 results in 0 ms
+2026-10-01T10:47:29Z INFO TMDB search #100 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:29Z INFO TMDB search #101 tv page 1: 0 results in 1 ms
+2026-10-01T10:47:29Z INFO TMDB search #101 movie page 1: 1 results in 1 ms

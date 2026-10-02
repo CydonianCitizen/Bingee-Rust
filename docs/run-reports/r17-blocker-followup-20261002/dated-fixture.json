@@ -1,0 +1,12 @@
+{
+  "source": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-validation-20261001\\startup\\populated-off-1\\data\\bingee.db",
+  "source_sha256": "ead2806eff781f2e551690e8fe8f78e8f039be8ce4d724aa09fdddab2ca31670",
+  "destination": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\final-off-heavy\\data\\bingee.db",
+  "destination_sha256": "77e0a824f3f684f07b68988d8d3db232190fbfec2605d04f4760ed2f82190458",
+  "episode": [
+    851,
+    0,
+    1
+  ],
+  "changes": "One copied episode date set to 2026-10-02; one unread release event inserted. Source fixture unchanged."
+}

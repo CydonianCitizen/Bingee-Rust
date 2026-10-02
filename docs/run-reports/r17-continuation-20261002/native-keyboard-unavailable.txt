@@ -1,0 +1,3 @@
+Default-sandbox launches with the isolated 1000-title native-keyboard profile exposed a responsive main window to Process inspection but no targetable Bingee window to Computer Use. Those test processes closed.
+Host-access launch PID 24388 used the same profile and final executable. Computer Use again listed only Codex; no Codex input was issued. Subsequent default-shell Process inspection saw MainWindowHandle=0. CloseMainWindow returned false; the process remained alive after a further 30-second wait and was explicitly stopped as an owned test process.
+Native keyboard, focus order, accessibility announcements and high-DPI verification were not performed. This records automation limits, not proof of a cross-platform or native keyboard regression.

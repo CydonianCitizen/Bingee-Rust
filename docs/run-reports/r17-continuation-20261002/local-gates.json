@@ -1,0 +1,62 @@
+[
+  {
+    "command": "cargo fmt --check",
+    "elapsed_ms": 650,
+    "exit_code": 0,
+    "test_results": []
+  },
+  {
+    "command": "cargo check --locked",
+    "elapsed_ms": 1419,
+    "exit_code": 0,
+    "test_results": []
+  },
+  {
+    "command": "cargo test --locked",
+    "elapsed_ms": 49531,
+    "exit_code": 0,
+    "test_results": [
+      "test result: ok. 218 passed; 0 failed; 15 ignored; 0 measured; 0 filtered out; finished in 28.09s"
+    ]
+  },
+  {
+    "command": "cargo test --all-features --locked",
+    "elapsed_ms": 72783,
+    "exit_code": 0,
+    "test_results": [
+      "test result: ok. 218 passed; 0 failed; 15 ignored; 0 measured; 0 filtered out; finished in 27.97s"
+    ]
+  },
+  {
+    "command": "cargo test --features benchmark-fixture --locked",
+    "elapsed_ms": 61923,
+    "exit_code": 0,
+    "test_results": [
+      "test result: ok. 218 passed; 0 failed; 15 ignored; 0 measured; 0 filtered out; finished in 21.00s"
+    ]
+  },
+  {
+    "command": "cargo clippy --all-targets --all-features -- -D warnings",
+    "elapsed_ms": 19090,
+    "exit_code": 0,
+    "test_results": []
+  },
+  {
+    "command": "cargo clippy --all-targets -- -D warnings",
+    "elapsed_ms": 18634,
+    "exit_code": 0,
+    "test_results": []
+  },
+  {
+    "command": "cargo clippy --all-targets --features benchmark-fixture -- -D warnings",
+    "elapsed_ms": 15770,
+    "exit_code": 0,
+    "test_results": []
+  },
+  {
+    "command": "cargo build --release --locked",
+    "elapsed_ms": 1369,
+    "exit_code": 0,
+    "test_results": []
+  }
+]

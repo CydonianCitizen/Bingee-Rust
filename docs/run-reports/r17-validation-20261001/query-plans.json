@@ -1,0 +1,703 @@
+{
+  "bindings": "NULL; static SELECT/WITH statements plus both Library sort variants",
+  "plans": [
+    {
+      "file": "src/library.rs",
+      "line": 99,
+      "plan": [
+        [
+          4,
+          0,
+          "SCAN m"
+        ],
+        [
+          17,
+          0,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          31,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "SELECT m.local_media_id, m.media_type, m.title, m.original_title,\n                    m.release_date, m.overview, m.poster_path\n             FROM library_entries AS l JOIN media AS m ON m.local_media_id = l.local_media_id\n             WHERE (?2 IS NULL OR m.media_type = ?2)\n               AND (instr(bingee_fold(m.title), ?1) > 0\n                    OR instr(bingee_fold(m.original_title), ?1) > 0)\n             ORDER BY l.added_at DESC, m.local_media_id DESC"
+    },
+    {
+      "file": "src/library.rs",
+      "line": 99,
+      "plan": [
+        [
+          4,
+          0,
+          "SCAN m"
+        ],
+        [
+          17,
+          0,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          32,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "SELECT m.local_media_id, m.media_type, m.title, m.original_title,\n                    m.release_date, m.overview, m.poster_path\n             FROM library_entries AS l JOIN media AS m ON m.local_media_id = l.local_media_id\n             WHERE (?2 IS NULL OR m.media_type = ?2)\n               AND (instr(bingee_fold(m.title), ?1) > 0\n                    OR instr(bingee_fold(m.original_title), ?1) > 0)\n             ORDER BY bingee_fold(m.title), m.local_media_id"
+    },
+    {
+      "file": "src/library.rs",
+      "line": 138,
+      "plan": [
+        [
+          4,
+          0,
+          "SCAN library_entries"
+        ]
+      ],
+      "sql": "SELECT count(*) FROM library_entries"
+    },
+    {
+      "file": "src/library.rs",
+      "line": 235,
+      "plan": [
+        [
+          2,
+          0,
+          "SEARCH external_refs USING PRIMARY KEY (source=? AND media_type=? AND external_id=?)"
+        ]
+      ],
+      "sql": "SELECT local_media_id FROM external_refs\n         WHERE source = ?1 AND media_type = ?2 AND external_id = ?3"
+    },
+    {
+      "file": "src/library.rs",
+      "line": 254,
+      "plan": [
+        [
+          2,
+          0,
+          "SEARCH external_refs USING COVERING INDEX external_refs_by_media (local_media_id=?)"
+        ]
+      ],
+      "sql": "SELECT media_type, external_id FROM external_refs\n             WHERE local_media_id = ?1 AND source = 'tmdb'"
+    },
+    {
+      "file": "src/library.rs",
+      "line": 298,
+      "plan": [
+        [
+          5,
+          0,
+          "SCAN k VIRTUAL TABLE INDEX 1:"
+        ],
+        [
+          10,
+          0,
+          "SEARCH r USING PRIMARY KEY (source=? AND media_type=? AND external_id=?)"
+        ],
+        [
+          23,
+          0,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ],
+      "sql": "SELECT r.source, r.media_type, r.external_id\n             FROM json_each(?1) AS k\n             JOIN external_refs AS r ON r.source = k.value ->> 0\n                 AND r.media_type = k.value ->> 1 AND r.external_id = k.value ->> 2\n             JOIN library_entries AS l ON l.local_media_id = r.local_media_id"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 59,
+      "plan": [
+        [
+          2,
+          0,
+          "SEARCH media USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ],
+      "sql": "SELECT media_type FROM media WHERE local_media_id = ?1"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 90,
+      "plan": [
+        [
+          2,
+          0,
+          "SEARCH media_tracking USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ],
+      "sql": "SELECT watched_at, rating FROM media_tracking WHERE local_media_id = ?1"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 184,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ],
+        [
+          4,
+          0,
+          "SCALAR SUBQUERY 1"
+        ],
+        [
+          8,
+          4,
+          "SEARCH episodes USING COVERING INDEX sqlite_autoindex_episodes_1 (local_media_id=? AND season_number=? AND episode_number=?)"
+        ]
+      ],
+      "sql": "SELECT EXISTS (SELECT 1 FROM episodes\n             WHERE local_media_id = ?1 AND season_number = ?2 AND episode_number = ?3)"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 295,
+      "plan": [
+        [
+          2,
+          0,
+          "SEARCH episode_tracking USING PRIMARY KEY (local_media_id=? AND season_number=?)"
+        ]
+      ],
+      "sql": "SELECT episode_number FROM episode_tracking\n             WHERE local_media_id = ?1 AND season_number = ?2"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 515,
+      "plan": [
+        [
+          5,
+          0,
+          "SEARCH e USING INDEX sqlite_autoindex_episodes_1 (local_media_id=? AND season_number=?)"
+        ],
+        [
+          15,
+          0,
+          "CORRELATED SCALAR SUBQUERY 1"
+        ],
+        [
+          19,
+          15,
+          "SEARCH t USING PRIMARY KEY (local_media_id=? AND season_number=? AND episode_number=?)"
+        ]
+      ],
+      "sql": "SELECT e.season_number, e.episode_number, e.name FROM episodes AS e\n             WHERE e.local_media_id = ?1 AND e.season_number = ?2\n               AND NOT EXISTS (SELECT 1 FROM episode_tracking AS t\n                   WHERE t.local_media_id = e.local_media_id\n                     AND t.season_number = e.season_number\n                     AND t.episode_number = e.episode_number)\n             ORDER BY e.episode_number LIMIT 1"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 545,
+      "plan": [
+        [
+          12,
+          0,
+          "SCAN t"
+        ],
+        [
+          16,
+          0,
+          "SEARCH e USING COVERING INDEX sqlite_autoindex_episodes_1 (local_media_id=? AND season_number=? AND episode_number=?)"
+        ],
+        [
+          32,
+          0,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          38,
+          0,
+          "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          67,
+          0,
+          "CORRELATED SCALAR SUBQUERY 2"
+        ],
+        [
+          71,
+          67,
+          "SEARCH u USING COVERING INDEX sqlite_autoindex_episodes_1 (local_media_id=? AND season_number>?)"
+        ],
+        [
+          79,
+          67,
+          "CORRELATED SCALAR SUBQUERY 1"
+        ],
+        [
+          83,
+          79,
+          "SEARCH v USING PRIMARY KEY (local_media_id=? AND season_number=? AND episode_number=?)"
+        ],
+        [
+          109,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "SELECT t.local_media_id FROM episode_tracking AS t\n             JOIN episodes AS e USING (local_media_id, season_number, episode_number)\n             JOIN library_entries AS l ON l.local_media_id = t.local_media_id\n             JOIN media AS m ON m.local_media_id = t.local_media_id\n             WHERE t.season_number >= 1\n             GROUP BY t.local_media_id\n             HAVING EXISTS (SELECT 1 FROM episodes AS u\n                 WHERE u.local_media_id = t.local_media_id AND u.season_number >= 1\n                   AND NOT EXISTS (SELECT 1 FROM episode_tracking AS v\n                       WHERE v.local_media_id = u.local_media_id\n                         AND v.season_number = u.season_number\n                         AND v.episode_number = u.episode_number))\n             ORDER BY max(t.watched_at) DESC, bingee_fold(m.title), t.local_media_id"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 587,
+      "plan": [
+        [
+          10,
+          0,
+          "SCAN w USING INDEX watch_events_by_time"
+        ],
+        [
+          13,
+          0,
+          "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          16,
+          0,
+          "SEARCH e USING INDEX sqlite_autoindex_episodes_1 (local_media_id=? AND season_number=? AND episode_number=?) LEFT-JOIN"
+        ]
+      ],
+      "sql": "SELECT w.event_id, w.local_media_id, m.title, w.season_number, w.episode_number,\n                    e.name, w.watched_at,\n                    strftime('%Y-%m-%d %H:%M', w.watched_at, 'unixepoch', 'localtime')\n             FROM watch_events AS w\n             JOIN media AS m ON m.local_media_id = w.local_media_id\n             LEFT JOIN episodes AS e ON e.local_media_id = w.local_media_id\n                 AND e.season_number = w.season_number AND e.episode_number = w.episode_number\n             ORDER BY w.watched_at DESC, w.event_id DESC\n             LIMIT ?1"
+    },
+    {
+      "file": "src/tracking.rs",
+      "line": 630,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ]
+      ],
+      "sql": "SELECT strftime('%Y-%m-%d %H:%M', ?1, 'unixepoch', 'localtime')"
+    },
+    {
+      "file": "src/home.rs",
+      "line": 36,
+      "plan": [
+        [
+          2,
+          0,
+          "CO-ROUTINE unwatched"
+        ],
+        [
+          5,
+          2,
+          "CO-ROUTINE (subquery-4)"
+        ],
+        [
+          10,
+          5,
+          "SCAN e USING INDEX sqlite_autoindex_episodes_1"
+        ],
+        [
+          16,
+          5,
+          "CORRELATED SCALAR SUBQUERY 1"
+        ],
+        [
+          20,
+          16,
+          "SEARCH t USING PRIMARY KEY (local_media_id=? AND season_number=? AND episode_number=?)"
+        ],
+        [
+          31,
+          5,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          50,
+          2,
+          "SCAN (subquery-4)"
+        ],
+        [
+          100,
+          0,
+          "SCAN unwatched"
+        ]
+      ],
+      "sql": "WITH unwatched AS (\n            SELECT e.local_media_id, e.season_number, e.episode_number, e.name,\n                   row_number() OVER (PARTITION BY e.local_media_id\n                       ORDER BY e.season_number, e.episode_number) AS position\n            FROM episodes AS e\n            JOIN library_entries AS l ON l.local_media_id = e.local_media_id\n            WHERE e.season_number >= 1 AND NOT EXISTS (\n                SELECT 1 FROM episode_tracking AS t\n                WHERE t.local_media_id = e.local_media_id\n                  AND t.season_number = e.season_number\n                  AND t.episode_number = e.episode_number)\n         ) SELECT local_media_id, season_number, episode_number, name\n           FROM unwatched WHERE position = 1"
+    },
+    {
+      "file": "src/calendar.rs",
+      "line": 44,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ]
+      ],
+      "sql": "SELECT date(?1, 'unixepoch', 'localtime')"
+    },
+    {
+      "file": "src/calendar.rs",
+      "line": 55,
+      "plan": [
+        [
+          7,
+          0,
+          "SCAN m"
+        ],
+        [
+          11,
+          0,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          17,
+          0,
+          "SEARCH e USING INDEX sqlite_autoindex_episodes_1 (local_media_id=?)"
+        ],
+        [
+          44,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "SELECT e.local_media_id, m.title, e.season_number, e.episode_number,\n                e.name, e.air_date\n         FROM episodes AS e\n         JOIN library_entries AS l ON l.local_media_id = e.local_media_id\n         JOIN media AS m ON m.local_media_id = e.local_media_id AND m.media_type = 'tv'\n         WHERE e.air_date >= ?1 AND e.air_date < ?2\n         ORDER BY e.air_date, bingee_fold(m.title), e.season_number,\n                  e.episode_number, e.local_media_id"
+    },
+    {
+      "file": "src/calendar.rs",
+      "line": 84,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ]
+      ],
+      "sql": "SELECT date(?1, '+15 days')"
+    },
+    {
+      "file": "src/calendar.rs",
+      "line": 92,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ]
+      ],
+      "sql": "SELECT date(?1, ?2)"
+    },
+    {
+      "file": "src/calendar.rs",
+      "line": 104,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ]
+      ],
+      "sql": "SELECT date(?1, 'start of month')"
+    },
+    {
+      "file": "src/calendar.rs",
+      "line": 118,
+      "plan": [
+        [
+          2,
+          0,
+          "CO-ROUTINE dates"
+        ],
+        [
+          5,
+          2,
+          "SETUP"
+        ],
+        [
+          6,
+          5,
+          "SCAN CONSTANT ROW"
+        ],
+        [
+          33,
+          2,
+          "RECURSIVE STEP"
+        ],
+        [
+          34,
+          33,
+          "SCAN dates"
+        ],
+        [
+          47,
+          0,
+          "SCAN dates"
+        ],
+        [
+          55,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "WITH RECURSIVE dates(n, day) AS (\n            SELECT 0, date(?1, 'start of month',\n                printf('-%d days', (CAST(strftime('%w', ?1) AS INTEGER) + 6) % 7))\n            UNION ALL SELECT n + 1, date(day, '+1 day') FROM dates WHERE n < 41\n         ) SELECT day FROM dates ORDER BY n"
+    },
+    {
+      "file": "src/statistics.rs",
+      "line": 183,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ],
+        [
+          4,
+          0,
+          "SCALAR SUBQUERY 1"
+        ],
+        [
+          8,
+          4,
+          "SCAN watch_events USING COVERING INDEX watch_events_by_time"
+        ]
+      ],
+      "sql": "SELECT EXISTS (SELECT 1 FROM watch_events)"
+    },
+    {
+      "file": "src/statistics.rs",
+      "line": 204,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ]
+      ],
+      "sql": "SELECT CAST(strftime('%s', ?1, 'unixepoch', 'localtime', ?2, ?3, 'utc') AS INTEGER)"
+    },
+    {
+      "file": "src/statistics.rs",
+      "line": 264,
+      "plan": [
+        [
+          3,
+          0,
+          "MATERIALIZE buckets"
+        ],
+        [
+          6,
+          3,
+          "MATERIALIZE n"
+        ],
+        [
+          10,
+          6,
+          "SETUP"
+        ],
+        [
+          11,
+          10,
+          "SCAN CONSTANT ROW"
+        ],
+        [
+          24,
+          6,
+          "RECURSIVE STEP"
+        ],
+        [
+          27,
+          24,
+          "MATERIALIZE size"
+        ],
+        [
+          31,
+          27,
+          "SEARCH watch_events USING COVERING INDEX watch_events_by_time"
+        ],
+        [
+          60,
+          24,
+          "SCAN size"
+        ],
+        [
+          62,
+          24,
+          "SCAN n"
+        ],
+        [
+          80,
+          3,
+          "SCAN n"
+        ],
+        [
+          102,
+          0,
+          "SCAN b"
+        ],
+        [
+          106,
+          0,
+          "BLOOM FILTER ON next (i=?)"
+        ],
+        [
+          116,
+          0,
+          "SEARCH next USING AUTOMATIC COVERING INDEX (i=?) LEFT-JOIN"
+        ],
+        [
+          128,
+          0,
+          "CORRELATED SCALAR SUBQUERY 5"
+        ],
+        [
+          133,
+          128,
+          "SEARCH watch_events USING COVERING INDEX watch_events_by_time (watched_at>? AND watched_at<?)"
+        ],
+        [
+          159,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "WITH RECURSIVE\n             size(n) AS (SELECT CASE WHEN ?5 > 0 THEN ?5 ELSE\n                 ifnull(strftime('%Y', ?1, 'unixepoch', 'localtime')\n                        - strftime('%Y', min(watched_at), 'unixepoch', 'localtime') + 1, 1)\n                 END FROM watch_events),\n             n(i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n, size WHERE i + 1 < min(size.n, 100)),\n             buckets AS MATERIALIZED (\n                 SELECT i, strftime(?2, ?1, 'unixepoch', 'localtime', ?3, '-' || i || ?4) AS key,\n                        CAST(strftime('%s', ?1, 'unixepoch', 'localtime', ?3, '-' || i || ?4, 'utc')\n                             AS INTEGER) AS first\n                 FROM n)\n             SELECT b.key,\n                    (SELECT count(*) FROM watch_events\n                     WHERE watched_at >= b.first\n                       AND watched_at < ifnull(next.first, 9223372036854775807))\n             FROM buckets AS b LEFT JOIN buckets AS next ON next.i = b.i - 1\n             ORDER BY b.i DESC"
+    },
+    {
+      "file": "src/statistics.rs",
+      "line": 358,
+      "plan": [
+        [
+          7,
+          0,
+          "SCAN t"
+        ],
+        [
+          11,
+          0,
+          "SEARCH library_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          14,
+          0,
+          "USE TEMP B-TREE FOR GROUP BY"
+        ]
+      ],
+      "sql": "SELECT t.rating, count(*) FROM media_tracking AS t\n             JOIN library_entries USING (local_media_id)\n             WHERE t.rating IS NOT NULL GROUP BY t.rating"
+    },
+    {
+      "file": "src/refresh.rs",
+      "line": 142,
+      "plan": [
+        [
+          6,
+          0,
+          "SEARCH x USING PRIMARY KEY (source=?)"
+        ],
+        [
+          10,
+          0,
+          "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          16,
+          0,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          29,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "SELECT m.local_media_id, m.media_type, x.external_id, m.details_fetched_at\n         FROM library_entries AS l JOIN media AS m ON m.local_media_id = l.local_media_id\n         JOIN external_refs AS x ON x.local_media_id = m.local_media_id\n             AND x.media_type = m.media_type AND x.source = 'tmdb'\n         ORDER BY m.details_fetched_at, m.local_media_id"
+    },
+    {
+      "file": "src/refresh.rs",
+      "line": 181,
+      "plan": [
+        [
+          7,
+          0,
+          "SEARCH x USING PRIMARY KEY (source=? AND media_type=?)"
+        ],
+        [
+          12,
+          0,
+          "SEARCH l USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          15,
+          0,
+          "SEARCH s USING INDEX sqlite_autoindex_seasons_1 (local_media_id=?)"
+        ],
+        [
+          35,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "sql": "SELECT s.local_media_id, x.external_id, s.season_number,\n                s.episodes_fetched_at, s.episodes_known, s.episode_count\n         FROM library_entries AS l JOIN seasons AS s ON s.local_media_id = l.local_media_id\n         JOIN external_refs AS x ON x.local_media_id = s.local_media_id\n             AND x.media_type = 'tv' AND x.source = 'tmdb'\n         WHERE s.episodes_fetched_at IS NOT NULL\n         ORDER BY s.episodes_fetched_at, s.local_media_id, s.season_number"
+    },
+    {
+      "file": "src/refresh.rs",
+      "line": 319,
+      "plan": [
+        [
+          1,
+          0,
+          "SCAN CONSTANT ROW"
+        ],
+        [
+          4,
+          0,
+          "SCALAR SUBQUERY 1"
+        ],
+        [
+          8,
+          4,
+          "SEARCH library_entries USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ],
+      "sql": "SELECT EXISTS (SELECT 1 FROM library_entries WHERE local_media_id = ?1)"
+    },
+    {
+      "file": "src/refresh.rs",
+      "line": 445,
+      "plan": [
+        [
+          4,
+          0,
+          "SEARCH seasons USING INDEX sqlite_autoindex_seasons_1 (local_media_id=?)"
+        ]
+      ],
+      "sql": "SELECT season_number, episode_count FROM seasons\n        WHERE local_media_id = ?1 AND episodes_fetched_at IS NOT NULL ORDER BY season_number"
+    },
+    {
+      "file": "src/release.rs",
+      "line": 36,
+      "plan": [
+        [
+          10,
+          0,
+          "SCAN r USING INDEX release_events_by_time"
+        ],
+        [
+          13,
+          0,
+          "SEARCH m USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          16,
+          0,
+          "SEARCH e USING INDEX sqlite_autoindex_episodes_1 (local_media_id=? AND season_number=? AND episode_number=?) LEFT-JOIN"
+        ]
+      ],
+      "sql": "SELECT r.event_id, r.local_media_id, m.title, r.season_number,\n                r.episode_number, e.name, r.event_type, r.discovered_at,\n                strftime('%Y-%m-%d %H:%M', r.discovered_at, 'unixepoch', 'localtime'),\n                r.air_date, r.read_at\n         FROM release_events AS r JOIN media AS m ON m.local_media_id = r.local_media_id\n         LEFT JOIN episodes AS e ON e.local_media_id = r.local_media_id\n             AND e.season_number = r.season_number AND e.episode_number = r.episode_number\n         ORDER BY r.discovered_at DESC, r.event_id DESC LIMIT ?1"
+    },
+    {
+      "file": "src/release.rs",
+      "line": 69,
+      "plan": [
+        [
+          3,
+          0,
+          "SCAN release_events"
+        ]
+      ],
+      "sql": "SELECT count(*) FROM release_events WHERE read_at IS NULL"
+    }
+  ],
+  "sqlite_version": "3.53.2"
+}

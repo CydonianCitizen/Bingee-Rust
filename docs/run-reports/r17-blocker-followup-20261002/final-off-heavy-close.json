@@ -1,0 +1,28 @@
+{
+  "name": "final-off-heavy",
+  "mode": "off",
+  "scale": "1.25",
+  "pid": 13100,
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\final-off-heavy",
+  "binary_sha256": "DD0D0513F00858D2D82FA61589E231C020233224D0C1524144678B902CCA9B6A",
+  "launched_utc": "2026-10-02T06:39:05.4222725Z",
+  "responsive_window_ms": 1433.3563,
+  "handle": 20449428,
+  "threads": 13,
+  "handles": 312,
+  "database_before": "77E0A824F3F684F07B68988D8D3DB232190FBFEC2605D04F4760ED2F82190458",
+  "exit_code": 0,
+  "process_exited": true,
+  "close_method": "Alt+F4 after Library/season/episode/Statistics/Updates",
+  "close_request_to_exit_ms": 566.1502999998629,
+  "database_after": "F4ECCC154F7618158C02579FC275D2A641FB0499B54516CDEA02F58FCC209C64",
+  "exclusive_database_and_lock_open": true,
+  "log_tail": [
+    "2026-10-02T06:41:26Z INFO Detail #999: shown from the local cache (stale)",
+    "2026-10-02T06:43:55Z INFO Detail #851: shown from the local cache (stale)",
+    "2026-10-02T06:43:56Z INFO Poster tmdb-w185-p.jpg not available: not found at TMDB (HTTP 404)",
+    "2026-10-02T06:47:26Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 2 failures, 0 evictions",
+    "2026-10-02T06:47:26Z INFO Bingee Desktop closed"
+  ],
+  "timing_repair": "Preserved original record; corrected DateTime JSON round-trip conversion that had applied the local UTC+2 offset twice."
+}

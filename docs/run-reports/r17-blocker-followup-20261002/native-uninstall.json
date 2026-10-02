@@ -1,0 +1,24 @@
+{
+  "owned_installation_removed": true,
+  "profiles_after": [
+    {
+      "hash": "F4ECCC154F7618158C02579FC275D2A641FB0499B54516CDEA02F58FCC209C64",
+      "profile": "final-installed-off-heavy"
+    },
+    {
+      "hash": "74CE70A148A240F1E74CFD7368C35A1604F5B705507F3CDD6F2746FBDCBB3CD1",
+      "profile": "final-installed-on"
+    }
+  ],
+  "profiles_before": [
+    {
+      "hash": "F4ECCC154F7618158C02579FC275D2A641FB0499B54516CDEA02F58FCC209C64",
+      "profile": "final-installed-off-heavy"
+    },
+    {
+      "hash": "74CE70A148A240F1E74CFD7368C35A1604F5B705507F3CDD6F2746FBDCBB3CD1",
+      "profile": "final-installed-on"
+    }
+  ],
+  "exit_code": 0
+}

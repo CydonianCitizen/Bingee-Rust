@@ -1,0 +1,6 @@
+{
+  "product_version": "0.1.0-rc.1",
+  "requested_execution_level": "asInvoker",
+  "installer_smoke_exit_code": 0,
+  "manifest_valid": true
+}

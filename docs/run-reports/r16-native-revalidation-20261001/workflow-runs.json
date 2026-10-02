@@ -1,0 +1,20 @@
+[
+  {
+    "id": 36785367532,
+    "path": ".github/workflows/cross-platform.yml",
+    "name": "cross-platform",
+    "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367532"
+  },
+  {
+    "id": 36785367485,
+    "path": ".github/workflows/release-artifacts.yml",
+    "name": "release artifacts",
+    "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367485"
+  }
+]

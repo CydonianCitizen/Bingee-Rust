@@ -1,0 +1,13 @@
+2026-09-30T22:24:35.8171229Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:35.9734132Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:36.7047838Z rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:38.0800632Z cargo 1.98.1 (797e8a9bc 2026-08-05)
+2026-09-30T22:32:54.2917085Z test backup::tests::pre_restore_safety_copy_keeps_previous_portable_state ... ok
+2026-09-30T22:33:23.5268314Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 31.11s
+2026-09-30T22:34:56.1835054Z test backup::tests::pre_restore_safety_copy_keeps_previous_portable_state ... ok
+2026-09-30T22:35:25.0261882Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 31.11s
+2026-09-30T22:45:25.3668201Z     Finished `release` profile [optimized] target(s) in 9m 11s
+2026-09-30T22:45:47.3634999Z Installer:   D:\a\Bingee-Rust\Bingee-Rust\dist\bingee-desktop-windows-x64-setup.exe, 10022466 bytes, SHA-256 7001223B00B92DABD3DC339C9E8860AFDC18D6C5FEE949E37A7C627B7FBB4110
+2026-09-30T22:45:47.3637467Z Source:      6e24b2a109c8fa041075adcbcf1001bc4646cd82
+2026-09-30T22:45:47.3994964Z Executable:  28853248 bytes, SHA-256 22BFA72F9C365C6E54AD1E901D7288DFF52A6D028073278D3D120CF4C40896BB
+2026-09-30T22:45:47.4514944Z ZIP:         D:\a\Bingee-Rust\Bingee-Rust\dist\bingee-desktop-windows-x64.zip, 13736161 bytes, SHA-256 0CF143C4295B6F597E89F97DECB843CA8DE88885EDCDEE317E2A13277016665B

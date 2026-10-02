@@ -1,0 +1,28 @@
+warn: could not canonicalize path C:\Users\thoma
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.97s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 2 tests
+sidebar destination=library tabs=2
+sidebar destination=library tabs=2
+sidebar destination=discover tabs=3
+sidebar destination=discover tabs=3
+sidebar destination=history tabs=3
+sidebar destination=history tabs=3
+sidebar destination=statistics tabs=24
+sidebar destination=statistics tabs=24
+sidebar destination=calendar tabs=6
+sidebar destination=calendar tabs=10
+sidebar destination=updates tabs=10
+sidebar destination=settings tabs=4
+sidebar destination=about tabs=1
+sidebar destination=home tabs=3
+test tests::sidebar_navigation_is_reachable_with_tab_and_enter ... ok
+sidebar destination=updates tabs=39
+sidebar destination=settings tabs=4
+sidebar destination=about tabs=1
+sidebar destination=home tabs=3
+test tests::sidebar_navigation_is_reachable_with_tab_and_space ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 231 filtered out; finished in 15.04s
+

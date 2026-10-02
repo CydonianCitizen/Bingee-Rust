@@ -1,54 +1,53 @@
 # Bingee Desktop release checklist
 
-Target: `0.1.0-rc.1`. Review date: 1 October 2026. GitHub main, HEAD and origin/main remain `ceb10794eccc356268b402ff9a6cadf1844848b5`; local R16 fixes await a user commit/push. Current evidence: `docs/run-reports/2026-10-01-r16-revalidation.md` and its job/step JSON. Detailed artifact and local-test evidence remains in `docs/run-reports/2026-09-30-r16-ci-closure.md` and its raw directory; R17 status remains in `docs/run-reports/2026-09-30-r17-gate-status.md`. R16 is PARTIAL; R17 is NOT STARTED. `BLOCKED` means the item has not passed; it is not an implicit waiver.
+Target: `0.1.0-rc.1`. Reviewed 2 October 2026. HEAD, local origin/main and live GitHub main: `6e24b2a109c8fa041075adcbcf1001bc4646cd82`. R16 passed for that revision. Local focus/target fixes, tests and reports remain uncommitted/unpushed. R17 is PARTIAL; R18 remains suspended. Status applies only to named source/evidence scopes.
+
+Latest R17 evidence: `docs/run-reports/2026-10-02-r17-native-blocker-followup.md`; prior scoped evidence remains in `docs/run-reports/2026-10-02-r17-release-validation.md`. Historical checkpoints are retained. Current limitations are in `docs/known-limitations.md`.
 
 | Category | Check | Status |
 | --- | --- | --- |
-| Code | R15 local correctness and data hygiene | PASS |
-| Tests | 214 Rust tests passed, 13 ignored on Windows; format and check pass | PASS |
-| Tests | Normal cross-platform build and tests for pushed `ceb1079` | BLOCKED: Windows/Linux pass; macOS path-alias test fails; local fix awaiting native CI |
-| Tests | Revised source and workflow native CI revalidation | BLOCKED: fixes cannot be committed/pushed by this session |
-| Migrations | Full fresh/v1–v5 migration chain under R17 | BLOCKED: R17 has not started |
-| Backup | R15 export safety and existing restore regression | PASS |
-| Backup | R17 early/current V1 and large fixture checks | BLOCKED: R17 has not started |
-| Packages | Windows native installer/ZIP, downloaded hashes/manifest/resources/version | PASS for exact pushed CI artifacts |
-| Runtime | Windows downloaded-artifact and local portable/installer process smoke | PASS on this host; no interactive/clean-PC/nonempty-upgrade claim |
-| Packages | macOS native `.app`, structure, resources, version and manifest | BLOCKED: test failed before bundle creation; local fix pending CI |
-| Runtime | macOS packaged launch | BLOCKED: no bundle created |
-| Packages | Linux native tarball, ELF, resources, desktop entry and archive structure | BLOCKED: tarball built and structure checks reached launch; final manifest/upload skipped after smoke failure |
-| Runtime | Linux packaged Xvfb smoke | BLOCKED: missing libxkbcommon-x11; CI prerequisite fix pending native revalidation |
-| Packages | Signing and notarization for technical RC | NOT APPLICABLE: technical gate permits unsigned artifacts |
-| Licensing | Slint/TMDB About attribution implementation | PASS |
-| Licensing | Application license and intended-use decisions; applicable agreements | BLOCKED: external decision |
-| Privacy | Final outbound-data audit | BLOCKED: R17 has not started |
-| Security | Final token, path, backup and JSON audit | BLOCKED: R17 has not started |
-| Performance | Formal release startup, idle CPU, memory, soak and page timings | BLOCKED: R17 has not started |
-| Accessibility | Final keyboard, focus, roles and names audit | BLOCKED: R17 has not started |
-| Documentation | R16 actual CI results, fixes and separate licensing matrix | PASS for documentation; R16 technical gate remains BLOCKED |
-| Documentation | R17 gate-status report | PASS: saved and rechecked; execution remains NOT STARTED because R16 gate failed |
-| Documentation | Final R17 evidence and known-limitations acceptance | BLOCKED: R17 has not started |
+| Source | R16 corrections present in pushed main; clean at validation entry | PASS |
+| CI | Windows normal build/tests/release for pushed `6e24b2a` | PASS |
+| CI | macOS normal build/tests/release; alias assertion resolved | PASS |
+| CI | Linux normal build/tests/release | PASS |
+| Packages | Windows installer/ZIP, PE/resources/version, manifest and all portable checksums | PASS |
+| Runtime | Downloaded Windows package and installer process/file smoke | PASS: this host, isolated empty profile |
+| Packages | macOS native app, Mach-O arm64, plist/resources/version/archive/manifest | PASS |
+| Runtime | macOS native process smoke required by current R16 workflow | NOT APPLICABLE: structural checks configured; launch NOT PERFORMED |
+| Packages | Linux ELF/resources/desktop entry/archive/manifest | PASS |
+| Runtime | Linux prerequisite installation and 20-second Xvfb package launch | PASS |
+| Runtime | R16 live interactive GUI validation | NOT APPLICABLE to configured gate: NOT PERFORMED; no smoothness claim |
+| Packages | Signing/notarization for technical RC testing | NOT APPLICABLE: unsigned artifacts permitted |
+| Correctness | Final local candidate: all three test configurations | PASS: 221 passed, 16 ignored each; three ordinary regressions explain 218 → 221; one added manual native fixture explains 15 → 16 ignored and separately passed |
+| Correctness | Local format/check and three Clippy configurations | PASS |
+| Correctness | Local corrected candidate release build | PASS |
+| Keyboard | Sidebar and local deeper paths | PASS within named native scopes; final affected paths retested. Discover search/result/add and Library opening passed in a native controlled-provider test window. |
+| Packages | Local revised Windows package and all 696 portable checksums | PASS: explicit uncommitted-source provenance |
+| Runtime | Local revised Windows portable smoke | PASS: isolated empty v5 profile, live contention, idle kill/restart and corrupt-file preservation |
+| Runtime | Installed R16-to-current nonempty upgrade/uninstall | PASS within recorded scope: 1,000-title v5 DB byte-identical; controlled termination, not graceful-close proof |
+| Runtime | Populated native graceful close/restart | PASS bounded native scope: six final installed repetitions, three per refresh mode; code 0, 298–481 ms, byte-identical DB, released DB/lock handles; no live credentialed refresh claim |
+| CI | Corrected candidate native workflows and new package/smoke verification | BLOCKED: user commit/push required |
+| Migrations | Fresh/v1–v5 chain, preserved state, reopen, foreign keys and rollback matrix | PASS: actual-file regressions in final three suites; failure steps 2–5 |
+| Backup | Early/current/additive V1, large fixture and semantic restart journey | PASS: compatibility regressions, three release timing processes, new complete Settings restore/offline journey |
+| Runtime | Active-refresh/export crash recovery | PASS: observed active writes before process kill; original state, integrity/FK and lock reacquisition; no power-loss claim |
+| Performance | Startup, both idle modes, pages/writes/query plans | Prior measurements retain scope; final empty/populated native usable-startup observations pass separately; no new first-paint timing benchmark |
+| Resources | Full-product release soak, private memory, cache/handles/threads and refresh stress | PASS within bounded headless scope: three 100-cycle processes; native idle sampled separately; no indefinite-leak or native interaction-footprint claim |
+| Accessibility | Native semantics, focus and scaling | PASS bounded sanity scope: useful roles/names, focus and native 125% Slint scaling checked, including controlled-provider Discover. Screen-reader behavior not directly verified; no OS monitor-DPI/full audit claim; transient disabled-add focus deviation recorded |
+| Security/privacy | Failure matrix and credential/path/backup/JSON/outbound audit | PASS within bounded source/fake-server sanity scope; no penetration-test/native permission-prompt claim |
+| Dependencies | Runtime/build/dev direct/transitive version/license inventory | PASS: unchanged lockfile, 653 all-target versions, 388 Windows packages, 325 linked crates; distribution-license choice remains external |
+| Licensing | Existing Slint/TMDB attribution implementation | PASS |
+| Distribution | Owner licensing/intended-use, signing/notarization and distribution decisions | BLOCKED: external decisions |
+| R18 | Optional stabilization/polish after R17 technical PASS | SUSPENDED: not started; close technical RC gate first |
+| Documentation | Current R16 evidence, R17/R18 blocker records and canonical limitations | PASS |
 
-## Known limitations
+**TECHNICAL RC STATUS: NOT TECHNICALLY READY FOR RC.** The pushed revision's
+R16 passes. Corrected source/tests/reports remain uncommitted/unpushed;
+exact-candidate CI/artifacts are absent. Native keyboard paths, populated
+close/restart and informal
+usable startup now pass within recorded scope. Screen-reader and actual OS
+monitor-DPI changes are not claimed.
 
-| Item | Classification |
-| --- | --- |
-| Windows artifacts unsigned | ACCEPTED FOR RC testing; public distribution decision pending |
-| macOS signing/notarization absent | ACCEPTED FOR RC technical validation; Gatekeeper limits distribution |
-| Microsoft VC++ runtime not bundled | ACCEPTED FOR RC with documented prerequisite; clean-PC smoke pending |
-| Live TMDB credential smoke unavailable | POST-RC if fake-server and error-path R17 checks pass |
-| R4 interactive measurements incomplete | ACCEPTED FOR RC as historical gap; R17 requires fresh final-product measurements |
-| Native OS notifications absent | ACCEPTED FOR RC; local Updates page is shipped scope |
-| Release events retained indefinitely | ACCEPTED FOR RC; Updates display is bounded |
-| Application license and intended-use choice | EXTERNAL DECISION; PUBLIC-RELEASE BLOCKER |
-| macOS directory-alias test failure prevents bundle; local assertion fix unpushed | RELEASE BLOCKER for technical R16 gate |
-| Linux X11 smoke failure; runtime dependency fix and final manifest unvalidated | RELEASE BLOCKER for technical R16 gate |
-| Revised local source not revalidated in native CI | RELEASE BLOCKER for technical R16 gate |
-| R17 final validation not run | RELEASE BLOCKER for technical RC |
-
-**TECHNICAL RC STATUS: NOT TECHNICALLY READY FOR RC.** Windows passes independently; macOS and
-Linux fixes require native revalidation, then R17 must execute.
-
-**PUBLIC DISTRIBUTION STATUS: PUBLIC DISTRIBUTION NOT READY.** Unresolved licensing, signing,
-notarization and distribution decisions remain separate from the technical
-gate. No commercial/non-commercial intent or distribution authorization is
-assumed. No release has been published by this continuation.
+**PUBLIC DISTRIBUTION STATUS: PUBLIC DISTRIBUTION NOT READY.** Technical
+validation remains incomplete; unresolved licensing, signing, notarization
+and distribution decisions are independently retained. No intent or public
+distribution authorization is inferred. No public release or R19 work occurred.

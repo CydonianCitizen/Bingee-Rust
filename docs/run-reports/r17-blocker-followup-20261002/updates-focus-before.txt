@@ -1,0 +1,23 @@
+warn: could not canonicalize path C:\Users\thoma
+   Compiling bingee-desktop v0.1.0-rc.1 (C:\Users\thoma\Documents\Projects\bingee-rust)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 29.50s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 1 test
+test tests::updates_list_focus_has_a_visible_indicator ... FAILED
+
+failures:
+
+---- tests::updates_list_focus_has_a_visible_indicator stdout ----
+
+thread 'tests::updates_list_focus_has_a_visible_indicator' (2896) panicked at src\main.rs:1137:9:
+Updates focus is invisible: 0 changed pixels
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::updates_list_focus_has_a_visible_indicator
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 235 filtered out; finished in 0.46s
+
+error: test failed, to rerun pass `--bin bingee-desktop`

@@ -1,0 +1,16 @@
+Source before: pushed 6e24b2a production UI plus two new test-only regressions.
+Command: cargo test --locked sidebar_navigation_is_reachable -- --nocapture
+Exit code: 1
+Failure in each case: Tab and activation never reached sidebar Home
+test tests::sidebar_navigation_is_reachable_with_tab_and_space ... FAILED
+test tests::sidebar_navigation_is_reachable_with_tab_and_enter ... FAILED
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 227 filtered out; finished in 3.02s
+
+Source after: local NavItem FocusScope, forward-focus, focus border and Enter/Space handler.
+Same focused command, exit code: 0
+test tests::sidebar_navigation_is_reachable_with_tab_and_space ... ok
+test tests::sidebar_navigation_is_reachable_with_tab_and_enter ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 227 filtered out; finished in 0.52s
+
+This is synthesized Slint input on the real offscreen AppWindow. It is not
+OS-level keyboard/screen-reader validation or interactive smoothness proof.

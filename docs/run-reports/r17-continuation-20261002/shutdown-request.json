@@ -1,0 +1,9 @@
+{
+  "requested_by_user": true,
+  "helper_pid": 8344,
+  "scheduled_at_utc": "2026-10-01T22:51:50.3216848Z",
+  "delay_seconds": 120,
+  "command": "shutdown.exe /s /t 0 /d p:0:0",
+  "force_close": false,
+  "reports_saved": true
+}

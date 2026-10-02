@@ -1,0 +1,27 @@
+{
+  "product_version": null,
+  "description": null,
+  "dirty_source_readme": [
+    "  Source commit 6e24b2a109c8fa041075adcbcf1001bc4646cd82 plus uncommitted changes"
+  ],
+  "artifacts": [
+    {
+      "filename": "bingee-desktop-windows-x64-setup.exe",
+      "size": 10024686,
+      "sha256": "90C1C794A278BBF629AD9D62E2C2AA00C98838EC715A5680BD20382D5F4C88B7"
+    },
+    {
+      "filename": "bingee-desktop-windows-x64.zip",
+      "size": 13733585,
+      "sha256": "3CFEC8AE5842BC093A6CB3AFBA0C90BDDE7D02FCAF45C7A98C56CE7263C3FAC6"
+    }
+  ],
+  "checksum_count": 696,
+  "executable_sha256": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016",
+  "pe_machine": 34404,
+  "pe_subsystem": 2,
+  "checksum_mismatches": [],
+  "readme_application_version": "Bingee Desktop 0.1.0-rc.1 - portable Windows x64 package",
+  "pe_version_scope": "PE ProductVersion/FileDescription are absent, also absent in retained interim executable. Version verified through package README and native application UI; initial helper incorrectly required an unconfigured PE string resource.",
+  "verdict": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "gate_count": 9,
+  "tracked_modified": 8,
+  "binary_sha256": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016",
+  "diff_check_exit": 0,
+  "origin_main": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+  "head": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+  "all_gates_exit_zero": true,
+  "source_inputs": 53,
+  "source_manifest_matches": true,
+  "checked_utc": "2026-10-02T07:55:15.4299928Z",
+  "binary_matches_package_and_native": true,
+  "untracked_entries": 12
+}

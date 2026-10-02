@@ -1,0 +1,282 @@
+[
+  {
+    "private_bytes": 22573056,
+    "threads": 9,
+    "cycle": 65,
+    "working_set": 42143744,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24469504,
+    "threads": 9,
+    "cycle": 66,
+    "working_set": 43466752,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 22183936,
+    "threads": 9,
+    "cycle": 67,
+    "working_set": 41779200,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24473600,
+    "threads": 9,
+    "cycle": 68,
+    "working_set": 43474944,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24473600,
+    "threads": 9,
+    "cycle": 69,
+    "working_set": 43581440,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 22609920,
+    "threads": 9,
+    "cycle": 70,
+    "working_set": 41906176,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 22528000,
+    "threads": 9,
+    "cycle": 71,
+    "working_set": 41865216,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24379392,
+    "threads": 9,
+    "cycle": 72,
+    "working_set": 43200512,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24612864,
+    "threads": 9,
+    "cycle": 73,
+    "working_set": 43466752,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24178688,
+    "threads": 9,
+    "cycle": 74,
+    "working_set": 43081728,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24059904,
+    "threads": 9,
+    "cycle": 75,
+    "working_set": 42913792,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24428544,
+    "threads": 9,
+    "cycle": 76,
+    "working_set": 43311104,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 22827008,
+    "threads": 9,
+    "cycle": 77,
+    "working_set": 42188800,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24641536,
+    "threads": 9,
+    "cycle": 78,
+    "working_set": 43524096,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 22601728,
+    "threads": 9,
+    "cycle": 79,
+    "working_set": 42024960,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 24932352,
+    "threads": 9,
+    "cycle": 80,
+    "working_set": 43446272,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 23711744,
+    "threads": 9,
+    "cycle": 81,
+    "working_set": 43180032,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 23695360,
+    "threads": 9,
+    "cycle": 82,
+    "working_set": 43155456,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25800704,
+    "threads": 9,
+    "cycle": 83,
+    "working_set": 44969984,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25804800,
+    "threads": 9,
+    "cycle": 84,
+    "working_set": 45002752,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25804800,
+    "threads": 9,
+    "cycle": 85,
+    "working_set": 45002752,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25653248,
+    "threads": 9,
+    "cycle": 86,
+    "working_set": 44834816,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25616384,
+    "threads": 9,
+    "cycle": 87,
+    "working_set": 44802048,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25219072,
+    "threads": 9,
+    "cycle": 88,
+    "working_set": 44400640,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 23646208,
+    "threads": 9,
+    "cycle": 89,
+    "working_set": 43102208,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25370624,
+    "threads": 9,
+    "cycle": 90,
+    "working_set": 44232704,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 23810048,
+    "threads": 9,
+    "cycle": 91,
+    "working_set": 43233280,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25243648,
+    "threads": 9,
+    "cycle": 92,
+    "working_set": 44425216,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 23810048,
+    "threads": 9,
+    "cycle": 93,
+    "working_set": 43237376,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25194496,
+    "threads": 9,
+    "cycle": 94,
+    "working_set": 44384256,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 23797760,
+    "threads": 9,
+    "cycle": 95,
+    "working_set": 43241472,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25239552,
+    "threads": 9,
+    "cycle": 96,
+    "working_set": 44437504,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25743360,
+    "threads": 9,
+    "cycle": 97,
+    "working_set": 44941312,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 23523328,
+    "threads": 9,
+    "cycle": 98,
+    "working_set": 42979328,
+    "pid": 13088,
+    "handles": 179
+  },
+  {
+    "private_bytes": 25772032,
+    "threads": 9,
+    "cycle": 99,
+    "working_set": 44969984,
+    "pid": 13088,
+    "handles": 179
+  }
+]

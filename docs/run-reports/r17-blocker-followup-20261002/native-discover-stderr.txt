@@ -1,0 +1,19 @@
+2026-10-02T07:44:04Z INFO Database C:\Users\thoma\Documents\Projects\bingee-rust\target\r17-blocker-followup-20261002\native-discover-fixture\data\bingee.db
+2026-10-02T07:44:04Z INFO Migrating the database from schema version 0 to 5
+2026-10-02T07:44:04Z INFO Migration to schema version 5 complete
+2026-10-02T07:44:04Z INFO Library opened: schema version 5, 0 titles
+2026-10-02T07:44:06Z INFO TMDB token read from the credential store; check: valid
+2026-10-02T07:44:06Z INFO TMDB image configuration not loaded, using the default: not found at TMDB (HTTP 404)
+2026-10-02T07:46:38Z INFO TMDB search #2 movie page 1: 1 results in 2 ms
+2026-10-02T07:46:38Z INFO TMDB search #2 tv page 1: 1 results in 2 ms
+2026-10-02T07:47:18Z INFO Library add tmdb/tv/603: added
+2026-10-02T07:47:18Z INFO Detail #1: shown from the local cache (never fetched)
+2026-10-02T07:48:04Z INFO Library add tmdb/movie/603: added
+2026-10-02T07:48:40Z INFO Detail #2: shown from the local cache (never fetched)
+2026-10-02T07:48:40Z INFO Detail tmdb/movie/603 (#2): refreshed in 4 ms
+2026-10-02T07:49:01Z INFO Detail tmdb/movie/603 (#2): refreshed in 2 ms
+2026-10-02T07:49:16Z INFO Detail #1: shown from the local cache (never fetched)
+2026-10-02T07:49:16Z INFO Detail tmdb/tv/603 (#1): refreshed in 4 ms
+2026-10-02T07:49:16Z INFO Detail tmdb/tv/603 (#1) season 1: episodes never fetched, fetching
+2026-10-02T07:49:17Z INFO Detail tmdb/tv/603 (#1) season 1: 3 episodes saved in 3 ms
+Native keyboard fixture closed; database check passed.

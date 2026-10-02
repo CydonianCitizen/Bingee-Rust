@@ -1,0 +1,12 @@
+{
+  "pid": 13528,
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\native-populated-on-scaled",
+  "mode": "populated-on",
+  "repetition": 1,
+  "scale": 1.25,
+  "database_before": "74CE70A148A240F1E74CFD7368C35A1604F5B705507F3CDD6F2746FBDCBB3CD1",
+  "window_handle": 0,
+  "responding": true,
+  "threads": 32,
+  "handles": 617
+}

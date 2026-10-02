@@ -1,0 +1,50 @@
+[
+  {
+    "record": "final-installed-off-heavy-first-close",
+    "exit": 0,
+    "ms": 368.0,
+    "db_preserved": true,
+    "handles_released": true,
+    "binary": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016"
+  },
+  {
+    "record": "final-installed-off-heavy-second-close",
+    "exit": 0,
+    "ms": 343.0,
+    "db_preserved": true,
+    "handles_released": true,
+    "binary": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016"
+  },
+  {
+    "record": "final-installed-off-heavy-close",
+    "exit": 0,
+    "ms": 481.0,
+    "db_preserved": true,
+    "handles_released": true,
+    "binary": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016"
+  },
+  {
+    "record": "final-installed-on-first-close",
+    "exit": 0,
+    "ms": 389.0,
+    "db_preserved": true,
+    "handles_released": true,
+    "binary": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016"
+  },
+  {
+    "record": "final-installed-on-second-close",
+    "exit": 0,
+    "ms": 352.0,
+    "db_preserved": true,
+    "handles_released": true,
+    "binary": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016"
+  },
+  {
+    "record": "final-installed-on-close",
+    "exit": 0,
+    "ms": 298.0,
+    "db_preserved": true,
+    "handles_released": true,
+    "binary": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016"
+  }
+]

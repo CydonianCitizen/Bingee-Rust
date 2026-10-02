@@ -1,0 +1,92 @@
+[
+  {
+    "test": "detail::tests::informal_tracking_ui_timings",
+    "run": 1,
+    "exit_code": 0
+  },
+  {
+    "test": "detail::tests::informal_tracking_ui_timings",
+    "run": 2,
+    "exit_code": 0
+  },
+  {
+    "test": "detail::tests::informal_tracking_ui_timings",
+    "run": 3,
+    "exit_code": 0
+  },
+  {
+    "test": "home::tests::informal_large_home_and_calendar_timings",
+    "run": 1,
+    "exit_code": 0
+  },
+  {
+    "test": "home::tests::informal_large_home_and_calendar_timings",
+    "run": 2,
+    "exit_code": 0
+  },
+  {
+    "test": "home::tests::informal_large_home_and_calendar_timings",
+    "run": 3,
+    "exit_code": 0
+  },
+  {
+    "test": "backup::tests::informal_large_backup_timings",
+    "run": 1,
+    "exit_code": 0
+  },
+  {
+    "test": "backup::tests::informal_large_backup_timings",
+    "run": 2,
+    "exit_code": 0
+  },
+  {
+    "test": "backup::tests::informal_large_backup_timings",
+    "run": 3,
+    "exit_code": 0
+  },
+  {
+    "test": "statistics_page::tests::informal_statistics_page_timings",
+    "run": 1,
+    "exit_code": 0
+  },
+  {
+    "test": "statistics_page::tests::informal_statistics_page_timings",
+    "run": 2,
+    "exit_code": 0
+  },
+  {
+    "test": "statistics_page::tests::informal_statistics_page_timings",
+    "run": 3,
+    "exit_code": 0
+  },
+  {
+    "test": "library::tests::informal_library_timings",
+    "run": 1,
+    "exit_code": 0
+  },
+  {
+    "test": "library::tests::informal_library_timings",
+    "run": 2,
+    "exit_code": 0
+  },
+  {
+    "test": "library::tests::informal_library_timings",
+    "run": 3,
+    "exit_code": 0
+  },
+  {
+    "test": "metadata::tests::informal_detail_timings",
+    "run": 1,
+    "exit_code": 0
+  },
+  {
+    "test": "metadata::tests::informal_detail_timings",
+    "run": 2,
+    "exit_code": 0
+  },
+  {
+    "test": "metadata::tests::informal_detail_timings",
+    "run": 3,
+    "exit_code": 0
+  }
+]

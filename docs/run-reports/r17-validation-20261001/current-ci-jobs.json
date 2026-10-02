@@ -1,0 +1,876 @@
+[
+  {
+    "run": 36785367532,
+    "jobs": [
+      {
+        "id": 110125376636,
+        "run_id": 36785367532,
+        "workflow_name": "cross-platform",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/runs/36785367532",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOUWhW9M8AAAAZo_vkfA",
+        "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/jobs/110125376636",
+        "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367532/job/110125376636",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-30T22:24:17Z",
+        "started_at": "2026-09-30T22:24:26Z",
+        "completed_at": "2026-09-30T22:41:00Z",
+        "name": "macos-latest",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-30T22:24:27Z",
+            "completed_at": "2026-09-30T22:24:28Z"
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-30T22:24:28Z",
+            "completed_at": "2026-09-30T22:24:30Z"
+          },
+          {
+            "name": "Rust stable with rustfmt and clippy",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-30T22:24:30Z",
+            "completed_at": "2026-09-30T22:24:31Z"
+          },
+          {
+            "name": "Linux build prerequisites",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 4,
+            "started_at": "2026-09-30T22:24:31Z",
+            "completed_at": "2026-09-30T22:24:31Z"
+          },
+          {
+            "name": "Run cargo fmt --check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-30T22:24:31Z",
+            "completed_at": "2026-09-30T22:24:31Z"
+          },
+          {
+            "name": "Run cargo check --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-30T22:24:31Z",
+            "completed_at": "2026-09-30T22:27:46Z"
+          },
+          {
+            "name": "Run cargo test --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-30T22:27:46Z",
+            "completed_at": "2026-09-30T22:31:54Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets --all-features -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-30T22:31:54Z",
+            "completed_at": "2026-09-30T22:32:31Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-09-30T22:32:31Z",
+            "completed_at": "2026-09-30T22:33:07Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-09-30T22:33:07Z",
+            "completed_at": "2026-09-30T22:33:45Z"
+          },
+          {
+            "name": "Run cargo build --release --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-09-30T22:33:45Z",
+            "completed_at": "2026-09-30T22:40:56Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-09-30T22:40:56Z",
+            "completed_at": "2026-09-30T22:40:57Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-09-30T22:40:57Z",
+            "completed_at": "2026-09-30T22:40:57Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/check-runs/110125376636",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000000092,
+        "runner_name": "GitHub Actions 1000000092",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 110125376692,
+        "run_id": 36785367532,
+        "workflow_name": "cross-platform",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/runs/36785367532",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOUWhW9M8AAAAZo_vktA",
+        "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/jobs/110125376692",
+        "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367532/job/110125376692",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-30T22:24:17Z",
+        "started_at": "2026-09-30T22:24:20Z",
+        "completed_at": "2026-09-30T22:42:07Z",
+        "name": "windows-latest",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-30T22:24:21Z",
+            "completed_at": "2026-09-30T22:24:22Z"
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-30T22:24:22Z",
+            "completed_at": "2026-09-30T22:24:33Z"
+          },
+          {
+            "name": "Rust stable with rustfmt and clippy",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-30T22:24:33Z",
+            "completed_at": "2026-09-30T22:24:41Z"
+          },
+          {
+            "name": "Linux build prerequisites",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 4,
+            "started_at": "2026-09-30T22:24:41Z",
+            "completed_at": "2026-09-30T22:24:41Z"
+          },
+          {
+            "name": "Run cargo fmt --check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-30T22:24:41Z",
+            "completed_at": "2026-09-30T22:24:50Z"
+          },
+          {
+            "name": "Run cargo check --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-30T22:24:50Z",
+            "completed_at": "2026-09-30T22:28:41Z"
+          },
+          {
+            "name": "Run cargo test --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-30T22:28:41Z",
+            "completed_at": "2026-09-30T22:32:42Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets --all-features -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-30T22:32:42Z",
+            "completed_at": "2026-09-30T22:33:18Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-09-30T22:33:18Z",
+            "completed_at": "2026-09-30T22:33:50Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-09-30T22:33:50Z",
+            "completed_at": "2026-09-30T22:34:28Z"
+          },
+          {
+            "name": "Run cargo build --release --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-09-30T22:34:28Z",
+            "completed_at": "2026-09-30T22:42:03Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-09-30T22:42:03Z",
+            "completed_at": "2026-09-30T22:42:05Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-09-30T22:42:05Z",
+            "completed_at": "2026-09-30T22:42:06Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/check-runs/110125376692",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000000093,
+        "runner_name": "GitHub Actions 1000000093",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 110125376800,
+        "run_id": 36785367532,
+        "workflow_name": "cross-platform",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/runs/36785367532",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOUWhW9M8AAAAZo_vlIA",
+        "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/jobs/110125376800",
+        "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367532/job/110125376800",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-30T22:24:17Z",
+        "started_at": "2026-09-30T22:24:19Z",
+        "completed_at": "2026-09-30T22:33:21Z",
+        "name": "ubuntu-latest",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-30T22:24:20Z",
+            "completed_at": "2026-09-30T22:24:20Z"
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-30T22:24:20Z",
+            "completed_at": "2026-09-30T22:24:22Z"
+          },
+          {
+            "name": "Rust stable with rustfmt and clippy",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-30T22:24:22Z",
+            "completed_at": "2026-09-30T22:24:24Z"
+          },
+          {
+            "name": "Linux build prerequisites",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-30T22:24:24Z",
+            "completed_at": "2026-09-30T22:24:34Z"
+          },
+          {
+            "name": "Run cargo fmt --check",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-30T22:24:34Z",
+            "completed_at": "2026-09-30T22:24:35Z"
+          },
+          {
+            "name": "Run cargo check --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-30T22:24:35Z",
+            "completed_at": "2026-09-30T22:26:01Z"
+          },
+          {
+            "name": "Run cargo test --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-30T22:26:01Z",
+            "completed_at": "2026-09-30T22:28:08Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets --all-features -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-30T22:28:08Z",
+            "completed_at": "2026-09-30T22:28:23Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-09-30T22:28:23Z",
+            "completed_at": "2026-09-30T22:28:38Z"
+          },
+          {
+            "name": "Run cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-09-30T22:28:38Z",
+            "completed_at": "2026-09-30T22:28:54Z"
+          },
+          {
+            "name": "Run cargo build --release --locked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-09-30T22:28:54Z",
+            "completed_at": "2026-09-30T22:33:18Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-09-30T22:33:18Z",
+            "completed_at": "2026-09-30T22:33:19Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-09-30T22:33:19Z",
+            "completed_at": "2026-09-30T22:33:19Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/check-runs/110125376800",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000000090,
+        "runner_name": "GitHub Actions 1000000090",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  },
+  {
+    "run": 36785367485,
+    "jobs": [
+      {
+        "id": 110125376464,
+        "run_id": 36785367485,
+        "workflow_name": "release artifacts",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/runs/36785367485",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOUWhW9M8AAAAZo_vj0A",
+        "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/jobs/110125376464",
+        "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367485/job/110125376464",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-30T22:24:17Z",
+        "started_at": "2026-09-30T22:24:28Z",
+        "completed_at": "2026-09-30T22:39:05Z",
+        "name": "package (macos-latest)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-30T22:24:28Z",
+            "completed_at": "2026-09-30T22:24:29Z"
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-30T22:24:29Z",
+            "completed_at": "2026-09-30T22:24:32Z"
+          },
+          {
+            "name": "Toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-30T22:24:32Z",
+            "completed_at": "2026-09-30T22:24:34Z"
+          },
+          {
+            "name": "Linux build prerequisites",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 4,
+            "started_at": "2026-09-30T22:24:34Z",
+            "completed_at": "2026-09-30T22:24:34Z"
+          },
+          {
+            "name": "Normal build and tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-30T22:24:34Z",
+            "completed_at": "2026-09-30T22:33:10Z"
+          },
+          {
+            "name": "Windows installer compiler",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-09-30T22:33:10Z",
+            "completed_at": "2026-09-30T22:33:10Z"
+          },
+          {
+            "name": "Windows package",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7,
+            "started_at": "2026-09-30T22:33:10Z",
+            "completed_at": "2026-09-30T22:33:10Z"
+          },
+          {
+            "name": "macOS bundle",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-09-30T22:33:10Z",
+            "completed_at": "2026-09-30T22:38:53Z"
+          },
+          {
+            "name": "Linux tarball",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-09-30T22:38:53Z",
+            "completed_at": "2026-09-30T22:38:53Z"
+          },
+          {
+            "name": "Windows package structure",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-09-30T22:38:53Z",
+            "completed_at": "2026-09-30T22:38:53Z"
+          },
+          {
+            "name": "macOS bundle structure",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-09-30T22:38:53Z",
+            "completed_at": "2026-09-30T22:38:57Z"
+          },
+          {
+            "name": "Linux package structure and headless smoke",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12,
+            "started_at": "2026-09-30T22:38:57Z",
+            "completed_at": "2026-09-30T22:38:57Z"
+          },
+          {
+            "name": "Artifact manifest",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-30T22:38:57Z",
+            "completed_at": "2026-09-30T22:38:58Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-30T22:38:58Z",
+            "completed_at": "2026-09-30T22:38:59Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28,
+            "started_at": "2026-09-30T22:38:59Z",
+            "completed_at": "2026-09-30T22:39:00Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29,
+            "started_at": "2026-09-30T22:39:00Z",
+            "completed_at": "2026-09-30T22:39:03Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/check-runs/110125376464",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000000089,
+        "runner_name": "GitHub Actions 1000000089",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 110125376633,
+        "run_id": 36785367485,
+        "workflow_name": "release artifacts",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/runs/36785367485",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOUWhW9M8AAAAZo_vkeQ",
+        "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/jobs/110125376633",
+        "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367485/job/110125376633",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-30T22:24:17Z",
+        "started_at": "2026-09-30T22:24:19Z",
+        "completed_at": "2026-09-30T22:45:56Z",
+        "name": "package (windows-latest)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-30T22:24:21Z",
+            "completed_at": "2026-09-30T22:24:22Z"
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-30T22:24:22Z",
+            "completed_at": "2026-09-30T22:24:30Z"
+          },
+          {
+            "name": "Toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-30T22:24:30Z",
+            "completed_at": "2026-09-30T22:24:38Z"
+          },
+          {
+            "name": "Linux build prerequisites",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 4,
+            "started_at": "2026-09-30T22:24:38Z",
+            "completed_at": "2026-09-30T22:24:38Z"
+          },
+          {
+            "name": "Normal build and tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-30T22:24:38Z",
+            "completed_at": "2026-09-30T22:36:07Z"
+          },
+          {
+            "name": "Windows installer compiler",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-09-30T22:36:07Z",
+            "completed_at": "2026-09-30T22:36:13Z"
+          },
+          {
+            "name": "Windows package",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-09-30T22:36:13Z",
+            "completed_at": "2026-09-30T22:45:47Z"
+          },
+          {
+            "name": "macOS bundle",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8,
+            "started_at": "2026-09-30T22:45:47Z",
+            "completed_at": "2026-09-30T22:45:47Z"
+          },
+          {
+            "name": "Linux tarball",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-09-30T22:45:47Z",
+            "completed_at": "2026-09-30T22:45:47Z"
+          },
+          {
+            "name": "Windows package structure",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-09-30T22:45:47Z",
+            "completed_at": "2026-09-30T22:45:47Z"
+          },
+          {
+            "name": "macOS bundle structure",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11,
+            "started_at": "2026-09-30T22:45:47Z",
+            "completed_at": "2026-09-30T22:45:47Z"
+          },
+          {
+            "name": "Linux package structure and headless smoke",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12,
+            "started_at": "2026-09-30T22:45:47Z",
+            "completed_at": "2026-09-30T22:45:47Z"
+          },
+          {
+            "name": "Artifact manifest",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-30T22:45:47Z",
+            "completed_at": "2026-09-30T22:45:48Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-30T22:45:48Z",
+            "completed_at": "2026-09-30T22:45:52Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28,
+            "started_at": "2026-09-30T22:45:52Z",
+            "completed_at": "2026-09-30T22:45:54Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29,
+            "started_at": "2026-09-30T22:45:54Z",
+            "completed_at": "2026-09-30T22:45:55Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/check-runs/110125376633",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000000088,
+        "runner_name": "GitHub Actions 1000000088",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 110125376791,
+        "run_id": 36785367485,
+        "workflow_name": "release artifacts",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/runs/36785367485",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOUWhW9M8AAAAZo_vlFw",
+        "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/jobs/110125376791",
+        "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367485/job/110125376791",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-09-30T22:24:17Z",
+        "started_at": "2026-09-30T22:24:19Z",
+        "completed_at": "2026-09-30T22:39:01Z",
+        "name": "package (ubuntu-latest)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-09-30T22:24:20Z",
+            "completed_at": "2026-09-30T22:24:21Z"
+          },
+          {
+            "name": "Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-09-30T22:24:21Z",
+            "completed_at": "2026-09-30T22:24:22Z"
+          },
+          {
+            "name": "Toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-09-30T22:24:22Z",
+            "completed_at": "2026-09-30T22:24:23Z"
+          },
+          {
+            "name": "Linux build prerequisites",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-09-30T22:24:23Z",
+            "completed_at": "2026-09-30T22:24:33Z"
+          },
+          {
+            "name": "Normal build and tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-09-30T22:24:33Z",
+            "completed_at": "2026-09-30T22:31:39Z"
+          },
+          {
+            "name": "Windows installer compiler",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-09-30T22:31:39Z",
+            "completed_at": "2026-09-30T22:31:39Z"
+          },
+          {
+            "name": "Windows package",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7,
+            "started_at": "2026-09-30T22:31:39Z",
+            "completed_at": "2026-09-30T22:31:39Z"
+          },
+          {
+            "name": "macOS bundle",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8,
+            "started_at": "2026-09-30T22:31:39Z",
+            "completed_at": "2026-09-30T22:31:39Z"
+          },
+          {
+            "name": "Linux tarball",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-09-30T22:31:39Z",
+            "completed_at": "2026-09-30T22:38:35Z"
+          },
+          {
+            "name": "Windows package structure",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-09-30T22:38:35Z",
+            "completed_at": "2026-09-30T22:38:35Z"
+          },
+          {
+            "name": "macOS bundle structure",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11,
+            "started_at": "2026-09-30T22:38:35Z",
+            "completed_at": "2026-09-30T22:38:35Z"
+          },
+          {
+            "name": "Linux package structure and headless smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-09-30T22:38:35Z",
+            "completed_at": "2026-09-30T22:38:56Z"
+          },
+          {
+            "name": "Artifact manifest",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-09-30T22:38:56Z",
+            "completed_at": "2026-09-30T22:38:56Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-09-30T22:38:56Z",
+            "completed_at": "2026-09-30T22:38:58Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28,
+            "started_at": "2026-09-30T22:38:58Z",
+            "completed_at": "2026-09-30T22:38:58Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29,
+            "started_at": "2026-09-30T22:38:58Z",
+            "completed_at": "2026-09-30T22:38:58Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/check-runs/110125376791",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000000091,
+        "runner_name": "GitHub Actions 1000000091",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "source": "6e24b2a109c8fa041075adcbcf1001bc4646cd82 plus uncommitted changes",
+  "version": "0.1.0-rc.1",
+  "build_exit_code": 0,
+  "package_exit_code": 0,
+  "files": [
+    {
+      "name": "bingee-desktop.exe",
+      "bytes": 28834816,
+      "sha256": "3C944A39B0C004984790D6C91110B2A22DEE4CAB9DFFA4067B0FA2042A1B7DB5"
+    },
+    {
+      "name": "bingee-desktop-windows-x64.zip",
+      "bytes": 13729312,
+      "sha256": "245767B301623D2DE337301A5C37825414B6EA3EE401BF50C99B5371595D0D49"
+    },
+    {
+      "name": "bingee-desktop-windows-x64-setup.exe",
+      "bytes": 10021735,
+      "sha256": "71F9DF04DB165A90FDA7E0C12617BA2019F3800C3FF4378128C12CCB1A39B03E"
+    }
+  ]
+}

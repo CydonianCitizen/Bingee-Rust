@@ -1,0 +1,1 @@
+Owned non-targetable sandbox launch stopped; not graceful-close evidence.

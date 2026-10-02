@@ -1,0 +1,13 @@
+
+running 1 test
+read movie detail                            median 0.160 ms (200 runs)
+read series detail, 60 seasons               median 0.262 ms (200 runs)
+read one season, 250 episodes                median 0.300 ms (200 runs)
+two season switches (read 2 seasons)         median 0.587 ms (200 runs)
+save movie detail (commit)                   median 4.856 ms (50 runs)
+save series detail, 60 seasons (commit)      median 5.868 ms (50 runs)
+save 250 episodes, unchanged (commit)        median 16.088 ms (50 runs)
+test metadata::tests::informal_detail_timings ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 231 filtered out; finished in 2.23s
+

@@ -1,0 +1,71 @@
+[
+  {
+    "command": "cargo fmt --check",
+    "exit_code": 0,
+    "elapsed_ms": 547,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-0.txt",
+    "test_results": []
+  },
+  {
+    "command": "cargo check --locked",
+    "exit_code": 0,
+    "elapsed_ms": 24332,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-1.txt",
+    "test_results": []
+  },
+  {
+    "command": "cargo test --locked",
+    "exit_code": 0,
+    "elapsed_ms": 58538,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-2.txt",
+    "test_results": [
+      "test result: ok. 217 passed; 0 failed; 15 ignored; 0 measured; 0 filtered out; finished in 27.07s"
+    ]
+  },
+  {
+    "command": "cargo test --all-features --locked",
+    "exit_code": 0,
+    "elapsed_ms": 141326,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-3.txt",
+    "test_results": [
+      "test result: ok. 217 passed; 0 failed; 15 ignored; 0 measured; 0 filtered out; finished in 32.69s"
+    ]
+  },
+  {
+    "command": "cargo test --features benchmark-fixture --locked",
+    "exit_code": 0,
+    "elapsed_ms": 84408,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-4.txt",
+    "test_results": [
+      "test result: ok. 217 passed; 0 failed; 15 ignored; 0 measured; 0 filtered out; finished in 25.50s"
+    ]
+  },
+  {
+    "command": "cargo clippy --all-targets --all-features -- -D warnings",
+    "exit_code": 0,
+    "elapsed_ms": 30001,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-5.txt",
+    "test_results": []
+  },
+  {
+    "command": "cargo clippy --all-targets -- -D warnings",
+    "exit_code": 0,
+    "elapsed_ms": 26296,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-6.txt",
+    "test_results": []
+  },
+  {
+    "command": "cargo clippy --all-targets --features benchmark-fixture -- -D warnings",
+    "exit_code": 0,
+    "elapsed_ms": 27573,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-7.txt",
+    "test_results": []
+  },
+  {
+    "command": "cargo build --release --locked",
+    "exit_code": 0,
+    "elapsed_ms": 127566,
+    "log": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\docs\\run-reports\\r17-validation-20261001\\gate-8.txt",
+    "test_results": []
+  }
+]

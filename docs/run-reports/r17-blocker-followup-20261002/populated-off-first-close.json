@@ -1,0 +1,10 @@
+{
+  "pid": 9632,
+  "process_alive": false,
+  "database_after": "EAD2806EFF781F2E551690E8FE8F78E8F039BE8CE4D724AA09FDDDAB2CA31670",
+  "log_tail": [
+    "2026-10-02T06:05:40Z INFO Poster tmdb-w185-s.jpg not available: not found at TMDB (HTTP 404)",
+    "2026-10-02T06:06:09Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 1 failures, 0 evictions",
+    "2026-10-02T06:06:09Z INFO Bingee Desktop closed"
+  ]
+}

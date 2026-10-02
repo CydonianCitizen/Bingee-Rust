@@ -1,0 +1,10 @@
+
+running 1 test
+toggle episode (rapid, 100 clicks)             median 8.473 ms, max 16.551 ms (100 runs)
+mark 250-episode season watched                median 18.626 ms, max 21.018 ms (20 runs)
+movie watched toggle                           median 7.257 ms, max 9.652 ms (50 runs)
+rating change                                  median 7.103 ms, max 7.967 ms (50 runs)
+test detail::tests::informal_tracking_ui_timings ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 231 filtered out; finished in 7.44s
+

@@ -1,0 +1,8 @@
+{
+  "name": "interim-on-idle-2",
+  "paint_observed_utc": "2026-10-02T07:02:20.606Z",
+  "focus_observed_utc": "2026-10-02T07:02:34.991Z",
+  "focus": "9 button Home",
+  "paint_observed_upper_bound_ms": 21688,
+  "keyboard_observed_upper_bound_ms": 36073
+}

@@ -1,0 +1,19 @@
+warn: could not canonicalize path C:\Users\thoma
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.27s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 1 test
+2026-10-01T22:29:50Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T22:29:50Z INFO Migration to schema version 5 complete
+2026-10-01T22:29:51Z INFO Detail #2: shown from the local cache (never fetched)
+2026-10-01T22:29:51Z INFO Detail tmdb/tv/1399 (#2): refreshed in 4 ms
+2026-10-01T22:29:51Z INFO Detail tmdb/tv/1399 (#2) season 1: episodes never fetched, fetching
+2026-10-01T22:29:51Z INFO Poster tmdb-w185-show.jpg not available: not found at TMDB (HTTP 404)
+2026-10-01T22:29:51Z INFO Detail tmdb/tv/1399 (#2) season 1: 3 episodes saved in 704 ms
+2026-10-01T22:29:52Z INFO Detail #2: shown from the local cache (fresh, no request)
+2026-10-01T22:29:52Z INFO Detail tmdb/tv/1399 (#2) season 2: episodes never fetched, fetching
+2026-10-01T22:29:52Z INFO Detail tmdb/tv/1399 (#2) season 2: 12 episodes saved in 2 ms
+test detail::tests::the_library_selection_drives_the_pane_and_it_is_keyboard_usable ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 232 filtered out; finished in 1.93s
+

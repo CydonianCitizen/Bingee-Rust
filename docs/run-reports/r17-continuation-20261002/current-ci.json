@@ -1,0 +1,649 @@
+{
+  "remote_main": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+  "corrected_fix_pushed": false,
+  "runs": [
+    {
+      "id": 36785367532,
+      "path": ".github/workflows/cross-platform.yml",
+      "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367532"
+    },
+    {
+      "id": 36785367485,
+      "path": ".github/workflows/release-artifacts.yml",
+      "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36785367485"
+    },
+    {
+      "id": 36678282283,
+      "path": ".github/workflows/release-artifacts.yml",
+      "head_sha": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36678282283"
+    },
+    {
+      "id": 36678282320,
+      "path": ".github/workflows/cross-platform.yml",
+      "head_sha": "ceb10794eccc356268b402ff9a6cadf1844848b5",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36678282320"
+    },
+    {
+      "id": 36534815562,
+      "path": ".github/workflows/cross-platform.yml",
+      "head_sha": "0c84fe2c33b5bd4f45d558a3e79e11caad6b19e0",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36534815562"
+    },
+    {
+      "id": 36488234870,
+      "path": ".github/workflows/cross-platform.yml",
+      "head_sha": "25cfaa4816d06971169c2e7a0737e5f44ba76865",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/36488234870"
+    }
+  ],
+  "jobs": [
+    {
+      "run_id": 36785367532,
+      "jobs": [
+        {
+          "id": 110125376636,
+          "name": "macos-latest",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36785367532,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Rust stable with rustfmt and clippy",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Linux build prerequisites",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 4
+            },
+            {
+              "name": "Run cargo fmt --check",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run cargo check --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run cargo test --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets --all-features -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run cargo build --release --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 110125376692,
+          "name": "windows-latest",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36785367532,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Rust stable with rustfmt and clippy",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Linux build prerequisites",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 4
+            },
+            {
+              "name": "Run cargo fmt --check",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run cargo check --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run cargo test --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets --all-features -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run cargo build --release --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        },
+        {
+          "id": 110125376800,
+          "name": "ubuntu-latest",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36785367532,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Rust stable with rustfmt and clippy",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Linux build prerequisites",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Run cargo fmt --check",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Run cargo check --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Run cargo test --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets --all-features -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Run cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Run cargo build --release --locked",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 22
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 23
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 36785367485,
+      "jobs": [
+        {
+          "id": 110125376464,
+          "name": "package (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36785367485,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Linux build prerequisites",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 4
+            },
+            {
+              "name": "Normal build and tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Windows installer compiler",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Windows package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "macOS bundle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Linux tarball",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Windows package structure",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "macOS bundle structure",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            },
+            {
+              "name": "Linux package structure and headless smoke",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Artifact manifest",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            }
+          ]
+        },
+        {
+          "id": 110125376633,
+          "name": "package (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36785367485,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Linux build prerequisites",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 4
+            },
+            {
+              "name": "Normal build and tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Windows installer compiler",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Windows package",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "macOS bundle",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Linux tarball",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 9
+            },
+            {
+              "name": "Windows package structure",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "macOS bundle structure",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Linux package structure and headless smoke",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12
+            },
+            {
+              "name": "Artifact manifest",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            }
+          ]
+        },
+        {
+          "id": 110125376791,
+          "name": "package (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 36785367485,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Toolchain",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Linux build prerequisites",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Normal build and tests",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Windows installer compiler",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 6
+            },
+            {
+              "name": "Windows package",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 7
+            },
+            {
+              "name": "macOS bundle",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 8
+            },
+            {
+              "name": "Linux tarball",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Windows package structure",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 10
+            },
+            {
+              "name": "macOS bundle structure",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 11
+            },
+            {
+              "name": "Linux package structure and headless smoke",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 12
+            },
+            {
+              "name": "Artifact manifest",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 13
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Run actions/checkout@v5",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "Live GitHub read; jobs certify pushed base only. Local sidebar fix, tests and reports are not pushed."
+}

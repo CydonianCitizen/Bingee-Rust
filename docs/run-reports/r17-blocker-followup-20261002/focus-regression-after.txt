@@ -1,0 +1,10 @@
+warn: could not canonicalize path C:\Users\thoma
+   Compiling bingee-desktop v0.1.0-rc.1 (C:\Users\thoma\Documents\Projects\bingee-rust)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 07s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 1 test
+test tests::episode_list_focus_is_visible_before_a_row_is_selected ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 233 filtered out; finished in 0.55s
+

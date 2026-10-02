@@ -365,23 +365,21 @@ PASS locally / cross-platform CI pending (16 September 2026). See
 | R13 — Portable backup and restore | PASS locally | `docs/milestones/R13.md`, `docs/backup-v1.md`; typed JSON V1 and transactional replace. |
 | R14 — In-app refresh and Updates | PASS locally | `docs/milestones/R14.md`; schema v5 for preference and release events. |
 
-R12–R16 are pushed in `ceb1079`. Its normal CI passes on Windows and Linux;
-macOS fails a backup safety-copy test's directory-alias assertion. The local
-fix awaits a user commit/push and native revalidation. See
-`docs/run-reports/2026-09-30-r16-ci-closure.md`.
-
-Rechecked on 1 October 2026: GitHub `main` is still `ceb1079`; both fixes
-and related reports remain local. R16 is PARTIAL and R17 is NOT STARTED.
-See `docs/run-reports/2026-10-01-r16-revalidation.md` for source identity and
-the independently retrieved platform job results.
+R12–R16 and the two R16 corrections are pushed through `6e24b2a`.
+Normal CI and native packaging now pass independently on Windows, macOS
+and Linux. Downloaded artifacts passed manifest, size/hash, resources,
+architecture and version checks. Windows process/installer smoke and Linux
+Xvfb smoke passed; macOS verification was structural, with native launch
+explicitly unperformed. See `docs/run-reports/2026-10-01-r16-native-revalidation.md`.
 
 ## Hardening and release milestones R15–R17
 
 | Milestone | Result | Record |
 | --- | --- | --- |
 | R15 — Hardening and data hygiene | PASS for local exit gate; broader crash/UI coverage partial | `docs/milestones/R15.md`, ADR-0028 |
-| R16 — Distribution and installers | BLOCKED; local fixes ready | Windows native CI artifacts and smoke verified; macOS test failure and Linux runtime prerequisite need CI revalidation. `docs/run-reports/2026-09-30-r16-ci-closure.md` |
-| R17 — Final performance and release candidate | NOT STARTED; R16 gate unmet | `docs/run-reports/2026-09-30-r17-gate-status.md`; no RC freeze or final measurements claimed |
+| R16 — Distribution and installers | PASS for pushed `6e24b2a` | `docs/run-reports/2026-10-01-r16-native-revalidation.md`; licensing/signing/distribution remain separate |
+| R17 — Final performance and release candidate | PARTIAL; NOT TECHNICALLY READY FOR RC | `docs/run-reports/2026-10-02-r17-native-blocker-followup.md`; final 221/16 gates, Windows package, native keyboard/usable startup and six installed closes pass within recorded scopes; corrected-source CI/artifacts remain blocked by uncommitted/unpushed source |
+| R18 — RC stabilization | SUSPENDED; not started | Optional stabilization/polish after R17 technical PASS; historical checkpoint `docs/run-reports/2026-10-01-r18-rc-stabilization.md` |
 
 The application version is `0.1.0-rc.1` in Cargo metadata, but the release
 candidate is not approved. The current run report under `docs/run-reports/`
@@ -396,5 +394,8 @@ SQLite and page timings, UI-thread responsiveness, refresh stress,
 keyboard/accessibility, package/upgrade regression, security/privacy sanity,
 and the consolidated release checklist. Measure before optimizing; fix proven
 defects. A headless application exercise establishes deterministic behavior
-and callback timing, not real interactive smoothness. No R18 or release
-publication is authorized by this continuation.
+and callback timing, not real interactive smoothness. The subsequent user
+request suspends R18 in this run; after technical blockers close, mark it as
+the next optional stabilization/polish phase and stop. No
+release publication or R19 is authorized. `docs/known-limitations.md` is the
+canonical current limitations list; historical reports remain unchanged.

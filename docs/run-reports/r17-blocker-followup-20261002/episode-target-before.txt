@@ -1,0 +1,26 @@
+warn: could not canonicalize path C:\Users\thoma
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.43s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 1 test
+test tests::opening_an_episode_target_loads_its_title_before_selecting_the_season ... FAILED
+
+failures:
+
+---- tests::opening_an_episode_target_loads_its_title_before_selecting_the_season stdout ----
+2026-10-02T06:47:36Z INFO Migrating the database from schema version 0 to 5
+2026-10-02T06:47:36Z INFO Migration to schema version 5 complete
+
+thread 'tests::opening_an_episode_target_loads_its_title_before_selecting_the_season' (4676) panicked at src\main.rs:1193:9:
+assertion `left == right` failed
+  left: "Season 1"
+ right: "Specials"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::opening_an_episode_target_loads_its_title_before_selecting_the_season
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 235 filtered out; finished in 0.74s
+
+error: test failed, to rerun pass `--bin bingee-desktop`

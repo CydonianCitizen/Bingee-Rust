@@ -1,0 +1,13 @@
+
+running 1 test
+add (one transaction each, in memory): median 0.037 ms
+all, recently added    1000 rows: median 1.467 ms
+all, title             1000 rows: median 1.799 ms
+TV only, title          334 rows: median 0.593 ms
+search harbor            25 rows: median 0.585 ms
+search NÖRDLICHE         39 rows: median 0.609 ms
+membership of 40 results: median 0.074 ms
+test library::tests::informal_library_timings ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 231 filtered out; finished in 0.32s
+

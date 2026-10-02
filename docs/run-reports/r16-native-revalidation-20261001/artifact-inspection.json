@@ -1,0 +1,98 @@
+[
+  {
+    "artifact_id": 11130295953,
+    "platform": "bingee-macOS-ARM64",
+    "outer_digest_matches": true,
+    "manifest_verified": true,
+    "packages": [
+      {
+        "platform": "macOS",
+        "artifact_filename": "bingee-desktop-macos-arm64.tar.gz",
+        "artifact_type": "tar.gz",
+        "architecture": "ARM64",
+        "application_version": "0.1.0-rc.1",
+        "file_size": 11672521,
+        "sha256": "73daedb3c9e29c33798479151b3c9a9951082e4fbb94aed1ab804683e7647b30",
+        "build_commit": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+      }
+    ],
+    "interactive_gui_validation": false,
+    "plist": {
+      "CFBundleName": "Bingee Desktop",
+      "CFBundleDisplayName": "Bingee Desktop",
+      "CFBundleIdentifier": "io.github.cydoniancitizen.bingee-desktop",
+      "CFBundleVersion": "10002",
+      "CFBundleShortVersionString": "0.1.0",
+      "CFBundleExecutable": "bingee-desktop",
+      "CFBundlePackageType": "APPL",
+      "NSHighResolutionCapable": true
+    },
+    "executable_format": "Mach-O 64-bit arm64",
+    "archive_entry_count": 1196,
+    "executable_bytes": 31040784,
+    "executable_sha256": "4e3ebbd87255cc432fba6c1b33146d22d656771f2684a2680d5d698cf6967bad"
+  },
+  {
+    "artifact_id": 11130062159,
+    "platform": "bingee-Linux-X64",
+    "outer_digest_matches": true,
+    "manifest_verified": true,
+    "packages": [
+      {
+        "platform": "Linux",
+        "artifact_filename": "bingee-desktop-linux-x86_64.tar.gz",
+        "artifact_type": "tar.gz",
+        "architecture": "X64",
+        "application_version": "0.1.0-rc.1",
+        "file_size": 16894633,
+        "sha256": "4f8c7077f6c00ede41f45ebf56d2a3f07ca97608744651e14aed972ad4f03e84",
+        "build_commit": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+      }
+    ],
+    "interactive_gui_validation": false,
+    "executable_format": "ELF 64-bit x86_64",
+    "archive_entry_count": 1473,
+    "executable_bytes": 49864656,
+    "executable_sha256": "8a6d63bab53fd46b011dfc4b4d59fc789cf3e607cdf056ac4077ae30906fb731"
+  },
+  {
+    "artifact_id": 11129963194,
+    "platform": "bingee-Windows-X64",
+    "outer_digest_matches": true,
+    "manifest_verified": true,
+    "packages": [
+      {
+        "platform": "Windows",
+        "artifact_filename": "bingee-desktop-windows-x64-setup.exe",
+        "artifact_type": "exe",
+        "architecture": "X64",
+        "application_version": "0.1.0-rc.1",
+        "file_size": 10022466,
+        "sha256": "7001223b00b92dabd3dc339c9e8860afdc18d6c5fee949e37a7c627b7fbb4110",
+        "build_commit": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+      },
+      {
+        "platform": "Windows",
+        "artifact_filename": "bingee-desktop-windows-x64.zip",
+        "artifact_type": "zip",
+        "architecture": "X64",
+        "application_version": "0.1.0-rc.1",
+        "file_size": 13736161,
+        "sha256": "0cf143c4295b6f597e89f97decb843ca8de88885edcdee317e2a13277016665b",
+        "build_commit": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+        "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)"
+      }
+    ],
+    "interactive_gui_validation": false,
+    "portable_folder": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\windows\\portable\\bingee-desktop-windows-x64",
+    "checksum_count": 696,
+    "portable_file_count": 697,
+    "executable_bytes": 28853248,
+    "executable_sha256": "22bfa72f9c365c6e54ad1e901d7288dff52a6d028073278d3d120cf4c40896bb",
+    "pe_machine": "x64",
+    "pe_subsystem": "Windows GUI"
+  }
+]

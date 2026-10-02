@@ -1,0 +1,9 @@
+{
+  "pid": 21820,
+  "exit_code": 0,
+  "launched_utc": "2026-10-02T07:44:02.5484103Z",
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\native-discover-fixture",
+  "exited_utc": "2026-10-02T07:49:36.6765356Z",
+  "binary_sha256": "9B917E811EF60AFAAC026C9D1D4ADD65D6595C4CA8BE169CE63172DF2C83422D",
+  "executable": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\debug\\deps\\bingee_desktop-b933acb840d1b1af.exe"
+}

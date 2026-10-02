@@ -1,0 +1,21 @@
+warn: could not canonicalize path C:\Users\thoma
+   Compiling bingee-desktop v0.1.0-rc.1 (C:\Users\thoma\Documents\Projects\bingee-rust)
+error[E0599]: no method named `invoke_detail_movie_toggle` found for struct `slint_generatedAppWindow::AppWindow` in the current scope
+     --> src\r17_validation.rs:116:21
+      |
+  116 |                 app.invoke_detail_movie_toggle();
+      |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+      |
+     ::: C:\Users\thoma\Documents\Projects\bingee-rust\target\debug\build\bingee-desktop-6391dd1c02c7ad8d\out\app-window.rs:89658:6
+      |
+89658 |      pub struct r#AppWindow (sp :: VRc < sp :: ItemTreeVTable , InnerAppWindow >) ;
+      |      ---------------------- method `invoke_detail_movie_toggle` not found for this struct
+      |
+help: there is a method `invoke_detail_watch_toggle` with a similar name
+      |
+  116 -                 app.invoke_detail_movie_toggle();
+  116 +                 app.invoke_detail_watch_toggle();
+      |
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `bingee-desktop` (bin "bingee-desktop" test) due to 1 previous error

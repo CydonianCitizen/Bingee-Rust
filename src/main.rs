@@ -33,6 +33,9 @@ mod tmdb;
 mod tracking;
 mod view;
 
+#[cfg(test)]
+mod r17_validation;
+
 use std::cell::RefCell;
 use std::path::Path;
 use std::process::ExitCode;
@@ -408,6 +411,9 @@ fn connect_library(window: &AppWindow, view: Rc<LibraryView<UserLibrary>>, log: 
                 // metadata still opens; the list has no selected row.
                 window.set_selected_id(id);
             }
+            // Slint's selected-id changed handler runs later. Load this title
+            // now so season/episode targets use its models, not the old title.
+            window.invoke_detail_selected(id);
             if season >= 0
                 && let Some(row) = window
                     .get_detail_seasons()
@@ -1035,5 +1041,228 @@ mod tests {
         assert_eq!(APP_ID, "bingee-desktop");
         assert_eq!(APP_VERSION, env!("CARGO_PKG_VERSION"));
         assert!(!APP_VERSION.is_empty());
+    }
+
+    #[test]
+    fn episode_list_focus_is_visible_before_a_row_is_selected() {
+        use slint::platform::{Key, WindowEvent};
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        app.set_library_controls(true);
+        app.set_media_detail(MediaDetail {
+            has_item: true,
+            is_tv: true,
+            title: "Focus test series".into(),
+            ..Default::default()
+        });
+        app.set_detail_season(SeasonPanel {
+            state: "episodes".into(),
+            heading: "Season 1".into(),
+            ..Default::default()
+        });
+        app.set_detail_episodes(slint::ModelRc::new(slint::VecModel::from(vec![
+            EpisodeRow {
+                label: "E1".into(),
+                title: "First episode".into(),
+                ..Default::default()
+            },
+        ])));
+        app.set_detail_episode_row(-1);
+        ui.render();
+        let before = ui.buffer.clone();
+        let press = |key: Key| {
+            let text: SharedString = key.into();
+            app.window()
+                .dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+            app.window()
+                .dispatch_event(WindowEvent::KeyReleased { text });
+        };
+        // Initial Tab reaches Home; reverse Tab wraps to the last control,
+        // the episode list. No pointer or selection establishes focus.
+        press(Key::Tab);
+        press(Key::Backtab);
+        ui.render();
+        assert_eq!(app.get_detail_episode_row(), -1);
+        let changed = ui
+            .buffer
+            .iter()
+            .zip(&before)
+            .enumerate()
+            .filter(|(index, (after, before))| {
+                index % 1280 > 860 && index / 1280 > 600 && after.0 != before.0
+            })
+            .count();
+        let selected = Rc::new(std::cell::Cell::new(-1));
+        app.on_detail_episode_selected({
+            let selected = selected.clone();
+            move |row| selected.set(row)
+        });
+        press(Key::DownArrow);
+        assert_eq!(selected.get(), 0, "reverse Tab did not reach episodes");
+        assert!(
+            changed > 100,
+            "episode focus has no visible indication before selection: {changed} changed pixels"
+        );
+    }
+
+    #[test]
+    fn updates_list_focus_has_a_visible_indicator() {
+        use slint::platform::{Key, WindowEvent};
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        app.set_updates_rows(slint::ModelRc::new(slint::VecModel::from(vec![
+            UpdateRow {
+                title: "A series".into(),
+                detail: "New episode S1 E2".into(),
+                ..Default::default()
+            },
+        ])));
+        app.set_updates_selected_row(0);
+        app.set_page("updates".into());
+        ui.render();
+        let focused = ui.buffer.clone();
+        let text: SharedString = Key::Tab.into();
+        app.window()
+            .dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+        app.window()
+            .dispatch_event(WindowEvent::KeyReleased { text });
+        ui.render();
+        assert_eq!(app.get_updates_selected_row(), 0);
+        let changed = ui
+            .buffer
+            .iter()
+            .zip(&focused)
+            .enumerate()
+            .filter(|(index, (after, before))| {
+                index % 1280 > 230 && index / 1280 > 120 && after.0 != before.0
+            })
+            .count();
+        assert!(
+            changed > 100,
+            "Updates focus is invisible: {changed} changed pixels"
+        );
+    }
+
+    #[test]
+    fn opening_an_episode_target_loads_its_title_before_selecting_the_season() {
+        use crate::metadata::tests::{episode, season, series, stored};
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let db = SharedDb::default();
+        db.set(Database::open_in_memory());
+        let (first, target) = db
+            .with(|db| {
+                let first = stored(db, MediaType::Tv, 1, "First series");
+                metadata::save(
+                    db,
+                    first,
+                    &series("First series", vec![season(1, Some(2))]),
+                    1,
+                )?;
+                let target = stored(db, MediaType::Tv, 2, "Target series");
+                metadata::save(
+                    db,
+                    target,
+                    &series(
+                        "Target series",
+                        vec![season(0, Some(2)), season(1, Some(2))],
+                    ),
+                    1,
+                )?;
+                metadata::save_episodes(db, target, 0, &[episode(0, 1), episode(0, 2)], 1)?;
+                Ok((first, target))
+            })
+            .unwrap();
+        let log = Arc::new(Log::stderr_only());
+        let posters = poster::tests::offline();
+        let view =
+            Rc::new(LibraryView::new(UserLibrary::new(db.clone(), posters.clone())).unwrap());
+        connect_library(&app, view, log.clone());
+        app.set_selected_id(first as i32);
+        detail::start(
+            &app,
+            db,
+            TmdbClient::for_tests("http://127.0.0.1:1", std::time::Duration::from_secs(1)),
+            secrets::SharedToken::default(),
+            Network::with_post(1, ui.post()),
+            posters,
+            metadata::Clock::system(),
+            log,
+        );
+        ui.render();
+        app.invoke_open_library_media(target as i32, 0, 2);
+        ui.render();
+        assert_eq!(app.get_media_detail().title, "Target series");
+        assert_eq!(app.get_detail_season().heading, "Specials");
+        assert_eq!(app.get_detail_episode_row(), 1);
+        assert_eq!(app.get_detail_episodes().row_data(1).unwrap().label, "E2");
+    }
+
+    /// Page navigation must be reachable through Tab, without a pointer or
+    /// a screen-reader-only default action.
+    fn sidebar_keyboard_activation(activation: SharedString) {
+        use slint::platform::{Key, WindowEvent};
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        app.set_page("discover".into());
+        ui.render();
+        app.set_page("library".into());
+        ui.render();
+        let press = |text: SharedString| {
+            app.window()
+                .dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+            app.window()
+                .dispatch_event(WindowEvent::KeyReleased { text });
+        };
+        let reached_home = (0..60).any(|_| {
+            press(Key::Tab.into());
+            press(activation.clone());
+            ui.render();
+            app.get_page() == "home"
+        });
+        assert!(
+            reached_home,
+            "Tab and activation never reached sidebar Home"
+        );
+        // Continue from actual keyboard focus, without setting a page or
+        // invoking a navigation callback. Each destination must be reachable
+        // again after its page has taken focus.
+        for destination in [
+            "library",
+            "discover",
+            "history",
+            "statistics",
+            "calendar",
+            "updates",
+            "settings",
+            "about",
+            "home",
+        ] {
+            let reached = (1..60).any(|tabs| {
+                // Do not activate every intermediate control: Home activation
+                // deliberately moves focus into its page. Try Tab-only paths
+                // between activations, as a keyboard user does.
+                for _ in 0..tabs {
+                    press(Key::Tab.into());
+                }
+                press(activation.clone());
+                ui.render();
+                if app.get_page() == destination {
+                    println!("sidebar destination={destination} tabs={tabs}");
+                }
+                app.get_page() == destination
+            });
+            assert!(reached, "keyboard navigation trapped before {destination}");
+        }
+    }
+
+    #[test]
+    fn sidebar_navigation_is_reachable_with_tab_and_enter() {
+        sidebar_keyboard_activation(slint::platform::Key::Return.into());
+    }
+
+    #[test]
+    fn sidebar_navigation_is_reachable_with_tab_and_space() {
+        sidebar_keyboard_activation(" ".into());
     }
 }

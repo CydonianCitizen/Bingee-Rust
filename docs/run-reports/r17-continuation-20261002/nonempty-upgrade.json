@@ -1,0 +1,13 @@
+{
+  "old_commit": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+  "old_installer_sha256": "7001223B00B92DABD3DC339C9E8860AFDC18D6C5FEE949E37A7C627B7FBB4110",
+  "new_installer_sha256": "9BB1B3221219BC533B8E794DAE7C08318ECCA14397CEA8437F8070620F3D59BA",
+  "database_sha256": "EAD2806EFF781F2E551690E8FE8F78E8F039BE8CE4D724AA09FDDDAB2CA31670",
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-continuation-20261002\\upgrade-20261001224217289\\profile",
+  "termination": [
+    "controlled kill; close requested=True",
+    "controlled kill; close requested=True"
+  ],
+  "native_graceful_close_verified": false,
+  "verdict": "PASS: pushed R16 installer to local corrected candidate; 1000-title nonempty v5 profile opens and remains byte-identical after controlled stop, upgrade and uninstall; see termination scope"
+}

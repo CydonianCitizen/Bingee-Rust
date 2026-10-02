@@ -1,0 +1,20 @@
+[
+  {
+    "run": 1,
+    "exit_code": 0,
+    "elapsed_ms": 53642,
+    "samples": 259
+  },
+  {
+    "run": 2,
+    "exit_code": 0,
+    "elapsed_ms": 49589,
+    "samples": 239
+  },
+  {
+    "run": 3,
+    "exit_code": 0,
+    "elapsed_ms": 49713,
+    "samples": 240
+  }
+]

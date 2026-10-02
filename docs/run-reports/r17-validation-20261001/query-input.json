@@ -1,0 +1,157 @@
+[
+  {
+    "file": "src/library.rs",
+    "line": 99,
+    "sql": "SELECT m.local_media_id, m.media_type, m.title, m.original_title,\n                    m.release_date, m.overview, m.poster_path\n             FROM library_entries AS l JOIN media AS m ON m.local_media_id = l.local_media_id\n             WHERE (?2 IS NULL OR m.media_type = ?2)\n               AND (instr(bingee_fold(m.title), ?1) > 0\n                    OR instr(bingee_fold(m.original_title), ?1) > 0)\n             ORDER BY l.added_at DESC, m.local_media_id DESC"
+  },
+  {
+    "file": "src/library.rs",
+    "line": 99,
+    "sql": "SELECT m.local_media_id, m.media_type, m.title, m.original_title,\n                    m.release_date, m.overview, m.poster_path\n             FROM library_entries AS l JOIN media AS m ON m.local_media_id = l.local_media_id\n             WHERE (?2 IS NULL OR m.media_type = ?2)\n               AND (instr(bingee_fold(m.title), ?1) > 0\n                    OR instr(bingee_fold(m.original_title), ?1) > 0)\n             ORDER BY bingee_fold(m.title), m.local_media_id"
+  },
+  {
+    "file": "src/library.rs",
+    "line": 138,
+    "sql": "SELECT count(*) FROM library_entries"
+  },
+  {
+    "file": "src/library.rs",
+    "line": 235,
+    "sql": "SELECT local_media_id FROM external_refs\n         WHERE source = ?1 AND media_type = ?2 AND external_id = ?3"
+  },
+  {
+    "file": "src/library.rs",
+    "line": 254,
+    "sql": "SELECT media_type, external_id FROM external_refs\n             WHERE local_media_id = ?1 AND source = 'tmdb'"
+  },
+  {
+    "file": "src/library.rs",
+    "line": 298,
+    "sql": "SELECT r.source, r.media_type, r.external_id\n             FROM json_each(?1) AS k\n             JOIN external_refs AS r ON r.source = k.value ->> 0\n                 AND r.media_type = k.value ->> 1 AND r.external_id = k.value ->> 2\n             JOIN library_entries AS l ON l.local_media_id = r.local_media_id"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 59,
+    "sql": "SELECT media_type FROM media WHERE local_media_id = ?1"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 90,
+    "sql": "SELECT watched_at, rating FROM media_tracking WHERE local_media_id = ?1"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 184,
+    "sql": "SELECT EXISTS (SELECT 1 FROM episodes\n             WHERE local_media_id = ?1 AND season_number = ?2 AND episode_number = ?3)"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 295,
+    "sql": "SELECT episode_number FROM episode_tracking\n             WHERE local_media_id = ?1 AND season_number = ?2"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 515,
+    "sql": "SELECT e.season_number, e.episode_number, e.name FROM episodes AS e\n             WHERE e.local_media_id = ?1 AND e.season_number = ?2\n               AND NOT EXISTS (SELECT 1 FROM episode_tracking AS t\n                   WHERE t.local_media_id = e.local_media_id\n                     AND t.season_number = e.season_number\n                     AND t.episode_number = e.episode_number)\n             ORDER BY e.episode_number LIMIT 1"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 545,
+    "sql": "SELECT t.local_media_id FROM episode_tracking AS t\n             JOIN episodes AS e USING (local_media_id, season_number, episode_number)\n             JOIN library_entries AS l ON l.local_media_id = t.local_media_id\n             JOIN media AS m ON m.local_media_id = t.local_media_id\n             WHERE t.season_number >= 1\n             GROUP BY t.local_media_id\n             HAVING EXISTS (SELECT 1 FROM episodes AS u\n                 WHERE u.local_media_id = t.local_media_id AND u.season_number >= 1\n                   AND NOT EXISTS (SELECT 1 FROM episode_tracking AS v\n                       WHERE v.local_media_id = u.local_media_id\n                         AND v.season_number = u.season_number\n                         AND v.episode_number = u.episode_number))\n             ORDER BY max(t.watched_at) DESC, bingee_fold(m.title), t.local_media_id"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 587,
+    "sql": "SELECT w.event_id, w.local_media_id, m.title, w.season_number, w.episode_number,\n                    e.name, w.watched_at,\n                    strftime('%Y-%m-%d %H:%M', w.watched_at, 'unixepoch', 'localtime')\n             FROM watch_events AS w\n             JOIN media AS m ON m.local_media_id = w.local_media_id\n             LEFT JOIN episodes AS e ON e.local_media_id = w.local_media_id\n                 AND e.season_number = w.season_number AND e.episode_number = w.episode_number\n             ORDER BY w.watched_at DESC, w.event_id DESC\n             LIMIT ?1"
+  },
+  {
+    "file": "src/tracking.rs",
+    "line": 630,
+    "sql": "SELECT strftime('%Y-%m-%d %H:%M', ?1, 'unixepoch', 'localtime')"
+  },
+  {
+    "file": "src/home.rs",
+    "line": 36,
+    "sql": "WITH unwatched AS (\n            SELECT e.local_media_id, e.season_number, e.episode_number, e.name,\n                   row_number() OVER (PARTITION BY e.local_media_id\n                       ORDER BY e.season_number, e.episode_number) AS position\n            FROM episodes AS e\n            JOIN library_entries AS l ON l.local_media_id = e.local_media_id\n            WHERE e.season_number >= 1 AND NOT EXISTS (\n                SELECT 1 FROM episode_tracking AS t\n                WHERE t.local_media_id = e.local_media_id\n                  AND t.season_number = e.season_number\n                  AND t.episode_number = e.episode_number)\n         ) SELECT local_media_id, season_number, episode_number, name\n           FROM unwatched WHERE position = 1"
+  },
+  {
+    "file": "src/calendar.rs",
+    "line": 44,
+    "sql": "SELECT date(?1, 'unixepoch', 'localtime')"
+  },
+  {
+    "file": "src/calendar.rs",
+    "line": 55,
+    "sql": "SELECT e.local_media_id, m.title, e.season_number, e.episode_number,\n                e.name, e.air_date\n         FROM episodes AS e\n         JOIN library_entries AS l ON l.local_media_id = e.local_media_id\n         JOIN media AS m ON m.local_media_id = e.local_media_id AND m.media_type = 'tv'\n         WHERE e.air_date >= ?1 AND e.air_date < ?2\n         ORDER BY e.air_date, bingee_fold(m.title), e.season_number,\n                  e.episode_number, e.local_media_id"
+  },
+  {
+    "file": "src/calendar.rs",
+    "line": 84,
+    "sql": "SELECT date(?1, '+15 days')"
+  },
+  {
+    "file": "src/calendar.rs",
+    "line": 92,
+    "sql": "SELECT date(?1, ?2)"
+  },
+  {
+    "file": "src/calendar.rs",
+    "line": 104,
+    "sql": "SELECT date(?1, 'start of month')"
+  },
+  {
+    "file": "src/calendar.rs",
+    "line": 118,
+    "sql": "WITH RECURSIVE dates(n, day) AS (\n            SELECT 0, date(?1, 'start of month',\n                printf('-%d days', (CAST(strftime('%w', ?1) AS INTEGER) + 6) % 7))\n            UNION ALL SELECT n + 1, date(day, '+1 day') FROM dates WHERE n < 41\n         ) SELECT day FROM dates ORDER BY n"
+  },
+  {
+    "file": "src/statistics.rs",
+    "line": 183,
+    "sql": "SELECT EXISTS (SELECT 1 FROM watch_events)"
+  },
+  {
+    "file": "src/statistics.rs",
+    "line": 204,
+    "sql": "SELECT CAST(strftime('%s', ?1, 'unixepoch', 'localtime', ?2, ?3, 'utc') AS INTEGER)"
+  },
+  {
+    "file": "src/statistics.rs",
+    "line": 264,
+    "sql": "WITH RECURSIVE\n             size(n) AS (SELECT CASE WHEN ?5 > 0 THEN ?5 ELSE\n                 ifnull(strftime('%Y', ?1, 'unixepoch', 'localtime')\n                        - strftime('%Y', min(watched_at), 'unixepoch', 'localtime') + 1, 1)\n                 END FROM watch_events),\n             n(i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n, size WHERE i + 1 < min(size.n, 100)),\n             buckets AS MATERIALIZED (\n                 SELECT i, strftime(?2, ?1, 'unixepoch', 'localtime', ?3, '-' || i || ?4) AS key,\n                        CAST(strftime('%s', ?1, 'unixepoch', 'localtime', ?3, '-' || i || ?4, 'utc')\n                             AS INTEGER) AS first\n                 FROM n)\n             SELECT b.key,\n                    (SELECT count(*) FROM watch_events\n                     WHERE watched_at >= b.first\n                       AND watched_at < ifnull(next.first, 9223372036854775807))\n             FROM buckets AS b LEFT JOIN buckets AS next ON next.i = b.i - 1\n             ORDER BY b.i DESC"
+  },
+  {
+    "file": "src/statistics.rs",
+    "line": 358,
+    "sql": "SELECT t.rating, count(*) FROM media_tracking AS t\n             JOIN library_entries USING (local_media_id)\n             WHERE t.rating IS NOT NULL GROUP BY t.rating"
+  },
+  {
+    "file": "src/refresh.rs",
+    "line": 142,
+    "sql": "SELECT m.local_media_id, m.media_type, x.external_id, m.details_fetched_at\n         FROM library_entries AS l JOIN media AS m ON m.local_media_id = l.local_media_id\n         JOIN external_refs AS x ON x.local_media_id = m.local_media_id\n             AND x.media_type = m.media_type AND x.source = 'tmdb'\n         ORDER BY m.details_fetched_at, m.local_media_id"
+  },
+  {
+    "file": "src/refresh.rs",
+    "line": 181,
+    "sql": "SELECT s.local_media_id, x.external_id, s.season_number,\n                s.episodes_fetched_at, s.episodes_known, s.episode_count\n         FROM library_entries AS l JOIN seasons AS s ON s.local_media_id = l.local_media_id\n         JOIN external_refs AS x ON x.local_media_id = s.local_media_id\n             AND x.media_type = 'tv' AND x.source = 'tmdb'\n         WHERE s.episodes_fetched_at IS NOT NULL\n         ORDER BY s.episodes_fetched_at, s.local_media_id, s.season_number"
+  },
+  {
+    "file": "src/refresh.rs",
+    "line": 319,
+    "sql": "SELECT EXISTS (SELECT 1 FROM library_entries WHERE local_media_id = ?1)"
+  },
+  {
+    "file": "src/refresh.rs",
+    "line": 445,
+    "sql": "SELECT season_number, episode_count FROM seasons\n        WHERE local_media_id = ?1 AND episodes_fetched_at IS NOT NULL ORDER BY season_number"
+  },
+  {
+    "file": "src/release.rs",
+    "line": 36,
+    "sql": "SELECT r.event_id, r.local_media_id, m.title, r.season_number,\n                r.episode_number, e.name, r.event_type, r.discovered_at,\n                strftime('%Y-%m-%d %H:%M', r.discovered_at, 'unixepoch', 'localtime'),\n                r.air_date, r.read_at\n         FROM release_events AS r JOIN media AS m ON m.local_media_id = r.local_media_id\n         LEFT JOIN episodes AS e ON e.local_media_id = r.local_media_id\n             AND e.season_number = r.season_number AND e.episode_number = r.episode_number\n         ORDER BY r.discovered_at DESC, r.event_id DESC LIMIT ?1"
+  },
+  {
+    "file": "src/release.rs",
+    "line": 69,
+    "sql": "SELECT count(*) FROM release_events WHERE read_at IS NULL"
+  }
+]

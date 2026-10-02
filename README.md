@@ -34,11 +34,18 @@ progress and a watch history, and see statistics about it. Home, Calendar,
 backups and stored updates work offline. Automatic metadata refresh is
 optional and runs only while the app is open.
 
-Core R15 hardening is implemented locally: one process owns a profile, Settings can
+Core R15 hardening is implemented: one process owns a profile, Settings can
 check database integrity and clean unused metadata/posters, and backup export
-works on filesystems without hard links. R16 packaging is in progress. The
-version is `0.1.0-rc.1`, sourced from `Cargo.toml`; this is not a release-ready
-declaration. See the latest report in `docs/run-reports/`.
+works on filesystems without hard links. R16 technical packaging passed on
+Windows, macOS and Linux for pushed `6e24b2a`. R17 final validation is partial:
+a keyboard navigation blocker was reproduced and corrected locally, and the
+revised candidate still needs native CI, native keyboard/accessibility proof
+and diagnosis of populated native close timeouts. Local data/product tests,
+bounded soak/timings and Windows package preservation have evidence.
+R18 product polish is suspended until that technical gate closes. Version
+`0.1.0-rc.1` comes from `Cargo.toml`; it is not an approval to release.
+See `docs/run-reports/2026-10-02-r17-release-validation.md` and the canonical
+current list in `docs/known-limitations.md`.
 
 See `IMPLEMENTATION_PLAN.md` and `docs/milestones/R6.md` to `R14.md`.
 
@@ -341,11 +348,13 @@ tarball with a `.desktop` file, icon and user-level install/uninstall scripts.
 All packages include `THIRD_PARTY_NOTICES.txt` and a `licenses/` directory.
 The GitHub Actions `release-artifacts` workflow runs on pushes to `main` or
 manual dispatch, builds and uploads all three platform packages, and does not
-publish a release. Native CI for `ceb1079` built the Linux tarball, but its
-X11 smoke failed on a missing runtime library; macOS was blocked by a test
-path assertion. Local fixes await a user commit/push and native revalidation.
-See `docs/run-reports/2026-09-30-r16-ci-closure.md` for independent build,
-package and runtime results. R17 remains gated until R16 technical checks pass.
+publish a release. Both workflows passed independently on all three platforms
+for `6e24b2a`. Downloaded packages passed size/hash, manifest, resource,
+architecture and version checks. Windows process/installer smoke and Linux
+Xvfb smoke passed; macOS executable verification was structural, with no
+native launch configured. See `docs/run-reports/2026-10-01-r16-native-revalidation.md`.
+The subsequent local sidebar keyboard fix still needs both native workflows
+and new artifact/smoke verification before the revised candidate can pass.
 
 ## What the app does (R14)
 

@@ -1,0 +1,83 @@
+{
+  "utc": "2026-09-30T22:47:50.3749533Z",
+  "package": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\windows\\portable\\bingee-desktop-windows-x64",
+  "executable_sha256": "22BFA72F9C365C6E54AD1E901D7288DFF52A6D028073278D3D120CF4C40896BB",
+  "database": {
+    "bytes": 106496,
+    "path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile\\Bingee Desktop\\data\\bingee.db"
+  },
+  "runs": [
+    {
+      "label": "fresh",
+      "local_app_data": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile",
+      "working_directory": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\cwd",
+      "pid": 11076,
+      "window_ready_ms": 2623.0,
+      "working_set_bytes": 200867840,
+      "private_bytes": 211324928,
+      "exit_code": 0,
+      "stderr": [
+        "2026-09-30T22:47:35Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, windows x86_64)",
+        "2026-09-30T22:47:35Z INFO Database C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile\\Bingee Desktop\\data\\bingee.db",
+        "2026-09-30T22:47:35Z INFO Migrating the database from schema version 0 to 5",
+        "2026-09-30T22:47:35Z INFO Migration to schema version 5 complete",
+        "2026-09-30T22:47:35Z INFO Library opened: schema version 5, 0 titles",
+        "2026-09-30T22:47:38Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 0 failures, 0 evictions",
+        "2026-09-30T22:47:38Z INFO Bingee Desktop closed"
+      ]
+    },
+    {
+      "label": "second",
+      "local_app_data": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile",
+      "working_directory": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\cwd",
+      "pid": 25608,
+      "window_ready_ms": 1286.0,
+      "working_set_bytes": 188567552,
+      "private_bytes": 211124224,
+      "exit_code": 0,
+      "stderr": [
+        "2026-09-30T22:47:39Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, windows x86_64)",
+        "2026-09-30T22:47:39Z INFO Database C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile\\Bingee Desktop\\data\\bingee.db",
+        "2026-09-30T22:47:39Z INFO Library opened: schema version 5, 0 titles",
+        "2026-09-30T22:47:42Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 0 failures, 0 evictions",
+        "2026-09-30T22:47:42Z INFO Bingee Desktop closed"
+      ]
+    },
+    {
+      "label": "after-idle-kill",
+      "local_app_data": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile",
+      "working_directory": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\cwd",
+      "pid": 11808,
+      "window_ready_ms": 1216.0,
+      "working_set_bytes": 189386752,
+      "private_bytes": 212283392,
+      "exit_code": 0,
+      "stderr": [
+        "2026-09-30T22:47:43Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, windows x86_64)",
+        "2026-09-30T22:47:43Z INFO Database C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile\\Bingee Desktop\\data\\bingee.db",
+        "2026-09-30T22:47:43Z INFO Library opened: schema version 5, 0 titles",
+        "2026-09-30T22:47:46Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 0 failures, 0 evictions",
+        "2026-09-30T22:47:46Z INFO Bingee Desktop closed"
+      ]
+    },
+    {
+      "label": "corrupt",
+      "local_app_data": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile-corrupt",
+      "working_directory": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\cwd",
+      "pid": 15396,
+      "window_ready_ms": 1204.0,
+      "working_set_bytes": 185962496,
+      "private_bytes": 208306176,
+      "exit_code": 0,
+      "stderr": [
+        "2026-09-30T22:47:46Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, windows x86_64)",
+        "2026-09-30T22:47:46Z INFO Database C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r16-revalidation-20261001\\portable-smoke\\run-20260930224733680-9812\\profile-corrupt\\Bingee Desktop\\data\\bingee.db",
+        "2026-09-30T22:47:46Z ERROR Startup failed: InvalidData error: The library database is damaged or is not a database file. It was left unchanged. Cause: file is not a database Cause: Error code 26: file is not a database",
+        "2026-09-30T22:47:49Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 0 failures, 0 evictions",
+        "2026-09-30T22:47:49Z INFO Bingee Desktop closed"
+      ]
+    }
+  ],
+  "fixture_flag_exit_code": 1,
+  "verdict": "fresh, reopen, live lock contention, idle hard kill recovery and corrupt-database starts; user data preserved; package unchanged"
+}

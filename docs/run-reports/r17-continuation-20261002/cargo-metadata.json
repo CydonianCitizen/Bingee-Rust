@@ -1,0 +1,6 @@
+{
+  "command": "cargo metadata --locked --offline --format-version 1",
+  "exit_code": 101,
+  "error": "aes v0.9.3 is unavailable in offline cache for a foreign target; Windows filtered metadata succeeds",
+  "all_lockfile_versions_verified": true
+}

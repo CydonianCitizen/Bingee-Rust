@@ -1,0 +1,7 @@
+
+running 2 tests
+test tests::offscreen_pages_1280 ... ok
+test tests::offscreen_pages_1700 ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 230 filtered out; finished in 0.73s
+

@@ -1,0 +1,20 @@
+{
+  "remote_main": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+  "runs": [
+    {
+      "id": 36785367532,
+      "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+      "path": ".github/workflows/cross-platform.yml",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 36785367485,
+      "head_sha": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+      "path": ".github/workflows/release-artifacts.yml",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "fix_pushed": false
+}

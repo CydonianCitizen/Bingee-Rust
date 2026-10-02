@@ -1,0 +1,28 @@
+{
+  "name": "final-installed-off-heavy",
+  "mode": "off",
+  "scale": "1.25",
+  "pid": 20396,
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\final-installed-off-heavy",
+  "binary_sha256": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016",
+  "launched_utc": "2026-10-02T07:07:08.8434846Z",
+  "responsive_window_ms": 1778.1732,
+  "handle": 3934366,
+  "threads": 19,
+  "handles": 417,
+  "database_before": "F4ECCC154F7618158C02579FC275D2A641FB0499B54516CDEA02F58FCC209C64",
+  "exit_code": 0,
+  "process_exited": true,
+  "exited_utc": "2026-10-02T07:12:47.7549015Z",
+  "close_method": "Alt+F4 after populated installed Updates/Calendar target paths at 125%",
+  "close_request_to_exit_ms": 367.9015,
+  "database_after": "F4ECCC154F7618158C02579FC275D2A641FB0499B54516CDEA02F58FCC209C64",
+  "exclusive_database_and_lock_open": true,
+  "log_tail": [
+    "2026-10-02T07:07:11Z INFO Poster tmdb-w185-s.jpg not available: not found at TMDB (HTTP 404)",
+    "2026-10-02T07:09:41Z INFO Poster tmdb-w185-p.jpg not available: not found at TMDB (HTTP 404)",
+    "2026-10-02T07:09:41Z INFO Detail #851: shown from the local cache (stale)",
+    "2026-10-02T07:12:47Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 2 failures, 0 evictions",
+    "2026-10-02T07:12:47Z INFO Bingee Desktop closed"
+  ]
+}

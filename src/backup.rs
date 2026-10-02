@@ -1091,6 +1091,37 @@ mod tests {
     }
 
     #[test]
+    fn early_and_additive_v1_survive_file_restore_and_reopen() {
+        let source = Database::open_in_memory();
+        populated(&source);
+        let current = export(&source, NOW).unwrap();
+        for early in [false, true] {
+            let mut json = serde_json::to_value(&current).unwrap();
+            json["future_annotation"] = serde_json::json!({"ignored": true});
+            json["data"]["media"][0]["future_field"] = serde_json::json!(42);
+            let mut expected = current.clone();
+            if early {
+                json["data"].as_object_mut().unwrap().remove("settings");
+                json["data"]
+                    .as_object_mut()
+                    .unwrap()
+                    .remove("release_events");
+                expected.data.settings = BackupSettings::default();
+                expected.data.release_events.clear();
+            }
+            let parsed = parse(&serde_json::to_vec(&json).unwrap()).unwrap();
+            assert_eq!(parsed, expected);
+            let dir = TestDir::new("v1-compatibility");
+            let path = dir.0.join("bingee.db");
+            let db = Database::open(&path, &crate::diagnostics::Log::stderr_only()).unwrap();
+            restore(&db, &parsed).unwrap();
+            drop(db);
+            let reopened = Database::open(&path, &crate::diagnostics::Log::stderr_only()).unwrap();
+            assert_eq!(export(&reopened, NOW).unwrap(), expected);
+        }
+    }
+
+    #[test]
     fn invalid_inputs_never_change_original() {
         let db = Database::open_in_memory();
         populated(&db);

@@ -1,0 +1,15 @@
+2026-09-30T22:24:30.8672630Z   stable-aarch64-apple-darwin unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:30.9103210Z   stable-aarch64-apple-darwin unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:30.9423000Z rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:31.0220940Z cargo 1.98.1 (797e8a9bc 2026-08-05)
+2026-09-30T22:24:34.1856150Z   Downloaded security-framework-sys v2.17.0
+2026-09-30T22:24:34.8358820Z   Downloaded security-framework v3.7.0
+2026-09-30T22:26:59.9410090Z     Checking security-framework-sys v2.17.0
+2026-09-30T22:27:02.2600870Z     Checking security-framework v3.7.0
+2026-09-30T22:30:11.5855350Z    Compiling security-framework-sys v2.17.0
+2026-09-30T22:30:14.2824070Z    Compiling security-framework v3.7.0
+2026-09-30T22:31:38.3060590Z test backup::tests::pre_restore_safety_copy_keeps_previous_portable_state ... ok
+2026-09-30T22:31:54.2769970Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 16.15s
+2026-09-30T22:38:40.8715440Z    Compiling security-framework-sys v2.17.0
+2026-09-30T22:38:44.0940700Z    Compiling security-framework v3.7.0
+2026-09-30T22:40:56.0459670Z     Finished `release` profile [optimized] target(s) in 7m 10s

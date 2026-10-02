@@ -1,0 +1,23 @@
+2026-09-30T22:24:23.3769838Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:23.3923705Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:23.4035822Z rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:23.4621712Z cargo 1.98.1 (797e8a9bc 2026-08-05)
+2026-09-30T22:24:23.4763968Z sudo apt-get install -y --no-install-recommends pkg-config libfontconfig-dev libxkbcommon-x11-0 xvfb xauth desktop-file-utils
+2026-09-30T22:24:29.1216374Z   libfreetype-dev libpng-dev libxcb-xkb1 libxkbcommon-x11-0 uuid-dev
+2026-09-30T22:24:29.5935930Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxkbcommon-x11-0 amd64 1.6.0-1build1 [14.5 kB]
+2026-09-30T22:24:31.6459584Z Selecting previously unselected package libxkbcommon-x11-0:amd64.
+2026-09-30T22:24:31.6575957Z Preparing to unpack .../8-libxkbcommon-x11-0_1.6.0-1build1_amd64.deb ...
+2026-09-30T22:24:31.6584445Z Unpacking libxkbcommon-x11-0:amd64 (1.6.0-1build1) ...
+2026-09-30T22:24:31.7611843Z Setting up libxkbcommon-x11-0:amd64 (1.6.0-1build1) ...
+2026-09-30T22:29:41.7689136Z test backup::tests::pre_restore_safety_copy_keeps_previous_portable_state ... ok
+2026-09-30T22:30:06.8390864Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 25.16s
+2026-09-30T22:30:49.6110083Z test backup::tests::pre_restore_safety_copy_keeps_previous_portable_state ... ok
+2026-09-30T22:31:14.8958133Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 25.37s
+2026-09-30T22:38:28.9087658Z     Finished `release` profile [optimized] target(s) in 6m 44s
+2026-09-30T22:38:35.5646903Z Package: /home/runner/work/Bingee-Rust/Bingee-Rust/dist/bingee-desktop-linux-x86_64
+2026-09-30T22:38:35.6023535Z Archive: /home/runner/work/Bingee-Rust/Bingee-Rust/dist/bingee-desktop-linux-x86_64.tar.gz, 16894633 bytes, SHA-256 4F8C7077F6C00EDE41F45EBF56D2A3F07CA97608744651E14AED972AD4F03E84
+2026-09-30T22:38:56.1482614Z 2026-09-30T22:38:36Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, linux x86_64)
+2026-09-30T22:38:56.1483919Z 2026-09-30T22:38:37Z INFO Database /tmp/tmp.3wo0Xzghtp/profile/data/bingee.db
+2026-09-30T22:38:56.1488880Z 2026-09-30T22:38:37Z INFO Migration to schema version 5 complete
+2026-09-30T22:38:56.1489740Z 2026-09-30T22:38:37Z INFO Library opened: schema version 5, 0 titles
+2026-09-30T22:38:56.1491354Z 2026-09-30T22:38:37Z ERROR The credential store could not be read: Configuration error: The system's secure credential storage is not available. Cause: No default store has been set, so cannot search or create entries

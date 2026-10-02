@@ -1,0 +1,10 @@
+
+running 1 test
+first open (cold statement cache) + render: 61.831 ms
+choose 30 days    + render: median 25.977 ms, max 28.048 ms (20 runs)
+choose 12 months  + render: median 30.882 ms, max 34.003 ms (20 runs)
+choose all time   + render: median 29.427 ms, max 31.847 ms (20 runs)
+test statistics_page::tests::informal_statistics_page_timings ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 231 filtered out; finished in 12.89s
+

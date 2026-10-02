@@ -1,0 +1,4 @@
+2026-10-01T10:49:39Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:49:39Z INFO Migration to schema version 5 complete
+2026-10-01T10:49:40Z INFO Migrating the database from schema version 0 to 5
+2026-10-01T10:49:40Z INFO Migration to schema version 5 complete

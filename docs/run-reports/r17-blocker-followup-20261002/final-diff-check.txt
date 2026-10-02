@@ -1,0 +1,8 @@
+warning: in the working copy of 'IMPLEMENTATION_PLAN.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/milestones/R16.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/release-checklist.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/release-licensing.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/backup.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/main.rs', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ui/app-window.slint', LF will be replaced by CRLF the next time Git touches it

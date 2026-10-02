@@ -1,0 +1,38 @@
+2026-09-30T22:24:34.1536330Z   stable-aarch64-apple-darwin unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:34.2329340Z   stable-aarch64-apple-darwin unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:34.2929010Z rustc 1.98.1 (48a229cea 2026-09-01)
+2026-09-30T22:24:34.4174520Z cargo 1.98.1 (797e8a9bc 2026-08-05)
+2026-09-30T22:24:38.1329490Z   Downloaded security-framework v3.7.0
+2026-09-30T22:24:42.1742050Z   Downloaded security-framework-sys v2.17.0
+2026-09-30T22:26:48.7797290Z     Checking security-framework-sys v2.17.0
+2026-09-30T22:26:50.1276200Z     Checking security-framework v3.7.0
+2026-09-30T22:29:12.6071460Z    Compiling security-framework-sys v2.17.0
+2026-09-30T22:29:14.8981380Z    Compiling security-framework v3.7.0
+2026-09-30T22:30:43.5136840Z test backup::tests::pre_restore_safety_copy_keeps_previous_portable_state ... ok
+2026-09-30T22:31:09.5433570Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 26.37s
+2026-09-30T22:32:24.1147200Z test backup::tests::pre_restore_safety_copy_keeps_previous_portable_state ... ok
+2026-09-30T22:32:38.3013060Z test result: ok. 214 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 14.31s
+2026-09-30T22:36:23.7613450Z    Compiling security-framework-sys v2.17.0
+2026-09-30T22:36:25.2378820Z    Compiling security-framework v3.7.0
+2026-09-30T22:38:45.3542770Z     Finished `release` profile [optimized] target(s) in 5m 32s
+2026-09-30T22:38:51.3399170Z /Users/runner/work/Bingee-Rust/Bingee-Rust/dist/Bingee Desktop.app/Contents/Info.plist: OK
+2026-09-30T22:38:53.2138860Z Archive: /Users/runner/work/Bingee-Rust/Bingee-Rust/dist/bingee-desktop-macos-arm64.tar.gz, 11672521 bytes, SHA-256 73DAEDB3C9E29C33798479151B3C9A9951082E4FBB94AED1AB804683E7647B30
+2026-09-30T22:38:53.8835720Z dist/Bingee Desktop.app/Contents/Info.plist: OK
+2026-09-30T22:38:57.5497560Z 	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+2026-09-30T22:38:57.5499930Z 	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2685.60.104)
+2026-09-30T22:38:57.5502520Z 	/System/Library/Frameworks/Accessibility.framework/Versions/A/Accessibility (compatibility version 1.0.0, current version 1.0.0)
+2026-09-30T22:38:57.5504750Z 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+2026-09-30T22:38:57.5507870Z 	/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL (compatibility version 1.0.0, current version 1.0.0)
+2026-09-30T22:38:57.5510170Z 	/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices (compatibility version 1.0.0, current version 66.0.0)
+2026-09-30T22:38:57.5512430Z 	/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 1965.5.1)
+2026-09-30T22:38:57.5513270Z 	/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo (compatibility version 1.2.0, current version 734.4.0)
+2026-09-30T22:38:57.5514190Z 	/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 170.0.0)
+2026-09-30T22:38:57.5515190Z 	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5026.5.4)
+2026-09-30T22:38:57.5519010Z 	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+2026-09-30T22:38:57.5519940Z 	/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData (compatibility version 1.0.0, current version 1526.0.0)
+2026-09-30T22:38:57.5520780Z 	/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage (compatibility version 1.0.1, current version 7.0.0)
+2026-09-30T22:38:57.5535160Z 	/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit (compatibility version 1.0.0, current version 2360.120.2)
+2026-09-30T22:38:57.5569660Z 	/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore (compatibility version 1.2.0, current version 1195.14.4)
+2026-09-30T22:38:57.5574110Z 	/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText (compatibility version 1.0.0, current version 877.4.0)
+2026-09-30T22:38:57.5576710Z 	/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync (compatibility version 1.0.0, current version 3813.5.1)
+2026-09-30T22:38:57.5579040Z 	/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices (compatibility version 1.0.0, current version 1226.0.0)

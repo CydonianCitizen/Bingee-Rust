@@ -1,0 +1,14 @@
+{
+  "source_inputs": 53,
+  "source_unchanged": true,
+  "frozen_r4_db_unchanged": true,
+  "owned_test_app_processes_remaining": 0,
+  "final_gate_count": 9,
+  "gates_pass": true,
+  "tests_passed": 218,
+  "tests_ignored": 15,
+  "technical_verdict": "NOT TECHNICALLY READY FOR RC",
+  "public_distribution_verdict": "PUBLIC DISTRIBUTION NOT READY",
+  "r18_started": false,
+  "release_published": false
+}

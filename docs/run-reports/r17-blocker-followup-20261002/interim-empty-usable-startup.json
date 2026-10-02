@@ -1,0 +1,8 @@
+{
+  "name": "interim-empty",
+  "paint_observed_utc": "2026-10-02T06:59:48.981Z",
+  "focus_observed_utc": "2026-10-02T07:00:08.408Z",
+  "focus": "9 button Home",
+  "paint_observed_upper_bound_ms": 9914,
+  "keyboard_observed_upper_bound_ms": 29341
+}

@@ -1,0 +1,1 @@
+Initial upgrade check stopped before installation: manifest was not stored beside downloaded installer. Corrected script to use verified R16 artifact-inspection.json; installer SHA checked before execution.

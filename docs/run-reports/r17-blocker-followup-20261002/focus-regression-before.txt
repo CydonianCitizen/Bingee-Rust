@@ -1,0 +1,20 @@
+warn: could not canonicalize path C:\Users\thoma
+   Compiling bingee-desktop v0.1.0-rc.1 (C:\Users\thoma\Documents\Projects\bingee-rust)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 10s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 1 test
+
+thread 'tests::episode_list_focus_is_visible_before_a_row_is_selected' (5468) panicked at src\main.rs:1099:9:
+episode focus has no visible indication before selection: 0 changed pixels
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::episode_list_focus_is_visible_before_a_row_is_selected ... FAILED
+
+failures:
+
+failures:
+    tests::episode_list_focus_is_visible_before_a_row_is_selected
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 233 filtered out; finished in 0.55s
+
+error: test failed, to rerun pass `--bin bingee-desktop`

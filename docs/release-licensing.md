@@ -1,6 +1,6 @@
 # Release licensing decision matrix
 
-Engineering review: 30 September 2026. This records upstream conditions and implementation evidence. It does not classify Bingee Desktop's intended use or decide a license for its own code. Public distribution remains blocked until the responsible owner makes those decisions.
+Engineering review: 1 October 2026. Native package evidence is updated for `6e24b2a`; upstream conditions remain the previously recorded review, not a new legal determination. This records implementation evidence. It does not classify Bingee Desktop's intended use or decide a license for its own code. Public distribution remains blocked until the responsible owner makes those decisions.
 
 | Item | Technical path and evidence | Status before public distribution |
 | --- | --- | --- |
@@ -9,7 +9,7 @@ Engineering review: 30 September 2026. This records upstream conditions and impl
 | TMDB developer API, non-commercial path | About contains an approved, unmodified TMDB logo, smaller than the Bingee name, and the required non-endorsement notice. This engineering implementation matches the [TMDB FAQ attribution requirements](https://developer.themoviedb.org/docs/faq). | **ENGINEERING COMPLETE; EXTERNAL DECISION REQUIRED** whether this path applies |
 | TMDB commercial path | [TMDB says](https://developer.themoviedb.org/docs/faq) commercial API/data/image use requires contacting it for a license. No agreement is claimed. | **LICENSE/PURCHASE REQUIRED IF COMMERCIAL; BLOCKER** until applicable terms are obtained |
 | Inno Setup 6.7.3 | Windows installer uses the official compiler. [Publisher's download page](https://jrsoftware.org/isdl.php) requests a purchased license for commercial use. No purchase is claimed. | **LICENSE/PURCHASE REQUIRED IF COMMERCIAL; EXTERNAL DECISION REQUIRED** |
-| Rust crates | Locked Cargo metadata drives per-platform `licenses/INDEX.txt`, individual crate text directories, and generated linked-crate notices. Windows package generation found 387 resolved crates and 325 linked crates; each resolved crate got text. Native package inventories remain unverified until CI runs. | **ENGINEERING COMPLETE on Windows; BLOCKER** for macOS/Linux package verification |
+| Rust crates | Locked Cargo metadata drives per-platform `licenses/INDEX.txt`, individual crate text directories, and generated linked-crate notices. All three native packages built and their downloaded license/notices resources passed inspection for `6e24b2a`. | **PACKAGE ENGINEERING VERIFIED; FINAL DISTRIBUTION REVIEW REQUIRED** |
 
 ## Available Slint paths
 
@@ -21,7 +21,7 @@ The [TMDB FAQ](https://developer.themoviedb.org/docs/faq) says its API is free f
 
 ## Dependency material and review limit
 
-`scripts/package-licenses.ps1` uses `cargo metadata --locked --filter-platform` and copies crate-supplied license and notice files. For a crate with no bundled license file, it copies a matching standard text from `licenses/common/`; if neither exists, packaging fails. `licenses/INDEX.txt` maps each crate and version to its declared license expression. The generated `THIRD_PARTY_NOTICES.txt` lists normal, non-proc-macro dependencies linked for the target. Build-only crates are included in the broader license tree. This is a reproducible engineering inventory, not a legal interpretation of each expression. The macOS and Linux outputs require native CI verification.
+`scripts/package-licenses.ps1` uses `cargo metadata --locked --filter-platform` and copies crate-supplied license and notice files. For a crate with no bundled license file, it copies a matching standard text from `licenses/common/`; if neither exists, packaging fails. `licenses/INDEX.txt` maps each crate and version to its declared license expression. The generated `THIRD_PARTY_NOTICES.txt` lists normal, non-proc-macro dependencies linked for the target. Build-only crates are included in the broader license tree. This is a reproducible engineering inventory, not a legal interpretation of each expression. Native macOS and Linux packaging and downloaded-resource verification passed for `6e24b2a`; this grants no public distribution authorization.
 
 ## Separate gates
 

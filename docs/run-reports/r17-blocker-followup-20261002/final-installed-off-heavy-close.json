@@ -1,0 +1,28 @@
+{
+  "name": "final-installed-off-heavy",
+  "mode": "off",
+  "scale": "1",
+  "pid": 8716,
+  "profile": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\r17-blocker-followup-20261002\\final-installed-off-heavy",
+  "binary_sha256": "B324D6FE7A8C7FCAF06B4025F839D36C9296BC87A2177ABA49C84EB74BEE3016",
+  "launched_utc": "2026-10-02T07:14:20.3352444Z",
+  "responsive_window_ms": 294.2477,
+  "handle": 11208864,
+  "threads": 13,
+  "handles": 311,
+  "database_before": "F4ECCC154F7618158C02579FC275D2A641FB0499B54516CDEA02F58FCC209C64",
+  "exit_code": 0,
+  "process_exited": true,
+  "exited_utc": "2026-10-02T07:16:12.1656686Z",
+  "close_method": "Alt+F4 third installed refresh-Off run; after state refreshed for input guard; no content interaction",
+  "close_request_to_exit_ms": 480.6686,
+  "database_after": "F4ECCC154F7618158C02579FC275D2A641FB0499B54516CDEA02F58FCC209C64",
+  "exclusive_database_and_lock_open": true,
+  "log_tail": [
+    "2026-10-02T07:14:20Z INFO Library opened: schema version 5, 1000 titles",
+    "2026-10-02T07:14:21Z INFO Detail #1000: shown from the local cache (stale)",
+    "2026-10-02T07:14:21Z INFO Poster tmdb-w185-s.jpg not available: not found at TMDB (HTTP 404)",
+    "2026-10-02T07:16:11Z INFO posters: 0 RAM hits, 0 disk loads, 0 downloads, 1 failures, 0 evictions",
+    "2026-10-02T07:16:11Z INFO Bingee Desktop closed"
+  ]
+}
