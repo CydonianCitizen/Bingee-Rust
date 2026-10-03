@@ -1,0 +1,22 @@
+2026-10-02T20:59:50.6098690Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3ab08c32a2fef16cf8555e9db467f681c1dbd1a2:refs/remotes/origin/main
+2026-10-02T20:59:51.5976090Z  * [new ref]         3ab08c32a2fef16cf8555e9db467f681c1dbd1a2 -> origin/main
+2026-10-02T20:59:51.7184100Z 3ab08c32a2fef16cf8555e9db467f681c1dbd1a2
+2026-10-02T20:59:58.4753400Z   stable-aarch64-apple-darwin updated - rustc 1.99.0 (b940084d7 2026-09-28) (from rustc 1.98.1 (48a229cea 2026-09-01))
+2026-10-02T20:59:58.5204210Z   stable-aarch64-apple-darwin unchanged - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T20:59:58.5463960Z rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T20:59:58.5955790Z cargo 1.99.0 (5f94df478 2026-08-27)
+2026-10-02T20:59:58.6025970Z ##[group]Run cargo fmt --check
+2026-10-02T20:59:58.9076910Z ##[group]Run cargo check --locked
+2026-10-02T21:01:49.4339600Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1m 50s
+2026-10-02T21:01:49.6567910Z ##[group]Run cargo test --locked
+2026-10-02T21:03:48.2323090Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 58s
+2026-10-02T21:03:48.3019590Z running 237 tests
+2026-10-02T21:04:06.4464400Z test result: ok. 221 passed; 0 failed; 16 ignored; 0 measured; 0 filtered out; finished in 18.13s
+2026-10-02T21:04:06.4850830Z ##[group]Run cargo clippy --locked --all-targets --all-features -- -D warnings
+2026-10-02T21:04:25.3118790Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 18.62s
+2026-10-02T21:04:25.3652980Z ##[group]Run cargo clippy --locked --all-targets -- -D warnings
+2026-10-02T21:04:45.4425490Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 19.95s
+2026-10-02T21:04:45.5026980Z ##[group]Run cargo clippy --locked --all-targets --features benchmark-fixture -- -D warnings
+2026-10-02T21:05:04.8648120Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 19.20s
+2026-10-02T21:05:04.9425420Z ##[group]Run cargo build --release --locked
+2026-10-02T21:08:57.0254840Z     Finished `release` profile [optimized] target(s) in 3m 51s

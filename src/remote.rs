@@ -490,6 +490,25 @@ impl Remote {
             return;
         };
         let external = &result.external;
+        if state.in_library.contains(external) {
+            match self.db.with(|db| library::local_id(db, external)) {
+                Ok(Some(id)) => {
+                    drop(state);
+                    if let Some(window) = self.window.upgrade() {
+                        window.invoke_open_library_media(crate::view::ui_id(id), -1, -1);
+                    }
+                    return;
+                }
+                Ok(None) => {}
+                Err(error) => {
+                    self.log.error(format_args!("Open Library title: {error}"));
+                    state.add_error = error.message;
+                    drop(state);
+                    self.refresh();
+                    return;
+                }
+            }
+        }
         let name = format!(
             "{}/{}/{}",
             external.source.key(),
@@ -1416,6 +1435,32 @@ mod tests {
         // Movie 603 is not TV 603.
         assert_eq!(badges(&app), ["", "In Library", "", ""]);
         assert!(!app.get_discover_in_library(), "the movie is selected");
+
+        let opened = std::rc::Rc::new(std::cell::Cell::new(None));
+        app.on_open_library_media({
+            let opened = opened.clone();
+            move |id, season, episode| opened.set(Some((id, season, episode)))
+        });
+        // Opening the TV result resolves the local identity and performs no
+        // writes, even when the provider uses the same numeric Movie ID.
+        let local = db
+            .with(|db| library::local_id(db, &tv.external))
+            .unwrap()
+            .unwrap();
+        db.with(|db| {
+            db.conn().execute_batch("PRAGMA query_only = ON").unwrap();
+            Ok(())
+        })
+        .unwrap();
+        app.invoke_discover_row_selected(1);
+        app.invoke_discover_add();
+        assert_eq!(opened.get(), Some((local as i32, -1, -1)));
+        assert_eq!(app.get_discover().notice, "");
+        db.with(|db| {
+            db.conn().execute_batch("PRAGMA query_only = OFF").unwrap();
+            Ok(())
+        })
+        .unwrap();
 
         // Removing it elsewhere (the Library page) is reflected here.
         let id = db.with(|db| library::add(db, &tv, 2)).unwrap();

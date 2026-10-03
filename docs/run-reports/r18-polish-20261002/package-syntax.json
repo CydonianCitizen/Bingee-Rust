@@ -1,0 +1,18 @@
+[
+  {
+    "file": "scripts/package-windows.ps1",
+    "result": "PASS PowerShell syntax"
+  },
+  {
+    "file": "scripts/package-macos.ps1",
+    "result": "PASS PowerShell syntax"
+  },
+  {
+    "file": "scripts/package-linux.ps1",
+    "result": "PASS PowerShell syntax"
+  },
+  {
+    "file": "scripts/smoke-windows-installer.ps1",
+    "result": "PASS PowerShell syntax"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "platform": "macOS",
+  "result": "PASS",
+  "github_artifact_sha256_verified": "d134b251265586a06ab470c30a66bde2ea0fdb4c28920134ff8a1748b2b3afb0",
+  "manifest": [
+    {
+      "platform": "macOS",
+      "artifact_filename": "bingee-desktop-macos-arm64.tar.gz",
+      "artifact_type": "tar.gz",
+      "architecture": "ARM64",
+      "application_version": "0.1.0-rc.1",
+      "file_size": 11710443,
+      "sha256": "087a8b92a23e88c0c8cc30956ce497e6848bbc673fad8184fb5e07bcd590736b",
+      "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+      "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)"
+    }
+  ],
+  "required_resources_verified": [
+    "Bingee Desktop.app/Contents/MacOS/bingee-desktop",
+    "Bingee Desktop.app/Contents/Info.plist",
+    "Bingee Desktop.app/Contents/Resources/bingee-icon.svg",
+    "Bingee Desktop.app/Contents/Resources/licenses/INDEX.txt",
+    "Bingee Desktop.app/Contents/Resources/THIRD_PARTY_NOTICES.txt"
+  ],
+  "binary_sha256": "804acc8a3182641ffe55045d8d7fda28af59c1d6011235b5320d8ee1a31dcb5b",
+  "binary_format": "Mach-O 64-bit arm64",
+  "bundle_identifier": "io.github.cydoniancitizen.bingee-desktop",
+  "bundle_short_version": "0.1.0",
+  "bundle_version": "10002",
+  "runtime_executed_during_inspection": false
+}

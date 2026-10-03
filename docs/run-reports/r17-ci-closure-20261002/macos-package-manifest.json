@@ -1,0 +1,13 @@
+[
+  {
+    "platform": "macOS",
+    "artifact_filename": "bingee-desktop-macos-arm64.tar.gz",
+    "artifact_type": "tar.gz",
+    "architecture": "ARM64",
+    "application_version": "0.1.0-rc.1",
+    "file_size": 11710443,
+    "sha256": "087a8b92a23e88c0c8cc30956ce497e6848bbc673fad8184fb5e07bcd590736b",
+    "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+    "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)"
+  }
+]

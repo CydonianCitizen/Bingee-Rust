@@ -1,0 +1,41 @@
+{
+  "platform": "Windows",
+  "result": "PASS",
+  "github_artifact_sha256_verified": "f6013c7e4ddc13e138d2b9de737971e160594736c67aebad7dda992118910c25",
+  "manifest": [
+    {
+      "platform": "Windows",
+      "artifact_filename": "bingee-desktop-windows-x64-setup.exe",
+      "artifact_type": "exe",
+      "architecture": "X64",
+      "application_version": "0.1.0-rc.1",
+      "file_size": 10038957,
+      "sha256": "95e4892f582e364415b46222a4f41c2db3b374f90f262ec7a922221bc0463f78",
+      "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+      "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)"
+    },
+    {
+      "platform": "Windows",
+      "artifact_filename": "bingee-desktop-windows-x64.zip",
+      "artifact_type": "zip",
+      "architecture": "X64",
+      "application_version": "0.1.0-rc.1",
+      "file_size": 13738956,
+      "sha256": "b49b712f723a25112c4ac7052b959c6a8436c2c3cd0b29fd9625c52d8128a8d2",
+      "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+      "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)"
+    }
+  ],
+  "required_resources_verified": [
+    "bingee-desktop-windows-x64/bingee-desktop.exe",
+    "bingee-desktop-windows-x64/README.txt",
+    "bingee-desktop-windows-x64/THIRD_PARTY_NOTICES.txt",
+    "bingee-desktop-windows-x64/licenses/INDEX.txt",
+    "bingee-desktop-windows-x64/SHA256SUMS.txt"
+  ],
+  "binary_sha256": "834880d5196e117072c70c46c581ef2b6352f5725e74fc8b49f7abfcd8ba16fb",
+  "binary_format": "PE32+ x64 GUI",
+  "portable_checksums_verified": 696,
+  "readme_clean_corrected_sha": true,
+  "runtime_executed_during_inspection": false
+}

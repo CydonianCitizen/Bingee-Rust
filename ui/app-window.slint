@@ -1341,28 +1341,16 @@ component SettingsPage {
             }
             SectionTitle { text: "AUTOMATIC METADATA REFRESH"; }
             Paragraph { text: "Runs only while Bingee Desktop is open. Checks stale Library titles without changing watched state or ratings."; }
-            Button {
-                text: root.automatic-refresh-enabled ? "Automatic refresh: On" : "Automatic refresh: Off";
-                clicked => { root.automatic-refresh-toggle(); }
-            }
-            SectionTitle {
-                text: "LOCAL DATA";
-            }
-            Paragraph {
-                text: "Your library is stored on this computer, in these locations.";
-            }
-            StorageRows {
-                storage: root.storage;
-            }
             HorizontalLayout {
                 alignment: start;
-                spacing: 10px;
-                Button { text: "Check storage"; clicked => { root.maintenance-inspect(); } }
-                Button { text: "Clean unused data"; clicked => { root.maintenance-clean(); } }
+                Button {
+                    text: root.automatic-refresh-enabled ? "Automatic refresh: On" : "Automatic refresh: Off";
+                    clicked => { root.automatic-refresh-toggle(); }
+                }
             }
-            if root.maintenance-status != "": Paragraph { text: root.maintenance-status; }
             SectionTitle { text: "BACKUP AND RESTORE"; }
             Paragraph { text: "Export a portable JSON backup of your Library, tracking, ratings and history. Your TMDB token, image cache and logs are excluded."; }
+            Paragraph { text: "Restore replaces your saved Bingee data. A safety backup of the current data is created first; restore stops if that backup cannot be saved."; }
             HorizontalLayout {
                 alignment: start;
                 spacing: 10px;
@@ -1374,12 +1362,23 @@ component SettingsPage {
             if root.backup-ready: HorizontalLayout {
                 alignment: start;
                 Button {
-                    text: "Confirm replace with selected backup";
+                    text: "Replace data with this backup";
                     primary: true;
                     clicked => { root.backup-confirm(); }
                 }
             }
             if root.backup-status != "": Paragraph { text: root.backup-status; }
+            SectionTitle { text: "STORAGE AND CACHE"; }
+            Paragraph { text: "Check local storage or remove unused cached data. Library titles, watch history and ratings are kept."; }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 10px;
+                Button { text: "Check storage"; clicked => { root.maintenance-inspect(); } }
+                Button { text: "Clean unused data"; clicked => { root.maintenance-clean(); } }
+            }
+            if root.maintenance-status != "": Paragraph { text: root.maintenance-status; }
+            SectionTitle { text: "DIAGNOSTICS"; }
+            StorageRows { storage: root.storage; }
             SectionTitle {
                 text: "ABOUT";
             }
@@ -1698,55 +1697,82 @@ component HomePage {
     in property <[HomeRow]> rows;
     in property <string> summary;
     in property <string> notice;
+    in property <bool> has-library;
     in-out property <int> selected-row: 0;
     callback open-row(row: int);
     callback open-discover();
+    callback open-settings();
+
+    function select-row(row: int) {
+        root.selected-row = clamp(row, 0, max(0, root.rows.length - 1));
+        if root.selected-row * 56px + home-list.viewport-y < 0 {
+            home-list.viewport-y = -root.selected-row * 56px;
+        } else if (root.selected-row + 1) * 56px + home-list.viewport-y > home-list.visible-height {
+            home-list.viewport-y = home-list.visible-height - (root.selected-row + 1) * 56px;
+        }
+    }
+    changed rows => { root.select-row(root.selected-row); }
 
     public function focus-list() { home-focus.focus(); }
     VerticalLayout {
         padding: 24px;
         spacing: 14px;
         PageTitle { text: "Home"; }
-        Paragraph { text: root.summary; }
+        if root.has-library: Paragraph { text: root.summary; }
         if root.notice != "": Paragraph { text: root.notice; }
         Rectangle {
             vertical-stretch: 1;
             home-focus := FocusScope {
                 key-pressed(event) => {
                     if event.text == Key.UpArrow {
-                        root.selected-row = max(0, root.selected-row - 1);
+                        root.select-row(root.selected-row - 1);
                     } else if event.text == Key.DownArrow {
-                        root.selected-row = min(root.rows.length - 1, root.selected-row + 1);
+                        root.select-row(root.selected-row + 1);
+                    } else if event.text == Key.PageUp {
+                        root.select-row(root.selected-row - max(1, floor(home-list.visible-height / 56px)));
+                    } else if event.text == Key.PageDown {
+                        root.select-row(root.selected-row + max(1, floor(home-list.visible-height / 56px)));
                     } else if event.text == Key.Home {
-                        root.selected-row = 0;
+                        root.select-row(0);
                     } else if event.text == Key.End {
-                        root.selected-row = root.rows.length - 1;
-                    } else if event.text == Key.Return {
-                        if root.selected-row >= 0 { root.open-row(root.selected-row); }
+                        root.select-row(root.rows.length - 1);
+                    } else if event.text == Key.Return || event.text == " " {
+                        if root.rows.length > 0 { root.open-row(root.selected-row); }
                     } else { return reject; }
                     return accept;
                 }
-                ScrollView {
+                home-list := ListView {
                     width: 100%; height: 100%;
-                    VerticalLayout {
-                        spacing: 6px;
-                        alignment: start;
-                        for item[index] in root.rows: Button {
-                            width: 100%;
-                            text: "\{item.section}   ·   \{item.title}   —   \{item.detail}";
-                            primary: index == root.selected-row && home-focus.has-focus;
-                            clicked => { root.selected-row = index; root.open-row(index); }
-                        }
+                    for item[index] in root.rows: HistoryItem {
+                        height: 56px;
+                        item: { title: item.title, detail: item.detail, when: item.section };
+                        selected: index == root.selected-row;
+                        focused: self.selected && home-focus.has-focus;
+                        clicked => { root.select-row(index); home-focus.focus(); root.open-row(index); }
                     }
                 }
             }
             if root.rows.length == 0: VerticalLayout {
                 alignment: center;
-                Paragraph { text: "Your Library is ready. Add a movie or series to begin."; }
+                spacing: 8px;
+                Text {
+                    text: root.has-library ? "Your next watch starts in your Library" : "Keep your movies and series in one place";
+                    font-size: 16px; font-weight: 600; color: Theme.text;
+                    horizontal-alignment: center; wrap: word-wrap;
+                }
+                Text {
+                    text: root.has-library
+                        ? "Mark a title as watched to see recent activity and Continue Watching. Upcoming episodes appear when their dates are known."
+                        : "Connect TMDB in Settings, search in Discover, then choose Add to Library. Your Library and watch history stay on this computer.";
+                    font-size: 13px; color: Theme.text-muted;
+                    horizontal-alignment: center; wrap: word-wrap;
+                }
             }
         }
         HorizontalLayout {
             alignment: start;
+            spacing: 10px;
+            if !root.has-library: Button { text: "TMDB settings"; clicked => { root.open-settings(); } }
             Button { text: "Discover"; clicked => { root.open-discover(); } }
         }
     }
@@ -1844,6 +1870,7 @@ component HistoryPage {
     in property <string> notice;
     callback row-selected(row: int);
     callback delete-row(row: int);
+    callback open-row(row: int);
 
     private property <length> row-height: 56px;
 
@@ -1906,6 +1933,8 @@ component HistoryPage {
                         if root.selected-row >= 0 {
                             root.delete-row(root.selected-row);
                         }
+                    } else if event.text == Key.Return || event.text == " " {
+                        if root.selected-row >= 0 { root.open-row(root.selected-row); }
                     } else {
                         return reject;
                     }
@@ -1947,6 +1976,11 @@ component HistoryPage {
         }
         HorizontalLayout {
             spacing: 12px;
+            Button {
+                text: "Open in Library";
+                enabled: root.selected-row >= 0;
+                clicked => { root.open-row(root.selected-row); }
+            }
             Button {
                 text: "Remove from history";
                 enabled: root.selected-row >= 0;
@@ -2439,7 +2473,7 @@ component StartupErrorPage {
                 wrap: word-wrap;
             }
             Paragraph {
-                text: "\{AppInfo.name} did not delete or replace any of your files. Technical details are in the log file below. Fix the cause, or restore the database file from a backup, then try again.";
+                text: "\{AppInfo.name} did not delete or replace your files. Check the message above, then try again. Keep your data folder if you need help; technical details are in the log below.";
             }
             InfoRow {
                 label: "Database";
@@ -2583,6 +2617,7 @@ export component AppWindow inherits Window {
     callback history-opened();
     callback history-row-selected(row: int);
     callback history-delete(row: int);
+    callback history-open(row: int);
     callback home-opened();
     callback home-select(row: int);
     callback calendar-opened();
@@ -2810,7 +2845,7 @@ export component AppWindow inherits Window {
                             }
                             Text {
                                 text: root.total-count == 0
-                                    ? "Search for a movie or TV series to get started."
+                                    ? "Connect TMDB in Settings, then search in Discover and choose Add to Library."
                                     : search.text == "" ? "No titles of this type in your library."
                                     : "Nothing matches “\{search.text}”. Try another title, or press Esc to clear the search.";
                                 horizontal-alignment: center;
@@ -2832,6 +2867,7 @@ export component AppWindow inherits Window {
                 notice: root.history-notice;
                 row-selected(row) => { root.history-row-selected(row); }
                 delete-row(row) => { root.history-delete(row); }
+                open-row(row) => { root.history-open(row); }
             }
             home-page := HomePage {
                 width: 100%;
@@ -2839,9 +2875,11 @@ export component AppWindow inherits Window {
                 visible: root.shown == "home";
                 rows: root.home-rows;
                 summary: root.home-summary;
+                has-library: root.total-count > 0;
                 notice: root.home-notice;
                 open-row(row) => { root.home-select(row); }
                 open-discover => { root.page = "discover"; }
+                open-settings => { root.page = "settings"; }
             }
             // Kept alive like the library, so the query survives navigation.
             discover-page := DiscoverPage {
@@ -2967,9 +3005,9 @@ export component AppWindow inherits Window {
                 item: root.shown == "discover" ? root.discover-detail : root.detail;
                 has-item: root.shown == "discover" ? root.discover-selected-row >= 0 : root.selected-row >= 0;
                 action: root.shown == "discover"
-                    ? (root.discover-in-library ? "In Library" : "Add to Library")
+                    ? (root.discover-in-library ? "Open in Library" : "Add to Library")
                     : (root.library-controls ? "Remove from Library" : "");
-                action-enabled: root.shown != "discover" || !root.discover-in-library;
+                action-enabled: true;
                 act => {
                     if root.shown == "discover" {
                         root.discover-add();

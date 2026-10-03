@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\release\\bingee-r4-frozen.exe",
+    "Hash": "AEAF7F294E5D829CF2F693E768F79BC8AF6A1BB0416954296965F78218B9F35E"
+  },
+  {
+    "Path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\release\\bingee-r4-latency.exe",
+    "Hash": "DB1CFDEB8A47CCD4AB28B89A4ACC59DF15DC63FE1300E751F71CDB39D6DE67E3"
+  },
+  {
+    "Path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\release\\bingee-r4-default.exe",
+    "Hash": "DB4A35DE850C353C97E05FCBC30BD55AB604D7CA70C6673D2646CB61E624BCB7"
+  },
+  {
+    "Path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\target\\release\\bingee-spike.db",
+    "Hash": "61918DB3B71A4B0F77154ABB498268F8D7F327469355B569AAD993B58C69FEC3"
+  },
+  {
+    "Path": "C:\\Users\\thoma\\Documents\\Projects\\bingee-rust\\benchmark\\assets\\posters\\SHA256SUMS",
+    "Hash": "4BE13BC484B971585C04CA4322629CECC837DB3BB823715FE72F69C1AFD0978C"
+  }
+]

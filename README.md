@@ -34,19 +34,16 @@ progress and a watch history, and see statistics about it. Home, Calendar,
 backups and stored updates work offline. Automatic metadata refresh is
 optional and runs only while the app is open.
 
-Core R15 hardening is implemented: one process owns a profile, Settings can
-check database integrity and clean unused metadata/posters, and backup export
-works on filesystems without hard links. R16 technical packaging passed on
-Windows, macOS and Linux for pushed `6e24b2a`. R17 final validation is partial:
-a keyboard navigation blocker was reproduced and corrected locally, and the
-revised candidate still needs native CI, native keyboard/accessibility proof
-and diagnosis of populated native close timeouts. Local data/product tests,
-bounded soak/timings and Windows package preservation have evidence.
-R18 product polish is suspended until that technical gate closes. Version
-`0.1.0-rc.1` comes from `Cargo.toml`; it is not an approval to release.
-See `docs/run-reports/2026-10-02-r17-release-validation.md` and the canonical
-current list in `docs/known-limitations.md`.
-
+Core hardening includes one process per profile, local integrity checks,
+conservative cache cleanup and safe backup export. R16 passed. R17 is
+technically ready for RC at `3ab08c32a2fef16cf8555e9db467f681c1dbd1a2`;
+both workflows passed independently on Windows, macOS and Linux. R18 adds
+bounded UX and release polish, with separate local regression evidence.
+Version `0.1.0-rc.1` comes from `Cargo.toml`. Public distribution remains
+blocked by external licensing, intended-use, signing and distribution decisions.
+See [current limitations](docs/known-limitations.md),
+[RC release notes](docs/release-notes-0.1.0-rc.1.md) and
+[the release checklist](docs/release-checklist.md).
 See `IMPLEMENTATION_PLAN.md` and `docs/milestones/R6.md` to `R14.md`.
 
 ## Prerequisites
@@ -146,7 +143,7 @@ pages. See ADR-0007 to ADR-0009.
 - **Add**: in Discover, select a result and choose **Add to Library** (or
   press Enter in the result list). The title, original title, type, date,
   overview and poster path are saved in one SQLite transaction; the result
-  then shows **In Library**, and the Library page lists it at once. Adding a
+  then shows **In Library**, with **Open in Library** available in the preview. The Library page lists it at once. Adding a
   title that is already there changes nothing. TMDB movie 603 and TMDB TV
   series 603 are different titles.
 - **Browse**: the Library page reads only the local database. Search matches
@@ -336,26 +333,17 @@ pwsh -NoProfile -File scripts/smoke-windows-package.ps1 -WorkDir $env:TEMP\binge
 pwsh -NoProfile -File scripts/smoke-windows-installer.ps1 -WorkDir $env:TEMP\bingee-installer-smoke
 ```
 
-Windows output: `dist/bingee-desktop-windows-x64-setup.exe`, a portable ZIP,
-and the unpacked folder. The installer is per-user. Uninstall leaves Library,
-cache and logs in `%LOCALAPPDATA%`. Install the Microsoft Visual C++
-2015–2022 Redistributable (x64) before launch if absent. Artifacts are unsigned.
+Windows produces a per-user installer and portable ZIP; macOS produces an
+`.app` archive; Linux produces a tarball with user-level install/uninstall
+scripts. Filenames include the Cargo version, platform and native architecture.
+All include third-party notices and license material. Artifacts are unsigned;
+macOS is not notarized. See [installation instructions](docs/installation.md)
+for each artifact and its runtime prerequisites.
 
-On macOS, run `pwsh -NoProfile -File scripts/package-macos.ps1` to build
-`Bingee Desktop.app` and a tarball. It is unsigned and not notarized. On
-Linux, run `pwsh -NoProfile -File scripts/package-linux.ps1` to build a
-tarball with a `.desktop` file, icon and user-level install/uninstall scripts.
-All packages include `THIRD_PARTY_NOTICES.txt` and a `licenses/` directory.
-The GitHub Actions `release-artifacts` workflow runs on pushes to `main` or
-manual dispatch, builds and uploads all three platform packages, and does not
-publish a release. Both workflows passed independently on all three platforms
-for `6e24b2a`. Downloaded packages passed size/hash, manifest, resource,
-architecture and version checks. Windows process/installer smoke and Linux
-Xvfb smoke passed; macOS executable verification was structural, with no
-native launch configured. See `docs/run-reports/2026-10-01-r16-native-revalidation.md`.
-The subsequent local sidebar keyboard fix still needs both native workflows
-and new artifact/smoke verification before the revised candidate can pass.
-
+The artifact workflow builds on `main` pushes, manual dispatch and matching
+version tags. It uploads artifacts and manifests without publishing a release.
+R17 CI evidence applies to `3ab08c3`; changed R18 source needs its own native
+workflow evidence after a permitted push. See [signing and workflow readiness](docs/release-signing.md).
 ## What the app does (R14)
 
 - **Sidebar**: Home, Library, History, Discover, Calendar, Updates,

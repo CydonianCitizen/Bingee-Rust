@@ -116,7 +116,7 @@ Build
 
     $exe = Get-Item (Join-Path $package 'bingee-desktop.exe')
     $total = (Get-ChildItem $package -Recurse -File | Measure-Object Length -Sum).Sum
-    $zip = Join-Path $dist 'bingee-desktop-windows-x64.zip'
+    $zip = Join-Path $dist "bingee-desktop-$version-windows-x64.zip"
     if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
     Compress-Archive -Path $package -DestinationPath $zip -CompressionLevel Optimal
     $compiler = @((Join-Path $root 'target/tools/inno6/ISCC.exe'), 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe', 'C:\Program Files\Inno Setup 6\ISCC.exe') |
@@ -124,7 +124,7 @@ Build
     if ($compiler) {
         & $compiler "/DVersion=$version" (Join-Path $PSScriptRoot 'bingee-desktop.iss')
         if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed.' }
-        $installer = Join-Path $dist 'bingee-desktop-windows-x64-setup.exe'
+        $installer = Join-Path $dist "bingee-desktop-$version-windows-x64-setup.exe"
         Write-Output "Installer:   $installer, $((Get-Item $installer).Length) bytes, SHA-256 $((Get-FileHash $installer).Hash)"
     } elseif ($RequireInstaller) {
         throw 'Inno Setup 6 is required for the Windows installer.'

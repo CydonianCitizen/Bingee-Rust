@@ -1,0 +1,790 @@
+warn: could not canonicalize path C:\Users\thoma
+warn: could not canonicalize path C:\Users\thoma
+    Finished `release` profile [optimized] target(s) in 1.08s
+warn: could not canonicalize path C:\Users\thoma
+warn: could not canonicalize path C:\Users\thoma
+License material: 387 resolved crates in C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses
+warn: could not canonicalize path C:\Users\thoma
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\as-slice-0.2.1\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\as-slice-0.2.1\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\cexpr-0.6.0\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\cexpr-0.6.0\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\countme-3.0.1\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\countme-3.0.1\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\float-cmp-0.9.0\LICENSE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\linked-hash-map-0.5.6\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\linked-hash-map-0.5.6\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\minimal-lexical-0.2.1\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\minimal-lexical-0.2.1\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\minimal-lexical-0.2.1\LICENSE.md' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\pico-args-0.5.0\LICENSE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\pin-weak-1.1.0\LICENSE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\quick-error-2.0.1\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\quick-error-2.0.1\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\text-size-1.1.1\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\text-size-1.1.1\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\untrusted-0.9.0\LICENSE.txt' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\vcpkg-0.2.15\LICENSE-APACHE' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\vcpkg-0.2.15\LICENSE-MIT' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\windows-sys-0.52.0\license-apache-2.0' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+'C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64\licenses\windows-sys-0.52.0\license-mit' has LastWriteTime earlier than 1980. Compress-Archive will store any files with LastWriteTime values earlier than 1980 as 1/1/1980 00:00.
+Inno Setup 6 Command-Line Compiler
+Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
+Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.
+https://www.innosetup.com
+
+Compiler engine version: Inno Setup 6.7.3
+Non-commercial use only
+
+Preprocessing
+   Reading file: C:\Users\thoma\Documents\Projects\bingee-rust\target\tools\inno6\ISPPBuiltins.iss
+Parsing [Setup] section, line 5
+Parsing [Setup] section, line 6
+Parsing [Setup] section, line 7
+Parsing [Setup] section, line 8
+Parsing [Setup] section, line 9
+Parsing [Setup] section, line 10
+Parsing [Setup] section, line 11
+Parsing [Setup] section, line 12
+Parsing [Setup] section, line 13
+Parsing [Setup] section, line 14
+Parsing [Setup] section, line 15
+Parsing [Setup] section, line 16
+Parsing [Setup] section, line 17
+Parsing [Setup] section, line 18
+Parsing [Setup] section, line 19
+Reading file (WizardImageFile)
+Reading file (WizardSmallImageFile)
+Preparing Setup program executable
+   Verification successful
+   Updating icons (Setup.e32)
+   Updating version info (Setup.e32)
+Determining language code pages
+   Reading file: C:\Users\thoma\Documents\Projects\bingee-rust\target\tools\inno6\Default.isl
+   Messages in script file
+Reading default messages from Default.isl
+Parsing [LangOptions], [Messages], and [CustomMessages] sections
+   Reading file: C:\Users\thoma\Documents\Projects\bingee-rust\target\tools\inno6\Default.isl
+   Messages in script file
+Reading [Code] section
+Parsing [Tasks] section, line 29
+Parsing [Icons] section, line 25
+Parsing [Icons] section, line 26
+Parsing [Run] section, line 32
+Parsing [Files] section, line 22
+Deleting bingee-desktop-0.1.0-rc.1-windows-x64-setup.exe from output directory
+Creating setup files
+   Verification successful
+   Updating icons (Setup.exe)
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\bingee-desktop.exe
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\README.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\SHA256SUMS.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\THIRD_PARTY_NOTICES.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\INDEX.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\accesskit-0.24.1\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\accesskit-0.24.1\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\accesskit_consumer-0.38.0\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\accesskit_consumer-0.38.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\accesskit_windows-0.34.0\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\accesskit_windows-0.34.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\accesskit_winit-0.33.2\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\adler2-2.0.1\LICENSE-0BSD
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\adler2-2.0.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\adler2-2.0.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\aho-corasick-1.1.5\COPYING
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\aho-corasick-1.1.5\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\aho-corasick-1.1.5\UNLICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\aligned-0.4.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\aligned-0.4.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\aligned-vec-0.6.4\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\allocator-api2-0.2.21\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\allocator-api2-0.2.21\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\annotate-snippets-0.12.16\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\annotate-snippets-0.12.16\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\anstyle-1.0.14\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\anstyle-1.0.14\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\anyhow-1.0.104\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\anyhow-1.0.104\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\arg_enum_proc_macro-0.3.4\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\arrayref-0.3.9\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\arrayvec-0.7.8\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\arrayvec-0.7.8\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\as-slice-0.2.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\as-slice-0.2.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\autocfg-1.5.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\autocfg-1.5.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\auto_enums-0.8.10\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\auto_enums-0.8.10\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\av-scenechange-0.14.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\av1-grain-0.2.5\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\avif-serialize-0.8.9\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\base64-0.22.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\base64-0.22.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\base64-0.23.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\base64-0.23.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bincode-2.0.1\LICENSE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bindgen-0.72.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bitflags-2.13.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bitflags-2.13.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bitstream-io-4.10.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bitstream-io-4.10.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bit_field-0.10.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bit_field-0.10.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\borsh-1.8.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\borsh-1.8.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\built-0.8.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bumpalo-3.20.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bumpalo-3.20.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bytemuck-1.25.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bytemuck-1.25.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bytemuck-1.25.2\LICENSE-ZLIB
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bytemuck_derive-1.12.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bytemuck_derive-1.12.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bytemuck_derive-1.12.0\LICENSE-ZLIB
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\byteorder-1.5.0\COPYING
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\byteorder-1.5.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\byteorder-1.5.0\UNLICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\byteorder-lite-0.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\byteorder-lite-0.1.0\UNLICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\bytes-1.12.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\by_address-1.2.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\by_address-1.2.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cc-1.4.5\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cc-1.4.5\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cexpr-0.6.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cexpr-0.6.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cfg-if-1.0.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cfg-if-1.0.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cfg_aliases-0.2.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cfg_aliases-0.2.2\NOTICES.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\chrono-0.4.45\LICENSE.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\clang-sys-1.9.1\LICENSE.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\clipboard-win-5.4.1\BSL-1.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\clru-0.6.3\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\color_quant-1.1.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\const-field-offset-0.2.1\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\const-field-offset-0.2.1\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\const-field-offset-macro-0.2.1\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\const-field-offset-macro-0.2.1\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\convert_case-0.10.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\copypasta-0.10.2\LICENSE.apache2
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\copypasta-0.10.2\LICENSE.mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\core_maths-0.1.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\countme-3.0.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\countme-3.0.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crc32fast-1.5.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crc32fast-1.5.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\critical-section-1.2.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\critical-section-1.2.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-channel-0.5.17\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-channel-0.5.17\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-channel-0.5.17\LICENSE-THIRD-PARTY
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-deque-0.8.8\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-deque-0.8.8\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-epoch-0.9.21\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-epoch-0.9.21\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-utils-0.8.23\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\crossbeam-utils-0.8.23\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cursor-icon-1.2.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cursor-icon-1.2.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\cursor-icon-1.2.0\LICENSE-ZLIB
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\data-url-0.3.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\data-url-0.3.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\derive_more-2.1.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\derive_more-impl-2.1.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\derive_utils-0.16.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\derive_utils-0.16.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\displaydoc-0.2.7\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\displaydoc-0.2.7\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\dpi-0.1.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\dpi-0.1.2\LICENSE-LIBM-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\either-1.18.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\either-1.18.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\equator-0.4.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\equator-macro-0.4.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\equivalent-1.0.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\equivalent-1.0.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\error-code-3.4.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\euclid-0.22.14\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\euclid-0.22.14\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\exr-1.74.2\LICENSE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fallible-iterator-0.3.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fallible-iterator-0.3.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fallible-streaming-iterator-0.1.9\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fallible-streaming-iterator-0.1.9\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fax-0.2.7\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fdeflate-0.3.7\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fdeflate-0.3.7\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\femtovg-0.25.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\femtovg-0.25.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\field-offset-0.3.6\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\field-offset-0.3.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\filetime-0.2.29\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\filetime-0.2.29\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\find-msvc-tools-0.1.12\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\find-msvc-tools-0.1.12\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fixed_decimal-0.7.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\flate2-1.1.10\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\flate2-1.1.10\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\float-cmp-0.9.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fnv-1.0.7\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fnv-1.0.7\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\foldhash-0.2.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\font-types-0.11.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\font-types-0.11.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\font-types-0.12.5\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\font-types-0.12.5\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fontdb-0.23.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fontique-0.10.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\fontique-0.10.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\form_urlencoded-1.2.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\form_urlencoded-1.2.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\getopts-0.2.24\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\getopts-0.2.24\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\getrandom-0.2.17\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\getrandom-0.2.17\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\getrandom-0.4.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\getrandom-0.4.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\gif-0.14.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\gif-0.14.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glob-0.3.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glob-0.3.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glow-0.17.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glow-0.17.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glow-0.17.0\LICENSE-ZLIB
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glutin-0.32.3\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glutin-winit-0.5.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glutin_egl_sys-0.7.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\glutin_wgl_sys-0.6.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\gl_generator-0.14.0\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\grid-1.0.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\half-2.7.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\half-2.7.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\harfrust-0.8.4\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashbrown-0.14.5\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashbrown-0.14.5\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashbrown-0.16.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashbrown-0.16.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashbrown-0.17.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashbrown-0.17.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashlink-0.12.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\hashlink-0.12.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\heck-0.5.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\heck-0.5.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\htmlparser-0.2.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\htmlparser-0.2.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\http-1.5.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\http-1.5.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\httparse-1.10.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\httparse-1.10.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-selector-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-selector-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-selector-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-testing-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-testing-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-testing-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-winit-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-winit-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-backend-winit-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-common-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-common-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-common-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-compiler-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-compiler-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-compiler-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-core-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-core-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-core-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-core-macros-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-core-macros-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-core-macros-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-femtovg-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-femtovg-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-femtovg-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-skia-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-skia-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-skia-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-software-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-software-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\i-slint-renderer-software-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_collections-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_decimal-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_decimal_data-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_locale_core-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_locale_fallback-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_locale_fallback_data-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_normalizer-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_normalizer_data-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_plurals-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_plurals_data-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_properties-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_properties_data-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_provider-2.3.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_segmenter-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\icu_segmenter_data-2.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\idna-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\idna-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\idna_adapter-1.2.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\idna_adapter-1.2.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\image-0.25.10\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\image-0.25.10\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\image-webp-0.2.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\image-webp-0.2.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\imagesize-0.14.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\imgref-1.12.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\imgref-1.12.3\LICENSE-CC0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\indexmap-2.14.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\indexmap-2.14.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\integer-sqrt-0.1.5\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\integer-sqrt-0.1.5\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\itertools-0.13.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\itertools-0.13.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\itertools-0.14.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\itertools-0.14.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\itoa-1.0.18\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\itoa-1.0.18\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\jobserver-0.1.35\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\jobserver-0.1.35\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\keyboard-types-0.7.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\keyboard-types-0.7.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\keyring-4.2.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\keyring-4.2.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\keyring-core-1.0.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\keyring-core-1.0.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\khronos_api-3.1.0\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\kurbo-0.13.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\kurbo-0.13.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lazy_static-1.5.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lazy_static-1.5.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lebe-0.5.3\LICENSE-BSD-3-Clause
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\libc-0.2.189\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\libc-0.2.189\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\libloading-0.8.9\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\libm-0.2.16\LICENSE.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\libsqlite3-sys-0.38.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\linebender_resource_handle-0.1.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\linebender_resource_handle-0.1.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\linked-hash-map-0.5.6\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\linked-hash-map-0.5.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\linked_hash_set-0.1.6\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\litemap-0.8.3\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\log-0.4.34\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\log-0.4.34\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\loop9-0.1.5\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_algorithms-1.0.21\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_algorithms-1.0.21\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_extra-1.1.0\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_extra-1.1.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_geom-1.0.19\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_geom-1.0.19\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_path-1.0.19\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\lyon_path-1.0.19\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\maybe-rayon-0.1.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\memchr-2.8.3\COPYING
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\memchr-2.8.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\memchr-2.8.3\UNLICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\memmap2-0.9.11\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\memmap2-0.9.11\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\memoffset-0.9.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\minimal-lexical-0.2.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\minimal-lexical-0.2.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\minimal-lexical-0.2.1\LICENSE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.8.9\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.8.9\LICENSE-APACHE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.8.9\LICENSE-MIT.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.8.9\LICENSE-ZLIB.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.9.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.9.1\LICENSE-APACHE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.9.1\LICENSE-MIT.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\miniz_oxide-0.9.1\LICENSE-ZLIB.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\moxcms-0.8.1\LICENSE-APACHE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\moxcms-0.8.1\LICENSE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\muda-0.19.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\muda-0.19.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\muda-0.19.3\LICENSE.spdx
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\natord-1.0.9\LICENSE.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\new_debug_unreachable-1.0.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\nom-7.1.3\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\nom-8.0.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\noop_proc_macro-0.3.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\no_std_io2-0.9.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\no_std_io2-0.9.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-bigint-0.4.8\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-bigint-0.4.8\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-complex-0.4.6\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-complex-0.4.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-derive-0.4.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-derive-0.4.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-integer-0.1.47\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-integer-0.1.47\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-rational-0.4.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-rational-0.4.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-traits-0.2.19\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num-traits-0.2.19\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num_enum-0.7.6\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num_enum-0.7.6\LICENSE-BSD
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num_enum-0.7.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num_enum_derive-0.7.6\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num_enum_derive-0.7.6\LICENSE-BSD
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\num_enum_derive-0.7.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\once_cell-1.21.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\once_cell-1.21.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\parlance-0.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\parlance-0.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\parley-0.10.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\parley-0.10.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\parley_data-0.10.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\parley_data-0.10.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\paste-1.0.15\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\paste-1.0.15\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pastey-0.1.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pastey-0.1.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\percent-encoding-2.3.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\percent-encoding-2.3.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pico-args-0.5.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-project-1.1.13\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-project-1.1.13\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-project-internal-1.1.13\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-project-internal-1.1.13\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-project-lite-0.2.17\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-project-lite-0.2.17\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-utils-0.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-utils-0.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pin-weak-1.1.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pkg-config-0.3.34\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pkg-config-0.3.34\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\png-0.18.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\png-0.18.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\polycool-0.4.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\polycool-0.4.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\portable-atomic-1.15.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\portable-atomic-1.15.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\potential_utf-0.1.6\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\prettyplease-0.2.37\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\prettyplease-0.2.37\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\proc-macro-crate-3.5.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\proc-macro-crate-3.5.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\proc-macro2-1.0.107\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\proc-macro2-1.0.107\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\profiling-1.0.18\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\profiling-1.0.18\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\profiling-procmacros-1.0.18\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\profiling-procmacros-1.0.18\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pulldown-cmark-0.13.4\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pulldown-cmark-escape-0.11.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pulp-0.22.3\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pulp-wasm-simd-flag-0.1.1\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pxfm-0.1.30\LICENSE-APACHE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\pxfm-0.1.30\LICENSE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\qoi-0.4.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\qoi-0.4.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\quick-error-2.0.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\quick-error-2.0.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\quote-1.0.47\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\quote-1.0.47\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rav1e-0.8.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ravif-0.13.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\raw-cpuid-11.6.0\LICENSE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\raw-window-handle-0.6.2\LICENSE-APACHE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\raw-window-handle-0.6.2\LICENSE-MIT.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\raw-window-handle-0.6.2\LICENSE-ZLIB.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rayon-1.12.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rayon-1.12.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rayon-core-1.13.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rayon-core-1.13.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\read-fonts-0.39.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\read-fonts-0.39.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\read-fonts-0.41.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\read-fonts-0.41.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\reborrow-0.5.5\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\regex-1.13.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\regex-1.13.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\regex-automata-0.4.18\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\regex-automata-0.4.18\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\regex-syntax-0.8.11\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\regex-syntax-0.8.11\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\resvg-0.47.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\resvg-0.47.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rfd-0.17.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rgb-0.8.53\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ring-0.17.14\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ring-0.17.14\LICENSE-BoringSSL
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ring-0.17.14\LICENSE-other-bits
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rowan-0.16.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rowan-0.16.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\roxmltree-0.21.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\roxmltree-0.21.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rspolib-0.1.2\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rusqlite-0.40.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustc-hash-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustc-hash-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustc-hash-2.1.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustc-hash-2.1.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustc_version-0.4.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustc_version-0.4.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustls-0.23.44\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustls-0.23.44\LICENSE-ISC
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustls-0.23.44\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustls-pki-types-1.15.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustls-pki-types-1.15.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustls-webpki-0.103.15\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustversion-1.0.23\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustversion-1.0.23\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\rustybuzz-0.20.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\scoped-tls-hkt-0.1.5\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\scoped-tls-hkt-0.1.5\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\scopeguard-1.2.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\scopeguard-1.2.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\semver-1.0.28\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\semver-1.0.28\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde-1.0.229\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde-1.0.229\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_core-1.0.229\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_core-1.0.229\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_derive-1.0.229\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_derive-1.0.229\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_json-1.0.151\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_json-1.0.151\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_spanned-1.1.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\serde_spanned-1.1.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\shlex-1.3.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\shlex-1.3.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\shlex-2.0.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\shlex-2.0.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\simd-adler32-0.3.10\LICENSE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\simd_helpers-0.1.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\simplecss-0.2.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\simplecss-0.2.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\siphasher-1.0.3\COPYING
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\skia-bindings-0.99.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\skia-safe-0.99.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\skrifa-0.42.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\skrifa-0.42.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\skrifa-0.44.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\skrifa-0.44.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slab-0.4.12\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-build-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-build-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-build-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-macros-1.17.1\LICENSES\GPL-3.0-only.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-macros-1.17.1\LICENSES\LicenseRef-Slint-Royalty-free-2.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slint-macros-1.17.1\LICENSES\LicenseRef-Slint-Software-3.0.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\slotmap-1.1.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\smallvec-1.16.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\smallvec-1.16.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\smol_str-0.2.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\smol_str-0.2.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\smol_str-0.3.6\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\smol_str-0.3.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\snafu-0.8.9\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\snafu-0.8.9\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\snafu-derive-0.8.9\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\snafu-derive-0.8.9\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\softbuffer-0.4.8\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\softbuffer-0.4.8\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\spin_on-0.1.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\spin_on-0.1.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\stable_deref_trait-1.2.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\stable_deref_trait-1.2.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\static_assertions-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\static_assertions-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\strict-num-0.1.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\strum-0.28.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\strum_macros-0.28.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\subtle-2.6.1\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\svgtypes-0.16.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\svgtypes-0.16.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\swash-0.2.10\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\swash-0.2.10\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\syn-2.0.119\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\syn-2.0.119\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\syn-3.0.5\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\syn-3.0.5\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\synstructure-0.13.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\sys-locale-0.3.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\sys-locale-0.3.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\taffy-0.10.1\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tar-0.4.46\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tar-0.4.46\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\text-size-1.1.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\text-size-1.1.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\thiserror-2.0.20\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\thiserror-2.0.20\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\thiserror-impl-2.0.20\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\thiserror-impl-2.0.20\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tiff-0.11.3\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tiny-skia-0.12.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tiny-skia-path-0.12.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tinystr-0.8.4\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tinyvec-1.13.2\LICENSE-APACHE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tinyvec-1.13.2\LICENSE-MIT.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tinyvec-1.13.2\LICENSE-ZLIB.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tinyvec_macros-0.1.1\LICENSE-APACHE.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tinyvec_macros-0.1.1\LICENSE-MIT.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tinyvec_macros-0.1.1\LICENSE-ZLIB.md
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml-1.1.6+spec-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml-1.1.6+spec-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_datetime-1.1.1+spec-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_datetime-1.1.1+spec-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_edit-0.25.15+spec-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_edit-0.25.15+spec-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_parser-1.1.3+spec-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_parser-1.1.3+spec-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_writer-1.1.2+spec-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\toml_writer-1.1.2+spec-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tracing-0.1.44\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tracing-attributes-0.1.31\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\tracing-core-0.1.36\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ttf-parser-0.25.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ttf-parser-0.25.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\typed-index-collections-3.5.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\typed-index-collections-3.5.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicase-2.9.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicase-2.9.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-bidi-0.3.18\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-bidi-0.3.18\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-bidi-mirroring-0.4.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-bidi-mirroring-0.4.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-ccc-0.4.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-ccc-0.4.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-ident-1.0.24\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-ident-1.0.24\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-ident-1.0.24\LICENSE-UNICODE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-linebreak-0.1.5\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-properties-0.1.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-properties-0.1.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-script-0.5.8\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-script-0.5.8\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-segmentation-1.13.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-segmentation-1.13.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-vo-0.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-vo-0.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-width-0.2.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-width-0.2.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-xid-0.2.6\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unicode-xid-0.2.6\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\untrusted-0.9.0\LICENSE.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unty-0.0.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\unty-0.0.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ureq-3.4.2\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ureq-3.4.2\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ureq-proto-0.6.3\LICENSE-APACHE.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\ureq-proto-0.6.3\LICENSE-MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\url-2.5.8\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\url-2.5.8\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\usvg-0.47.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\usvg-0.47.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\utf8-zero-0.8.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\utf8-zero-0.8.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\utf8_iter-1.0.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\utf8_iter-1.0.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\uuid-1.26.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\uuid-1.26.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\vcpkg-0.2.15\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\vcpkg-0.2.15\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\version_check-0.9.5\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\version_check-0.9.5\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\vtable-0.4.0\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\vtable-0.4.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\vtable-macro-0.4.0\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\vtable-macro-0.4.0\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\v_frame-0.3.9\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-0.2.128\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-0.2.128\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-macro-0.2.128\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-macro-0.2.128\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-macro-support-0.2.128\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-macro-support-0.2.128\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-shared-0.2.128\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\wasm-bindgen-shared-0.2.128\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\webbrowser-1.2.4\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\webbrowser-1.2.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\webpki-roots-1.0.9\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\weezl-0.1.12\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\weezl-0.1.12\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-0.62.2\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-0.62.2\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-collections-0.3.2\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-collections-0.3.2\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-core-0.62.2\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-core-0.62.2\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-future-0.3.2\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-future-0.3.2\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-implement-0.60.2\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-implement-0.60.2\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-interface-0.59.3\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-interface-0.59.3\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-link-0.2.1\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-link-0.2.1\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-native-keyring-store-1.1.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-native-keyring-store-1.1.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-numerics-0.3.1\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-numerics-0.3.1\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-result-0.4.1\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-result-0.4.1\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-strings-0.5.1\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-strings-0.5.1\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-sys-0.52.0\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-sys-0.52.0\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-sys-0.61.2\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-sys-0.61.2\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-targets-0.52.6\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-targets-0.52.6\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-threading-0.2.1\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows-threading-0.2.1\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows_x86_64_msvc-0.52.6\license-apache-2.0
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\windows_x86_64_msvc-0.52.6\license-mit
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\winit-0.30.13\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\winnow-1.0.4\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\writeable-0.6.4\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\xml-rs-0.8.29\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\xmlwriter-0.1.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\y4m-0.8.0\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\yazi-0.2.1\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\yazi-0.2.1\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\yoke-0.8.3\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\yoke-derive-0.8.2\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zeno-0.3.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zeno-0.3.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerocopy-0.8.57\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerocopy-0.8.57\LICENSE-BSD
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerocopy-0.8.57\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerocopy-derive-0.8.57\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerocopy-derive-0.8.57\LICENSE-BSD
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerocopy-derive-0.8.57\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerofrom-0.1.8\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerofrom-derive-0.1.7\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zeroize-1.9.0\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zeroize-1.9.0\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerotrie-0.2.5\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerovec-0.11.8\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zerovec-derive-0.11.6\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zlib-rs-0.6.7\LICENSE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zmij-1.0.23\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-core-0.5.3\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-core-0.5.3\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-core-0.5.3\LICENSE-ZLIB
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-inflate-0.2.54\Apache-2.0.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-inflate-0.2.54\MIT.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-inflate-0.2.54\Zlib.txt
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-jpeg-0.5.15\LICENSE-APACHE
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-jpeg-0.5.15\LICENSE-MIT
+   Compressing: C:\Users\thoma\Documents\Projects\bingee-rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\zune-jpeg-0.5.15\LICENSE-ZLIB
+   Compressing Setup program executable
+   Updating version info (Setup.exe)
+   Updating manifest (Setup.exe)
+
+
+Successful compile (8.297 sec). Resulting Setup program filename is:
+C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-0.1.0-rc.1-windows-x64-setup.exe
+Installer:   C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-0.1.0-rc.1-windows-x64-setup.exe, 10023440 bytes, SHA-256 19E042643B41F3A1B1E5824605147B4BC60D3EDF5719708A19E3FB423DF9D14B
+Package:     C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-windows-x64
+Source:      3ab08c32a2fef16cf8555e9db467f681c1dbd1a2 plus uncommitted changes
+Executable:  28935680 bytes, SHA-256 A7613CE900A35A10B7CF001737DF51885C66AE4049E933104B1A94A319F1A2B2
+Crates:      325 listed in THIRD_PARTY_NOTICES.txt
+Total:       32928041 bytes in 697 files
+ZIP:         C:\Users\thoma\Documents\Projects\bingee-rust\dist\bingee-desktop-0.1.0-rc.1-windows-x64.zip, 13744605 bytes, SHA-256 9D6546B84381E7F0DDE47C74F7C09247D34035BE1789FE968940E7D06F60FAF6

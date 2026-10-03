@@ -46,7 +46,7 @@ try {
 "@ | Set-Content (Join-Path $bundle 'Contents/Info.plist') -Encoding utf8NoBOM
     & plutil -lint (Join-Path $bundle 'Contents/Info.plist')
     if ($LASTEXITCODE -ne 0) { throw 'Invalid Info.plist.' }
-    $archive = Join-Path $dist "bingee-desktop-macos-$arch.tar.gz"
+    $archive = Join-Path $dist "bingee-desktop-$version-macos-$arch.tar.gz"
     if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
     & tar -C $dist -czf $archive 'Bingee Desktop.app'
     if ($LASTEXITCODE -ne 0) { throw 'Archive failed.' }

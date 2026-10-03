@@ -1,0 +1,31 @@
+{
+  "platform": "Linux",
+  "result": "PASS",
+  "github_artifact_sha256_verified": "ee4caa82b317b26bff8248be4b26c15b107312518fd805026115914de10a038d",
+  "manifest": [
+    {
+      "platform": "Linux",
+      "artifact_filename": "bingee-desktop-linux-x86_64.tar.gz",
+      "artifact_type": "tar.gz",
+      "architecture": "X64",
+      "application_version": "0.1.0-rc.1",
+      "file_size": 16900521,
+      "sha256": "d875f029d0388b45dcae844f28c80f418a3edc191b72671af2ff4bc8d4a47495",
+      "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+      "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)"
+    }
+  ],
+  "required_resources_verified": [
+    "bingee-desktop-linux-x86_64/bin/bingee-desktop",
+    "bingee-desktop-linux-x86_64/install.sh",
+    "bingee-desktop-linux-x86_64/uninstall.sh",
+    "bingee-desktop-linux-x86_64/share/applications/bingee-desktop.desktop",
+    "bingee-desktop-linux-x86_64/share/icons/hicolor/scalable/apps/bingee-desktop.svg",
+    "bingee-desktop-linux-x86_64/share/doc/bingee-desktop/licenses/INDEX.txt",
+    "bingee-desktop-linux-x86_64/share/doc/bingee-desktop/THIRD_PARTY_NOTICES.txt"
+  ],
+  "binary_sha256": "d69f7d5dbeb8497301476d6a8c2dd32017687d8bd4c43372081c0f1192fdd853",
+  "binary_format": "ELF 64-bit x86_64",
+  "executable_mode": true,
+  "runtime_executed_during_inspection": false
+}

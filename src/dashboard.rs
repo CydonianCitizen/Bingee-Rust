@@ -307,6 +307,13 @@ mod tests {
         assert_eq!(app.get_calendar_days().row_count(), 42);
         assert_eq!(app.get_calendar_date(), today);
         assert_eq!(app.get_calendar_events().row_count(), 1);
+        let opened = Rc::new(Cell::new(None));
+        app.on_open_library_media({
+            let opened = opened.clone();
+            move |id, season, episode| opened.set(Some((id, season, episode)))
+        });
+        app.invoke_calendar_open_event(0);
+        assert_eq!(opened.get(), Some((id as i32, 1, 1)));
         app.invoke_calendar_shift(1);
         ui.render();
         assert_eq!(app.get_calendar_events().row_count(), 0);
@@ -320,6 +327,27 @@ mod tests {
                 .iter()
                 .any(|r| r.section == "Coming Soon")
         );
-        let _ = id;
+        let upcoming = app
+            .get_home_rows()
+            .iter()
+            .position(|r| r.section == "Coming Soon")
+            .unwrap();
+        app.invoke_home_select(upcoming as i32);
+        assert_eq!(opened.get(), Some((id as i32, 1, 1)));
+        let movie = db
+            .with(|db| {
+                let movie = stored(db, MediaType::Movie, 11, "Watched movie");
+                crate::tracking::watch_movie(db, movie, 1_800_000_000, false)?;
+                Ok(movie)
+            })
+            .unwrap();
+        app.invoke_home_opened();
+        let recent = app
+            .get_home_rows()
+            .iter()
+            .position(|r| r.title == "Watched movie")
+            .unwrap();
+        app.invoke_home_select(recent as i32);
+        assert_eq!(opened.get(), Some((movie as i32, -1, -1)));
     }
 }

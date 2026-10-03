@@ -50,6 +50,21 @@ pub fn start(window: &AppWindow, db: SharedDb, log: Arc<Log>) {
             }
         }
     });
+    window.on_history_open({
+        let history = history.clone();
+        move |row| {
+            if let Some(entry) = history.entry(row)
+                && let Some(window) = history.window.upgrade()
+            {
+                let (season, episode) = entry.episode.unwrap_or((-1, -1));
+                window.invoke_open_library_media(
+                    crate::view::ui_id(entry.local_media_id),
+                    season as i32,
+                    episode as i32,
+                );
+            }
+        }
+    });
     window.on_history_delete(move |row| history.delete(row));
 }
 
@@ -192,6 +207,18 @@ mod tests {
         assert_eq!(rows.row_data(0).unwrap().when.len(), 16);
         assert_eq!(app.get_history_selected_row(), 0);
 
+        let opened = Rc::new(Cell::new(None));
+        app.on_open_library_media({
+            let opened = opened.clone();
+            move |id, season, episode| opened.set(Some((id, season, episode)))
+        });
+        app.invoke_history_open(0);
+        assert_eq!(opened.get(), Some((show as i32, 1, 2)));
+        app.invoke_history_open(1);
+        assert_eq!(opened.get(), Some((movie as i32, -1, -1)));
+        app.invoke_history_open(-1);
+        assert_eq!(opened.get(), Some((movie as i32, -1, -1)));
+
         // Keyboard: Down, then Delete removes the movie's entry only.
         let press = |key: Key| {
             let text: SharedString = key.into();
@@ -202,6 +229,8 @@ mod tests {
         };
         press(Key::DownArrow);
         assert_eq!(app.get_history_selected_row(), 1);
+        press(Key::Return);
+        assert_eq!(opened.get(), Some((movie as i32, -1, -1)));
         press(Key::Delete);
         ui.render();
         assert_eq!(app.get_history_rows().row_count(), 1);

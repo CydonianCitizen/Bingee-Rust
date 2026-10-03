@@ -1,0 +1,57 @@
+2026-10-02T20:59:46.9347962Z ##[group]Runner Image Provisioner
+2026-10-02T20:59:46.9355711Z ##[group]Operating System
+2026-10-02T20:59:46.9358783Z ##[group]Runner Image
+2026-10-02T20:59:46.9365523Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T20:59:47.6122159Z ##[group]Run actions/checkout@v5
+2026-10-02T20:59:47.7193202Z ##[group]Getting Git version info
+2026-10-02T20:59:47.7367720Z ##[group]Initializing the repository
+2026-10-02T20:59:47.7535254Z ##[group]Disabling automatic garbage collection
+2026-10-02T20:59:47.7574281Z ##[group]Setting up auth
+2026-10-02T20:59:47.8582360Z ##[group]Fetching the repository
+2026-10-02T20:59:47.8592809Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3ab08c32a2fef16cf8555e9db467f681c1dbd1a2:refs/remotes/origin/main
+2026-10-02T20:59:48.2421013Z  * [new ref]         3ab08c32a2fef16cf8555e9db467f681c1dbd1a2 -> origin/main
+2026-10-02T20:59:48.2426899Z ##[group]Determining the checkout info
+2026-10-02T20:59:48.2533166Z ##[group]Checking out the ref
+2026-10-02T20:59:48.3213146Z 3ab08c32a2fef16cf8555e9db467f681c1dbd1a2
+2026-10-02T20:59:48.3479847Z ##[group]Run rustup toolchain install stable --profile minimal --component rustfmt,clippy
+2026-10-02T20:59:57.0930879Z   stable-x86_64-unknown-linux-gnu updated - rustc 1.99.0 (b940084d7 2026-09-28) (from rustc 1.98.1 (48a229cea 2026-09-01))
+2026-10-02T20:59:57.1125255Z   stable-x86_64-unknown-linux-gnu unchanged - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T20:59:57.1241465Z rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T20:59:57.1333336Z cargo 1.99.0 (5f94df478 2026-08-27)
+2026-10-02T20:59:57.1488421Z ##[group]Run sudo apt-get update
+2026-10-02T21:00:08.6406022Z ##[group]Run cargo fmt --check
+2026-10-02T21:02:13.4062036Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 04s
+2026-10-02T21:04:55.2434138Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 41s
+2026-10-02T21:04:55.4162228Z test database::tests::a_failed_v2_migration_leaves_a_v1_file_untouched ... ok
+2026-10-02T21:04:55.4454586Z test database::tests::a_failed_v3_migration_leaves_a_v2_file_untouched ... ok
+2026-10-02T21:04:55.4673290Z test database::tests::a_failed_v4_migration_leaves_a_v3_file_untouched ... ok
+2026-10-02T21:04:55.5311616Z test database::tests::failed_migration_rolls_back_completely ... ok
+2026-10-02T21:04:55.5550276Z test database::tests::failed_v5_migration_leaves_v4_file_unchanged ... ok
+2026-10-02T21:04:55.5765648Z test database::tests::fresh_database_migrates_to_the_latest_schema ... ok
+2026-10-02T21:04:59.4899697Z test remote::tests::an_unavailable_credential_store_is_reported_and_nothing_is_kept ... ok
+2026-10-02T21:05:23.4237212Z test result: ok. 221 passed; 0 failed; 16 ignored; 0 measured; 0 filtered out; finished in 28.14s
+2026-10-02T21:05:58.0174262Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 34.56s
+2026-10-02T21:05:58.1760158Z test database::tests::a_failed_v2_migration_leaves_a_v1_file_untouched ... ok
+2026-10-02T21:05:58.1893180Z test database::tests::a_failed_v3_migration_leaves_a_v2_file_untouched ... ok
+2026-10-02T21:05:58.2133922Z test database::tests::a_failed_v4_migration_leaves_a_v3_file_untouched ... ok
+2026-10-02T21:05:58.2783581Z test database::tests::failed_migration_rolls_back_completely ... ok
+2026-10-02T21:05:58.3076168Z test database::tests::failed_v5_migration_leaves_v4_file_unchanged ... ok
+2026-10-02T21:05:58.3267585Z test database::tests::fresh_database_migrates_to_the_latest_schema ... ok
+2026-10-02T21:06:02.3635946Z test remote::tests::an_unavailable_credential_store_is_reported_and_nothing_is_kept ... ok
+2026-10-02T21:06:25.3108410Z test result: ok. 221 passed; 0 failed; 16 ignored; 0 measured; 0 filtered out; finished in 27.26s
+2026-10-02T21:06:45.0189605Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 19.65s
+2026-10-02T21:06:45.0643261Z ##[group]Run ./scripts/package-linux.ps1
+2026-10-02T21:13:22.3262894Z     Finished `release` profile [optimized] target(s) in 6m 33s
+2026-10-02T21:13:28.5483051Z Archive: /home/runner/work/Bingee-Rust/Bingee-Rust/dist/bingee-desktop-linux-x86_64.tar.gz, 16900521 bytes, SHA-256 D875F029D0388B45DCAE844F28C80F418A3EDC191B72671AF2FF4BC8D4A47495
+2026-10-02T21:13:28.7010125Z ##[group]Run set -euo pipefail
+2026-10-02T21:13:28.7015086Z if ldd "$bin" | grep -q 'not found'; then exit 1; fi
+2026-10-02T21:13:28.7018840Z test "$status" -eq 124
+2026-10-02T21:13:28.7019119Z test -f "$scratch/profile/data/bingee.db"
+2026-10-02T21:13:49.1272873Z 2026-10-02T21:13:29Z INFO Bingee Desktop 0.1.0-rc.1 starting (bingee-desktop, linux x86_64)
+2026-10-02T21:13:49.1274051Z 2026-10-02T21:13:29Z INFO Database /tmp/tmp.kLulployeT/profile/data/bingee.db
+2026-10-02T21:13:49.1275212Z 2026-10-02T21:13:29Z INFO Migrating the database from schema version 0 to 5
+2026-10-02T21:13:49.1276162Z 2026-10-02T21:13:29Z INFO Migration to schema version 5 complete
+2026-10-02T21:13:49.1312236Z ##[group]Run $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+2026-10-02T21:13:49.6168011Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T21:13:50.7565893Z Finished uploading artifact content to blob storage!
+2026-10-02T21:13:50.7567677Z SHA256 digest of uploaded artifact zip is ee4caa82b317b26bff8248be4b26c15b107312518fd805026115914de10a038d

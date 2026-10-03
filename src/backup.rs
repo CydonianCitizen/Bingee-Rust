@@ -181,6 +181,11 @@ fn invalid(message: impl Into<String>) -> AppError {
     AppError::new(ErrorKind::InvalidData, message)
 }
 
+fn invalid_contents(detail: &str) -> AppError {
+    invalid("This backup is incomplete or damaged. Choose another backup.")
+        .with_source(detail.to_owned())
+}
+
 fn rows<T>(
     db: &Database,
     sql: &str,
@@ -446,8 +451,11 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
         return Err(invalid("This is not a Bingee backup."));
     }
     if backup.format_version > VERSION {
-        return Err(invalid(format!(
-            "This backup needs a newer Bingee version (format version {}).",
+        return Err(invalid(
+            "This backup needs a newer Bingee Desktop version. Update the app, then try again.",
+        )
+        .with_source(format!(
+            "Unsupported future backup format version {}",
             backup.format_version
         )));
     }
@@ -455,7 +463,7 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
         return Err(invalid("Unsupported Bingee backup version."));
     }
     if !timestamp(backup.created_at) || backup.application_version.is_empty() {
-        return Err(invalid(
+        return Err(invalid_contents(
             "Backup header has an invalid timestamp or application version.",
         ));
     }
@@ -474,7 +482,9 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || m.details_fetched_at.is_some_and(|n| !timestamp(n))
             || media.insert(m.id, m.media_type.as_str()).is_some()
         {
-            return Err(invalid("Backup contains invalid or duplicate media."));
+            return Err(invalid_contents(
+                "Backup contains invalid or duplicate media.",
+            ));
         }
     }
     let mut refs = HashSet::new();
@@ -485,20 +495,22 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || media.get(&r.media_id).copied() != Some(r.media_type.as_str())
             || !refs.insert((&r.source, &r.media_type, &r.external_id))
         {
-            return Err(invalid(
+            return Err(invalid_contents(
                 "Backup contains an invalid or duplicate provider identity.",
             ));
         }
         referenced_media.insert(r.media_id);
     }
     if media.keys().any(|id| !referenced_media.contains(id)) {
-        return Err(invalid("Backup media is missing its provider identity."));
+        return Err(invalid_contents(
+            "Backup media is missing its provider identity.",
+        ));
     }
     let mut members = HashSet::new();
     for m in &data.library {
         if !media.contains_key(&m.media_id) || !timestamp(m.added_at) || !members.insert(m.media_id)
         {
-            return Err(invalid("Backup has an invalid Library reference."));
+            return Err(invalid_contents("Backup has an invalid Library reference."));
         }
     }
     let mut genres = HashSet::new();
@@ -508,7 +520,9 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || g.name.is_empty()
             || !genres.insert((&g.source, &g.external_id))
         {
-            return Err(invalid("Backup contains an invalid or duplicate genre."));
+            return Err(invalid_contents(
+                "Backup contains an invalid or duplicate genre.",
+            ));
         }
     }
     let mut links = HashSet::new();
@@ -517,7 +531,9 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || !genres.contains(&(&g.source, &g.external_id))
             || !links.insert((g.media_id, &g.source, &g.external_id))
         {
-            return Err(invalid("Backup has an invalid genre relationship."));
+            return Err(invalid_contents(
+                "Backup has an invalid genre relationship.",
+            ));
         }
     }
     let mut seasons = HashSet::new();
@@ -531,7 +547,9 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || s.metadata_updated_at.is_some_and(|n| !timestamp(n))
             || !seasons.insert((s.media_id, s.number))
         {
-            return Err(invalid("Backup contains an invalid or duplicate season."));
+            return Err(invalid_contents(
+                "Backup contains an invalid or duplicate season.",
+            ));
         }
     }
     let mut episodes = HashSet::new();
@@ -547,7 +565,9 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
                 .as_ref()
                 .is_some_and(|id| id.is_empty() || !episode_ids.insert((e.media_id, e.season, id)))
         {
-            return Err(invalid("Backup contains an invalid or duplicate episode."));
+            return Err(invalid_contents(
+                "Backup contains an invalid or duplicate episode.",
+            ));
         }
     }
     let mut title_tracking = HashSet::new();
@@ -557,7 +577,7 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || t.rating.is_some_and(|n| !(1..=10).contains(&n))
             || !title_tracking.insert(t.media_id)
         {
-            return Err(invalid(
+            return Err(invalid_contents(
                 "Backup has an invalid title tracking reference or rating.",
             ));
         }
@@ -572,7 +592,9 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || !timestamp(t.watched_at)
             || !episode_tracking.insert((t.media_id, t.season, t.episode))
         {
-            return Err(invalid("Backup has an invalid episode tracking reference."));
+            return Err(invalid_contents(
+                "Backup has an invalid episode tracking reference.",
+            ));
         }
     }
     let mut events = HashSet::new();
@@ -589,7 +611,7 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || e.runtime_minutes.is_some_and(|n| n <= 0)
             || !events.insert(e.id)
         {
-            return Err(invalid(
+            return Err(invalid_contents(
                 "Backup has an invalid watch-history target or event.",
             ));
         }
@@ -608,15 +630,18 @@ pub fn validate(backup: &BackupV1) -> Result<(), AppError> {
             || !releases.insert((e.media_id, e.season, e.episode, &e.kind))
             || !release_ids.insert(e.id)
         {
-            return Err(invalid("Backup has an invalid or duplicate release event."));
+            return Err(invalid_contents(
+                "Backup has an invalid or duplicate release event.",
+            ));
         }
     }
     Ok(())
 }
 
 pub fn parse(bytes: &[u8]) -> Result<BackupV1, AppError> {
-    let backup: BackupV1 = serde_json::from_slice(bytes)
-        .map_err(|e| invalid("Backup JSON is malformed or incomplete.").with_source(e))?;
+    let backup: BackupV1 = serde_json::from_slice(bytes).map_err(|e| {
+        invalid("This backup is incomplete or damaged. Choose another backup.").with_source(e)
+    })?;
     validate(&backup)?;
     Ok(backup)
 }
@@ -1150,7 +1175,17 @@ mod tests {
                     .release_events
                     .push(broken.data.release_events[0].clone()),
             }
-            assert!(restore(&db, &broken).is_err(), "case {change}");
+            let error = restore(&db, &broken).unwrap_err();
+            if change == 1 {
+                assert!(error.message.contains("Update the app"));
+                assert!(error.to_string().contains("format version 2"));
+            } else if change >= 2 {
+                assert_eq!(
+                    error.message,
+                    "This backup is incomplete or damaged. Choose another backup."
+                );
+                assert!(error.to_string().contains("Cause:"));
+            }
             assert_eq!(export(&db, NOW).unwrap(), before);
         }
     }

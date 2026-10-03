@@ -1,28 +1,41 @@
 # Release licensing decision matrix
 
-Engineering review: 1 October 2026. Native package evidence is updated for `6e24b2a`; upstream conditions remain the previously recorded review, not a new legal determination. This records implementation evidence. It does not classify Bingee Desktop's intended use or decide a license for its own code. Public distribution remains blocked until the responsible owner makes those decisions.
+Engineering review: 2 October 2026. This records shipped mechanisms and
+outstanding owner decisions; it does not select a project license or classify
+Bingee Desktop as commercial or non-commercial. Public distribution remains
+blocked. No legal-compliance conclusion is made.
 
-| Item | Technical path and evidence | Status before public distribution |
-| --- | --- | --- |
-| Bingee Desktop's own license | No project license has been selected. About and package README say so. | **EXTERNAL DECISION REQUIRED; BLOCKER** |
-| Slint 1.17.1 | Working engineering path: Royalty-free Desktop, Mobile, and Web Applications License 2.0. The About page is reachable from the main sidebar and contains `AboutSlint`; package material includes Slint `LICENSES/`. This engineering implementation matches the [section 2(a) attribution condition](https://slint.dev/terms-and-conditions). | **ENGINEERING COMPLETE; EXTERNAL DECISION REQUIRED** for the final license basis |
-| TMDB developer API, non-commercial path | About contains an approved, unmodified TMDB logo, smaller than the Bingee name, and the required non-endorsement notice. This engineering implementation matches the [TMDB FAQ attribution requirements](https://developer.themoviedb.org/docs/faq). | **ENGINEERING COMPLETE; EXTERNAL DECISION REQUIRED** whether this path applies |
-| TMDB commercial path | [TMDB says](https://developer.themoviedb.org/docs/faq) commercial API/data/image use requires contacting it for a license. No agreement is claimed. | **LICENSE/PURCHASE REQUIRED IF COMMERCIAL; BLOCKER** until applicable terms are obtained |
-| Inno Setup 6.7.3 | Windows installer uses the official compiler. [Publisher's download page](https://jrsoftware.org/isdl.php) requests a purchased license for commercial use. No purchase is claimed. | **LICENSE/PURCHASE REQUIRED IF COMMERCIAL; EXTERNAL DECISION REQUIRED** |
-| Rust crates | Locked Cargo metadata drives per-platform `licenses/INDEX.txt`, individual crate text directories, and generated linked-crate notices. All three native packages built and their downloaded license/notices resources passed inspection for `6e24b2a`. | **PACKAGE ENGINEERING VERIFIED; FINAL DISTRIBUTION REVIEW REQUIRED** |
+| Item | Technical requirement implemented | External owner decision | Potential purchase/license requirement | Remaining evidence |
+| --- | --- | --- | --- | --- |
+| Bingee Desktop | About and package README disclose that the application license is undecided. | Select the application license and intended distribution. | Depends on the selected model; none assumed. | Recorded decision and approved distribution material. |
+| Slint 1.17.1 | Sidebar About contains `AboutSlint`; package license trees include Slint texts. Existing engineering assumption remains Royalty-free Desktop, Mobile, and Web Applications License 2.0. | Confirm the final license basis; no model change in R18. | A paid path exists; no purchase is assumed or represented as necessary for every path. | Owner's selected basis and review of final attribution/license material against [upstream terms](https://slint.dev/terms-and-conditions). |
+| TMDB | About ships the unmodified logo and non-endorsement notice; token storage and user-provided API access remain implemented. | Determine intended use and applicable TMDB terms/agreement. | The [TMDB FAQ](https://developer.themoviedb.org/docs/faq) distinguishes attributed non-commercial API use from commercial licensing through TMDB. Applicability is not decided here. | Owner decision and any applicable agreement; final asset/notice review. |
+| Inno Setup 6.7.3 | Official compiler acquisition, per-user installer and package smoke tooling are implemented. | Determine whether the publisher's commercial-use purchase condition applies. | The [publisher's page](https://jrsoftware.org/isdl.php) requests purchasing a license for commercial use. No applicability or purchase is assumed. | Owner decision and purchase record if applicable. |
+| Rust dependencies | Locked Cargo metadata drives target-specific `licenses/INDEX.txt`, copied license texts and linked-crate notices. R17 verified all three native package inventories for `3ab08c32a2fef16cf8555e9db467f681c1dbd1a2`. | Review final dependency expressions and notices for the selected distribution. | Package inventory alone does not decide obligations or any purchase requirement. | Review of the exact final artifact inventories; Cargo.lock remains unchanged in R18. |
 
-## Available Slint paths
+## Attribution and package evidence
 
-The [Royalty-free license](https://slint.dev/terms-and-conditions) permits its `AboutSlint` widget in a top-level About screen or an attribution badge on a public webpage. Bingee implements the widget path. Upstream also offers a [paid Software License and GPL-3.0](https://slint.dev/terms-and-conditions). Their applicability depends on the owner's distribution choice; this record selects neither alternative.
+About remains reachable from the sidebar and Settings. It shows the Cargo
+version, `AboutSlint`, the TMDB logo, the TMDB non-endorsement notice and the
+location of third-party notices. Required attribution mechanisms remain in
+place; the application license is still expressly undecided.
 
-## Available TMDB paths
+`scripts/package-licenses.ps1` collects crate-supplied license/notice files.
+Where a crate lacks bundled text, it uses matching standard text from
+`licenses/common/`; absent both, packaging fails. `licenses/INDEX.txt` maps
+crate versions to declared license expressions. Generated linked-crate notices
+exclude proc-macro-only dependencies; the broader license tree also includes
+build-time material. These are engineering inventories, not legal analysis.
 
-The [TMDB FAQ](https://developer.themoviedb.org/docs/faq) says its API is free for non-commercial purposes with attribution. It requires an approved logo in About or Credits and the prominent notice: “This product uses the TMDB API but is not endorsed or certified by TMDB.” For commercial use, TMDB says to contact its sales team for a license. Bingee has not been classified as commercial or non-commercial.
-
-## Dependency material and review limit
-
-`scripts/package-licenses.ps1` uses `cargo metadata --locked --filter-platform` and copies crate-supplied license and notice files. For a crate with no bundled license file, it copies a matching standard text from `licenses/common/`; if neither exists, packaging fails. `licenses/INDEX.txt` maps each crate and version to its declared license expression. The generated `THIRD_PARTY_NOTICES.txt` lists normal, non-proc-macro dependencies linked for the target. Build-only crates are included in the broader license tree. This is a reproducible engineering inventory, not a legal interpretation of each expression. Native macOS and Linux packaging and downloaded-resource verification passed for `6e24b2a`; this grants no public distribution authorization.
+Upstream pages above were inspected on 2 October 2026. They are reference
+material for the responsible owner; this review grants no distribution rights.
+R17 exact-source artifact evidence remains in its native-blocker follow-up
+report and `run-reports/r17-ci-closure-20261002/`. R18 local package evidence
+has its own source scope in `run-reports/2026-10-03-r18-rc-polish.md`.
 
 ## Separate gates
 
-Technical package readiness requires built and checked Windows, macOS and Linux packages plus normal cross-platform tests. Signing and notarization can remain pending. Authorization to distribute publicly requires the owner's application-license and intended-use decisions, any applicable TMDB agreement and Inno Setup purchase, plus review of the final license material. Technical R17 validation may proceed once the technical gate passes, even while these external decisions remain open.
+Technical RC validation covers build, tests, package structure, manifests and
+configured smoke checks. Public distribution additionally requires owner
+licensing, intended-use and signing/distribution decisions. See
+[the release checklist](release-checklist.md) and [signing readiness](release-signing.md).

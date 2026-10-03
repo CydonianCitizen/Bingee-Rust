@@ -3,7 +3,9 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if (-not $IsWindows) { throw 'Run on Windows.' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$setup = Join-Path $root 'dist/bingee-desktop-windows-x64-setup.exe'
+$version = (cargo metadata --manifest-path (Join-Path $root 'Cargo.toml') --no-deps --format-version 1 --locked | ConvertFrom-Json).packages |
+    Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+$setup = Join-Path $root "dist/bingee-desktop-$version-windows-x64-setup.exe"
 if (-not (Test-Path -LiteralPath $setup)) { throw 'Build installer first.' }
 $WorkDir = [IO.Path]::GetFullPath($WorkDir)
 if ($WorkDir -eq [IO.Path]::GetPathRoot($WorkDir)) { throw 'WorkDir cannot be a filesystem root.' }

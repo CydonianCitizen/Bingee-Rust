@@ -1,0 +1,214 @@
+[
+  {
+    "path": ".github/workflows/cross-platform.yml",
+    "sha256": "8bf1fcf93379a0cf3fb0ca490b1209951acee2af8a5fb3b99edf60ef0763703b"
+  },
+  {
+    "path": ".github/workflows/release-artifacts.yml",
+    "sha256": "2912b51b7badd9cb80dddaaa94c07a1e09a0250f0557d5bf938a11c81d9a4749"
+  },
+  {
+    "path": "Cargo.lock",
+    "sha256": "677de18aacbaaacb0a11dcc60054cce2338e964d84030943808df2ed5459cc79"
+  },
+  {
+    "path": "Cargo.toml",
+    "sha256": "3ff4b5695ee08858114ce6d78d092eac27e007038c0ece317687dec0f197181e"
+  },
+  {
+    "path": "build.rs",
+    "sha256": "cbbe38e0c4ff1f9d463b1a0ee89a3d3210fd4d7346764b0a695d93785e7659b0"
+  },
+  {
+    "path": "scripts/bingee-desktop.desktop",
+    "sha256": "9d9048327750b2327f6da1f2e0f6913e320d60ea99d16646c71782eb8f69ee48"
+  },
+  {
+    "path": "scripts/bingee-desktop.iss",
+    "sha256": "2b4ad09541243036e5b649f661ca13605e715261efcab451487f4b11868ff4ce"
+  },
+  {
+    "path": "scripts/get-inno.ps1",
+    "sha256": "689df81d4037b40d8b323e20748aa4ce2c26b882f701b563d4e0d037e06bedfa"
+  },
+  {
+    "path": "scripts/linux-install.sh",
+    "sha256": "247b25873ff2f36a91febcef3a3369a4429b09d71ea229e7bd720c851c456658"
+  },
+  {
+    "path": "scripts/linux-uninstall.sh",
+    "sha256": "f38db18c0fd0e341063e5de6737243016e75494dd5b92604a86f279baa516670"
+  },
+  {
+    "path": "scripts/package-licenses.ps1",
+    "sha256": "ae5d84bd24bc7d3e84cd7395a92d02f45779f86e752c9f7bed5e88e4efdbb82c"
+  },
+  {
+    "path": "scripts/package-linux.ps1",
+    "sha256": "5501534f3ed0ac87e405c6b065654bfb7cf05485398bd882f73f3c4a6294dd5c"
+  },
+  {
+    "path": "scripts/package-macos.ps1",
+    "sha256": "54abc1ee54b1ba8778170aeddcc54767517fa1e944bc8489d0f4e829f2dd3adc"
+  },
+  {
+    "path": "scripts/package-windows.ps1",
+    "sha256": "e33c2ba1f7511ac7195cc324c9f4fcd02249e1c143db9002aaff211fdb8eacc5"
+  },
+  {
+    "path": "scripts/smoke-windows-installer.ps1",
+    "sha256": "82d0f5fff71e3e8fff740b216d9251e41439d17ee29453ea8ac8a20cd924ecc7"
+  },
+  {
+    "path": "scripts/smoke-windows-package.ps1",
+    "sha256": "45bb0b981d4040f7124940d4206586cdf0fbeb8a73e1d1c97560e7884050d674"
+  },
+  {
+    "path": "src/backup.rs",
+    "sha256": "463f7aec0e675ded2802a54fc4093f9db5d53bda8ba66fa741ebb0c168eff5eb"
+  },
+  {
+    "path": "src/backup_page.rs",
+    "sha256": "e0e028e36c93b6eb6fbf6f1c09d01e0f9d25b815163104ab9a74c4a017e2fe18"
+  },
+  {
+    "path": "src/calendar.rs",
+    "sha256": "3e4de4a5a29b37ceed7f75064cb8a8b94ff5a7029adf573b6a506d3bc92e5698"
+  },
+  {
+    "path": "src/dashboard.rs",
+    "sha256": "28ac014ab62c11c6b0039ace9b21b3c6eced84822bfc9db051058bb6af37fed7"
+  },
+  {
+    "path": "src/database.rs",
+    "sha256": "5ef9a4e80624d9b319c876ed71d6c29804aa34d441f83c3cc9b7abf9dd23cd18"
+  },
+  {
+    "path": "src/detail.rs",
+    "sha256": "8e2d1217fc539d14bc9fe57458aa717d06ac8a1df36472e35c0815e3d1d3b799"
+  },
+  {
+    "path": "src/diagnostics.rs",
+    "sha256": "a5b075533afc1f40d239b35426fe6da2b879d406d371eeed6dfd0712caae3b10"
+  },
+  {
+    "path": "src/error.rs",
+    "sha256": "60649a0def3c38807063ea182ff3c4e0cc1be2d83d3a66b56cd4848e6c13cb3e"
+  },
+  {
+    "path": "src/fixture/db.rs",
+    "sha256": "5bc277b8fe91805de4d51c362e9b48f3e973553c240e0073281d0e3b94c0eb22"
+  },
+  {
+    "path": "src/fixture/library.rs",
+    "sha256": "f566a9dd533b8ccf5f3455fb9750a567c855a3521408fa25e71cef966adda7eb"
+  },
+  {
+    "path": "src/fixture/mod.rs",
+    "sha256": "a4c42ed553076a2ec40f59ae0e1851731de01d9aea50d0a05a3dcb44f0452bf2"
+  },
+  {
+    "path": "src/fixture/poster.rs",
+    "sha256": "065c38d6205106a6ba280a22c1b2922328802eaafa07cb59b73158d988f06541"
+  },
+  {
+    "path": "src/history.rs",
+    "sha256": "9e3fb4c4fe490e70f5ea6052d02b86006fc21f7e94d8810c6e99299e0e7805ad"
+  },
+  {
+    "path": "src/home.rs",
+    "sha256": "309274296d81363803c8eb49734b17d1900df039a1f7e3136f6dbb4ad1ea1d9c"
+  },
+  {
+    "path": "src/library.rs",
+    "sha256": "8669ca23b596ad4aabea643f87597718e459b4eeb546d7cfff29fe12e2617ff7"
+  },
+  {
+    "path": "src/main.rs",
+    "sha256": "fc92817c1e92771aaf9091fa040cdf4467993aaac545d7fd3cfdd174262bc7b9"
+  },
+  {
+    "path": "src/metadata.rs",
+    "sha256": "d4b3d64c3d411582f19ba67a8c39deaa074c0fdd8c8ec443453022cc6f011e52"
+  },
+  {
+    "path": "src/network.rs",
+    "sha256": "5b85dcaef42731bad1fe5ac38130be4fbb6416abe35e70e1202264227065a30a"
+  },
+  {
+    "path": "src/paths.rs",
+    "sha256": "3b89461e238fde057da29dd84c3bb961c174c903faaac3c700683b9d3d7d946f"
+  },
+  {
+    "path": "src/poster.rs",
+    "sha256": "47130226507bf3f257e7b9c3df215bc4b1c6e75b74e8ee30c7af573382f455b0"
+  },
+  {
+    "path": "src/profile_lock.rs",
+    "sha256": "9d82cda0118e51bfb77aa829793baed015b8d6a19c71c20fb4a7dd48ee2f59cc"
+  },
+  {
+    "path": "src/r17_validation.rs",
+    "sha256": "5a6eb89abae2984d73c44f8fdae246494e15c8ce304d71fd03336eb710401e3c"
+  },
+  {
+    "path": "src/refresh.rs",
+    "sha256": "cd3f38b44905466b086a82ddb72a560584420ea0399c4c161a5b6c601567c4f1"
+  },
+  {
+    "path": "src/release.rs",
+    "sha256": "0527a769d7959454311c7c3c6a9e54ac468e5324720a6219c2103005561c658e"
+  },
+  {
+    "path": "src/release_page.rs",
+    "sha256": "89fa2859d3a1b27b0cfb6738c6587112ea8572ff320750f699ef480fa6d19469"
+  },
+  {
+    "path": "src/remote.rs",
+    "sha256": "23430092ba75c193d68b7c513370904c6c368f37c0d42dcebc57a6f0d511061a"
+  },
+  {
+    "path": "src/search.rs",
+    "sha256": "6773eebd9aa6a25fcb617f388f7957c4af18caeeeb6594ca6bf1ac704eb7088b"
+  },
+  {
+    "path": "src/secrets.rs",
+    "sha256": "407f39e3db39f349189d88366b742c1121595e4a36583a1085e57f06fd14e901"
+  },
+  {
+    "path": "src/settings.rs",
+    "sha256": "de14b367bff1b2270b01eccf5c342c302d081b6c0a640bc18377e76c216320bf"
+  },
+  {
+    "path": "src/statistics.rs",
+    "sha256": "8f9c5048cac54fdb3f60d4f2a326fb6cb39cd5fa898ffbe1720cb686c34a989e"
+  },
+  {
+    "path": "src/statistics_page.rs",
+    "sha256": "6812f860aa4825cf220cbd35982eb0762d09f47e98f85a7b4f5fdbf9066b5bea"
+  },
+  {
+    "path": "src/tmdb.rs",
+    "sha256": "a5feb05d7d48cec5e5341eaa8252b2633abdcb3ac57a6c6e76a22cab1d21f743"
+  },
+  {
+    "path": "src/tracking.rs",
+    "sha256": "d35cdc18a38154cd3636c65142c4392f4706c4f51dd39bb33909672972b9f9b0"
+  },
+  {
+    "path": "src/view.rs",
+    "sha256": "f4e5497a6b04b70f1685661813783d303701f81538134184c638b4bf2cb8d0b3"
+  },
+  {
+    "path": "ui/app-window.slint",
+    "sha256": "85c4f6280c4986f518b5edfcf406b46e5130cf896983ea202096add1838d72f2"
+  },
+  {
+    "path": "ui/assets/bingee-icon.svg",
+    "sha256": "0c588a98177d0695a2651a9388b177fd9bdcc93b923d713221837df44c481011"
+  },
+  {
+    "path": "ui/assets/tmdb-logo.svg",
+    "sha256": "8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c"
+  }
+]

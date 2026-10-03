@@ -1,0 +1,9 @@
+{
+  "head": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "origin_main": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "branch": "main",
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+  "source_inputs": 53,
+  "notes": "Uncommitted R18 worktree; not an exact-SHA CI build"
+}

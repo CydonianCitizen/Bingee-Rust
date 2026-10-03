@@ -1,0 +1,26 @@
+[
+  {
+    "name": "final-tests-default",
+    "command": "cargo test --locked",
+    "exit_code": 0,
+    "seconds": 96.29
+  },
+  {
+    "name": "final-tests-all-features",
+    "command": "cargo test --all-features --locked",
+    "exit_code": 0,
+    "seconds": 60.32
+  },
+  {
+    "name": "final-tests-fixture",
+    "command": "cargo test --features benchmark-fixture --locked",
+    "exit_code": 0,
+    "seconds": 54.05
+  },
+  {
+    "name": "renders",
+    "command": "cargo test --locked offscreen_pages_ -- --ignored --nocapture",
+    "exit_code": 0,
+    "seconds": 17.58
+  }
+]

@@ -1,39 +1,40 @@
 # Current release limitations
 
-Reviewed 2 October 2026. This is the canonical current list. Historical
-milestone and run reports retain their original observations. R16 technical
-packaging passed for `6e24b2a`; subsequent local focus/target fixes have not been
-validated by native CI. R17 is partial and R18 product polish is suspended.
+Reviewed 3 October 2026. This is the canonical current list. Historical
+milestone and run reports retain their original records. R17 is technically
+ready for RC at `3ab08c32a2fef16cf8555e9db467f681c1dbd1a2`; all six native CI
+jobs and downloaded artifacts passed. R18 preserves the technical RC within its local regression scope; its
+regression evidence is recorded separately in
+[the R18 report](run-reports/2026-10-03-r18-rc-polish.md).
 
-| Item | Classification | Required action or scope |
+| Item | Classification | Scope or next action |
 | --- | --- | --- |
-| Corrected source/tests/reports uncommitted/unpushed; no exact-candidate CI/artifacts | RELEASE BLOCKER | Owner commit/push, both workflows on corrected SHA, individual Windows/macOS/Linux jobs and package/smoke checks. Settings deny agent commit/push. |
-| Native Discover result/add/open keyboard path | VERIFIED CONTROLLED-PROVIDER NATIVE SCOPE | Real Windows input in test-only native window: search, Movie/TV arrows, Space/Return add, escape and Library opening passed; fake provider and in-memory credential, no live service/release-executable response claim. Disabled In Library retains focus until Tab; no trap observed. |
-| Native semantics/scaling audit has bounded scope | VERIFICATION LIMITATION | Useful UIA roles/names and native 125% Slint scaling checked; custom scope/dialog reports can lag; empty pages may retain region focus until Tab. Screen-reader behavior not directly verified; no OS monitor-DPI change or real downloaded-poster smoke claimed. |
-| Prior populated close-request timeout | RESOLVED IN BOUNDED NATIVE SCOPE | Not reproduced on targetable desktop. Six final installed closes, three per refresh mode; code 0, 298–481 ms, byte-identical DB, DB/lock handles released. Prior evidence remains environment/input-delivery inconclusive; no live credentialed-refresh shutdown claim. |
-| Deterministic R17 migration, Backup V1, active-write crash and full product journey | VERIFIED LOCAL SCOPE | Final regressions and reused matching-source release evidence pass; details in 2 October R17 report |
-| Startup/CPU, private-memory soak, cache/handles/threads and page/write/query plans | MEASURED LOCAL SCOPE | Native responsive-window/idle measurements plus three bounded headless product soaks and timing processes; no live smoothness or indefinite-leak guarantee |
-| Final security/privacy/failure matrix | VERIFIED LOCAL SCOPE | Bounded source/fake-server sanity review and final suites pass; native permission prompts and penetration testing not claimed |
-| Windows VC++ x64 runtime must be installed separately | ACCEPTED FOR RC | Documented prerequisite; no clean-PC proof is claimed |
-| Linux needs desktop runtime libraries and a Secret Service for token storage | ACCEPTED FOR RC | Documented prerequisites; offline startup survives unavailable secure storage without plaintext fallback |
-| macOS R16 executable verification is structural | ACCEPTED FOR RC | Meets the configured R16 gate; native process and interactive claims are absent |
-| Historical R4 interactive evidence is incomplete | ACCEPTED FOR RC | Preserve it as historical; final R17 uses its own identified readiness proxy |
-| Native OS notifications are absent | ACCEPTED FOR RC | In-app Updates is the shipped scope |
-| Release events have no database expiry | ACCEPTED FOR RC | Updates display is bounded; do not add speculative retention work |
-| Live TMDB/service smoke beyond deterministic fake-server coverage | POST-RC | Does not waive the required final deterministic R17 journey or failure tests |
-| Application license, Slint license basis and intended distribution | EXTERNAL DECISION | Owner decision; no commercial/non-commercial intent inferred |
-| TMDB intended-use/licensing agreement | EXTERNAL DECISION | Owner decision and applicable agreement |
-| Inno Setup commercial-license decision, if applicable | EXTERNAL DECISION | Owner decision; no purchase or applicability assumed |
-| macOS signing/notarization | EXTERNAL DECISION | Public distribution policy; unsigned artifacts are permitted for technical RC testing |
-| Windows signing and distribution policy | EXTERNAL DECISION | Owner decision; unsigned artifacts are permitted for technical RC testing |
+| Windows Visual C++ x64 runtime is a separate prerequisite | ACCEPTED FOR RC | Documented installation prerequisite; no clean-PC proof claimed. |
+| Linux runtime libraries and Secret Service | ACCEPTED FOR RC | Required desktop libraries are documented. Missing secure storage has no plaintext fallback. |
+| macOS CI verification is structural | ACCEPTED FOR RC | Native process/interactive validation is unperformed; no signing or notarization claim. |
+| Validated CI architectures are Windows x64, macOS arm64 and Linux x64 | ACCEPTED FOR RC | Other native architecture script branches need separate validation before being advertised as tested. |
+| R18 has local validation only until its source is pushed | ACCEPTED FOR RC | R17 CI remains valid for its exact SHA. Before distributing new R18 artifacts, run both workflows on the new exact SHA and inspect each job/manifest. Push is denied in this workspace; no inherited R18 CI claim. |
+| Keyboard/accessibility and scaling evidence is bounded | ACCEPTED FOR RC | Preserve R17 native controlled-provider/125% Slint scope. R18 adds off-screen layout and synthetic keyboard checks, not new interactive certification. Screen-reader and OS monitor-DPI behavior are not fully certified. |
+| Historical R4 interactive evidence is incomplete | ACCEPTED FOR RC | Frozen evidence and hashes remain historical; no cross-stack superiority claim. |
+| Refresh operates only while the app is open; Updates are in-app | ACCEPTED FOR RC | No background service or native OS notifications. |
+| History displays the most recent 200 watches | ACCEPTED FOR RC | Older saved events remain in data/backups and relevant statistics. |
+| Home, progress and Calendar depend on fetched metadata | ACCEPTED FOR RC | Incomplete episode coverage is shown; no prediction of unknown dates. |
+| Restore reloads all pages after restart | ACCEPTED FOR RC | UI explicitly requests restart after successful persistence. |
+| Release events have no database expiry | ACCEPTED FOR RC | Display is bounded; retention policy deferred. |
+| Archives and stable CI runners are not byte-for-byte reproducible | ACCEPTED FOR RC | Locked dependencies and manifests identify source/toolchain/final bytes; timestamps/toolchain updates can change package hashes. |
+| Live TMDB/service smoke beyond controlled-provider coverage | POST-RC | Existing deterministic journey and failure tests remain the release evidence. |
+| Application license, Slint basis and intended distribution | EXTERNAL DECISION | Owner chooses; no commercial/non-commercial classification inferred. |
+| TMDB intended-use terms/agreement | EXTERNAL DECISION | Owner determines applicability and obtains any required agreement. |
+| Inno Setup purchase, if applicable | EXTERNAL DECISION | Owner determines applicability; no purchase assumed. |
+| Windows signing and distribution policy | EXTERNAL DECISION | Unsigned artifacts allowed for technical testing only under the selected testing policy. |
+| macOS signing/notarization and distribution policy | EXTERNAL DECISION | Owner decision and credentials remain absent. |
+| Final dependency inventory and distribution channel review | EXTERNAL DECISION | Review final packages against the chosen distribution/license model. |
 
-The former macOS path-alias and missing Linux X11 library failures are fixed
-and verified in native CI. They are not current blockers. The sidebar's
-missing keyboard focus and native episode/Updates gaps are fixed locally
-with regression/native proof. Episode targets now load the requested title
-before selecting season/episode. Final suites pass 221 ordinary tests,
-16 ignored (one new manual native fixture separately passed). Native follow-up supersedes blanket native-unavailable and
-unresolved-close claims, preserving historical evidence. Exact corrected
-CI/artifacts alone still block the technical gate.
-No accepted or post-RC item was promoted to
-an observed defect without evidence.
+No current technical RELEASE BLOCKER is asserted. The former macOS path alias,
+Linux X11 prerequisite, native populated close, sidebar focus and episode-target
+issues are resolved within the scopes recorded in the R17 report. Migration,
+Backup V1, product journey, failure matrix and performance/soak evidence remain
+there rather than being duplicated as current limitations.
+
+Public distribution remains **BLOCKED BY EXTERNAL DECISION**. A passed technical
+RC gate does not authorize publication.

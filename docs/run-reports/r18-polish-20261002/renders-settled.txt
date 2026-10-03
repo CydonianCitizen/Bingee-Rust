@@ -1,0 +1,33 @@
+warn: could not canonicalize path C:\Users\thoma
+   Compiling bingee-desktop v0.1.0-rc.1 (C:\Users\thoma\Documents\Projects\bingee-rust)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.23s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 3 tests
+2026-10-03T07:28:53Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r18-render-1920-1080-20636\data\bingee.db
+2026-10-03T07:28:53Z INFO Migrating the database from schema version 0 to 5
+2026-10-03T07:28:53Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r18-render-1280-800-20636\data\bingee.db
+2026-10-03T07:28:53Z INFO Migrating the database from schema version 0 to 5
+2026-10-03T07:28:53Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r18-render-1700-1100-20636\data\bingee.db
+2026-10-03T07:28:53Z INFO Migrating the database from schema version 0 to 5
+2026-10-03T07:28:53Z INFO Migration to schema version 5 complete
+2026-10-03T07:28:53Z INFO Library opened: schema version 5, 0 titles
+2026-10-03T07:28:53Z INFO Migration to schema version 5 complete
+2026-10-03T07:28:53Z INFO Library opened: schema version 5, 0 titles
+2026-10-03T07:28:53Z INFO Migration to schema version 5 complete
+2026-10-03T07:28:53Z INFO Library opened: schema version 5, 0 titles
+2026-10-03T07:28:57Z INFO Detail #2: shown from the local cache (stale)
+2026-10-03T07:29:01Z INFO Detail #2: shown from the local cache (stale)
+2026-10-03T07:29:01Z INFO Detail #1: shown from the local cache (stale)
+2026-10-03T07:29:01Z INFO Detail #2: shown from the local cache (stale)
+2026-10-03T07:29:02Z INFO Detail #2: shown from the local cache (stale)
+test tests::offscreen_pages_1280 ... ok
+2026-10-03T07:29:05Z INFO Detail #1: shown from the local cache (stale)
+2026-10-03T07:29:06Z INFO Detail #2: shown from the local cache (stale)
+2026-10-03T07:29:06Z INFO Detail #1: shown from the local cache (stale)
+2026-10-03T07:29:07Z INFO Detail #2: shown from the local cache (stale)
+test tests::offscreen_pages_1700 ... ok
+test tests::offscreen_pages_1920 ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 236 filtered out; finished in 19.62s
+

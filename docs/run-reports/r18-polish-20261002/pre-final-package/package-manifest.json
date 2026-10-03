@@ -1,0 +1,25 @@
+[
+  {
+    "platform": "Windows",
+    "architecture": "x64",
+    "application_version": "0.1.0-rc.1",
+    "artifact_filename": "bingee-desktop-0.1.0-rc.1-windows-x64.zip",
+    "file_size": 13744609,
+    "sha256": "d149432d0f267d9ff0da2dcbef793a74c61a6e272f80ae7810c31a17cc459442",
+    "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+    "source_state": "plus uncommitted R18 changes; see source-inputs.json",
+    "signature": "Not applicable to ZIP container; no detached signature supplied",
+    "signature_api_result": "UnknownError"
+  },
+  {
+    "platform": "Windows",
+    "architecture": "x64",
+    "application_version": "0.1.0-rc.1",
+    "artifact_filename": "bingee-desktop-0.1.0-rc.1-windows-x64-setup.exe",
+    "file_size": 10024638,
+    "sha256": "87519243552a62539c070cac0ff7600eddf7aeaf5666e3f8407a4abcf3fd518d",
+    "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+    "source_state": "plus uncommitted R18 changes; see source-inputs.json",
+    "signature": "NotSigned"
+  }
+]

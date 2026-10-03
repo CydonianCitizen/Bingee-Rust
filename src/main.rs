@@ -409,6 +409,9 @@ fn connect_library(window: &AppWindow, view: Rc<LibraryView<UserLibrary>>, log: 
             } else {
                 // History may name a title no longer in Library. Its cached
                 // metadata still opens; the list has no selected row.
+                view.selected.set(None);
+                window.set_selected_row(-1);
+                window.set_detail(MediaRow::default());
                 window.set_selected_id(id);
             }
             // Slint's selected-id changed handler runs later. Load this title
@@ -759,12 +762,42 @@ mod tests {
 
     fn offscreen_pages(width: u32, height: u32) {
         use crate::metadata::tests::{episode, season, series, stored};
-        let folder = std::path::PathBuf::from("target/offscreen-r12-r14");
+        let folder = std::path::PathBuf::from("target/offscreen-r18");
         std::fs::create_dir_all(&folder).unwrap();
         let mut ui = Headless::new(width, height);
         let app = ui.app.clone_strong();
         let db = SharedDb::default();
-        db.set(Database::open_in_memory());
+        let dir = TestDir::new(&format!("r18-render-{width}-{height}"));
+        let log = Arc::new(Log::stderr_only());
+        let posters = poster::tests::offline();
+        let _lock = start(
+            &app,
+            Ok(test_paths(&dir)),
+            log.clone(),
+            db.clone(),
+            posters.clone(),
+        );
+        let client = TmdbClient::for_tests("http://127.0.0.1:1", std::time::Duration::from_secs(1));
+        let token = remote::start(
+            &app,
+            client.clone(),
+            Arc::new(secrets::MemoryStore::default()),
+            Network::with_post(1, ui.post()),
+            log.clone(),
+            db.clone(),
+            posters.clone(),
+        );
+        ui.pump_until("empty credential storage", |app| !app.get_tmdb().busy);
+        detail::start(
+            &app,
+            db.clone(),
+            client,
+            token,
+            Network::with_post(1, ui.post()),
+            posters,
+            metadata::Clock::system(),
+            log.clone(),
+        );
         let (clock, _) = metadata::Clock::fake(1_800_000_000);
         dashboard::start(
             &app,
@@ -772,48 +805,111 @@ mod tests {
             clock.clone(),
             Arc::new(Log::stderr_only()),
         );
-        release_page::start(&app, db.clone(), clock, Arc::new(Log::stderr_only()));
+        history::start(&app, db.clone(), log.clone());
+        statistics_page::start(&app, db.clone(), clock.clone(), log.clone());
+        release_page::start(&app, db.clone(), clock, log);
         let picture = |ui: &mut Headless, name: &str| {
+            // Let page bindings and stock-widget enabled-state animations
+            // settle before capturing, rather than freezing their first frame.
+            ui.render();
+            ui.advance(std::time::Duration::from_millis(300));
             ui.save_png(&folder.join(format!("{width}x{height}-{name}.png")));
         };
         app.set_page("home".into());
         picture(&mut ui, "home-empty");
         app.set_page("updates".into());
         picture(&mut ui, "updates-empty");
-        db.with(|db| {
-            let id = stored(db, MediaType::Tv, 9, "Offline series");
-            metadata::save(
-                db,
-                id,
-                &series("Offline series", vec![season(1, Some(2))]),
-                1,
-            )?;
-            let today = calendar::local_date(db, 1_800_000_000)?;
-            let mut episodes = vec![episode(1, 1), episode(1, 2)];
-            episodes[1].air_date = Some(today.clone());
-            metadata::save_episodes(db, id, 1, &episodes, 1)?;
-            tracking::watch_episode(db, id, 1, 1, 1_799_999_000, false)?;
-            db.conn()
-                .execute(
-                    "INSERT INTO release_events (local_media_id, media_type,
+        for page in [
+            "library",
+            "discover",
+            "history",
+            "statistics",
+            "calendar",
+            "settings",
+            "about",
+        ] {
+            app.set_page(page.into());
+            picture(&mut ui, &format!("{page}-empty"));
+        }
+        let (movie, show) = db
+            .with(|db| {
+                let movie = stored(db, MediaType::Movie, 42, "A journey beyond the familiar");
+                metadata::save(
+                    db,
+                    movie,
+                    &metadata::tests::movie("A journey beyond the familiar", vec![]),
+                    1,
+                )?;
+                tracking::watch_movie(db, movie, 1_799_999_900, false)?;
+                let id = stored(db, MediaType::Tv, 9, "Offline series");
+                metadata::save(
+                    db,
+                    id,
+                    &series("Offline series", vec![season(1, Some(2))]),
+                    1,
+                )?;
+                let today = calendar::local_date(db, 1_800_000_000)?;
+                let mut episodes = vec![episode(1, 1), episode(1, 2)];
+                episodes[1].air_date = Some(today.clone());
+                metadata::save_episodes(db, id, 1, &episodes, 1)?;
+                tracking::watch_episode(db, id, 1, 1, 1_799_999_000, false)?;
+                db.conn()
+                    .execute(
+                        "INSERT INTO release_events (local_media_id, media_type,
                 season_number, episode_number, event_type, discovered_at, air_date)
                 VALUES (?1, 'tv', 1, 2, 'new_episode', ?2, ?3)",
-                    rusqlite::params![id, 1_799_999_900, today],
-                )
-                .unwrap();
-            Ok(())
-        })
-        .unwrap();
+                        rusqlite::params![id, 1_799_999_900, today],
+                    )
+                    .unwrap();
+                Ok((movie, id))
+            })
+            .unwrap();
+        app.invoke_library_changed();
         app.set_page("home".into());
         picture(&mut ui, "home-populated");
         app.set_page("calendar".into());
         picture(&mut ui, "calendar-populated");
         app.set_page("updates".into());
         picture(&mut ui, "updates-populated");
+        for page in ["history", "statistics"] {
+            app.set_page(page.into());
+            picture(&mut ui, &format!("{page}-populated"));
+        }
+        assert_eq!(app.get_history_rows().row_count(), 2);
+        assert_eq!(app.get_statistics().state, "ready");
+        app.invoke_open_library_media(movie as i32, -1, -1);
+        picture(&mut ui, "movie-detail");
+        app.invoke_open_library_media(show as i32, 1, 2);
+        picture(&mut ui, "tv-detail");
+        picture(&mut ui, "library-populated");
+        // Static provider result presentation; request/error behavior has
+        // separate fake-server regression coverage.
+        let row = view::media_row(
+            42,
+            MediaType::Movie,
+            "A journey beyond the familiar",
+            None,
+            Some("2026"),
+            Some("A cached title ready to open in your Library."),
+        );
+        app.set_discover_results(slint::ModelRc::new(slint::VecModel::from(vec![
+            row.clone(),
+        ])));
+        app.set_discover_detail(row);
+        app.set_discover_selected_row(0);
+        app.set_discover_in_library(true);
+        app.set_discover(DiscoverView {
+            state: "results".into(),
+            ready: true,
+            summary: "1 result".into(),
+            ..Default::default()
+        });
+        app.set_page("discover".into());
+        picture(&mut ui, "discover-populated");
         app.set_backup_status("Backup exported to Documents/Bingee-backup.json".into());
         app.set_backup_file("Documents/Bingee-backup.json".into());
         app.set_backup_preview(
-            "Validated backup: 1 title, 1 watch event. Confirm to replace current Bingee data."
+            "Backup checked: 2 titles, 2 watch events. Restore replaces your current saved data after creating a safety backup."
                 .into(),
         );
         app.set_backup_ready(true);
@@ -831,6 +927,68 @@ mod tests {
     #[ignore]
     fn offscreen_pages_1700() {
         offscreen_pages(1700, 1100);
+    }
+
+    #[test]
+    #[ignore]
+    fn offscreen_pages_1920() {
+        offscreen_pages(1920, 1080);
+    }
+
+    #[test]
+    fn home_keyboard_scrolls_to_targets_and_space_opens_them() {
+        use slint::platform::{Key, WindowEvent};
+        let mut ui = Headless::new(1280, 800);
+        let app = ui.app.clone_strong();
+        let rows: Vec<_> = (0..32)
+            .map(|i| HomeRow {
+                title: format!("Series {i}").into(),
+                section: "Up Next".into(),
+                detail: "S1 E2".into(),
+            })
+            .collect();
+        app.set_home_rows(slint::ModelRc::new(slint::VecModel::from(rows)));
+        let opened = Rc::new(std::cell::Cell::new(-1));
+        app.on_home_select({
+            let opened = opened.clone();
+            move |row| opened.set(row)
+        });
+        app.set_page("home".into());
+        ui.render();
+        let press = |text: SharedString| {
+            app.window()
+                .dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+            app.window()
+                .dispatch_event(WindowEvent::KeyReleased { text });
+        };
+        press(Key::End.into());
+        press(" ".into());
+        assert_eq!(opened.get(), 31);
+        ui.render();
+        let last = ui.buffer.clone();
+        press(Key::Home.into());
+        press(Key::Return.into());
+        assert_eq!(opened.get(), 0);
+        ui.render();
+        assert!(
+            ui.buffer
+                .iter()
+                .zip(last)
+                .filter(|(a, b)| a.0 != b.0)
+                .count()
+                > 100
+        );
+        press(Key::PageDown.into());
+        press(" ".into());
+        assert!(opened.get() > 0 && opened.get() < 31);
+        press(Key::PageUp.into());
+        press(" ".into());
+        assert_eq!(opened.get(), 0);
+        app.set_home_rows(Default::default());
+        ui.render();
+        opened.set(-1);
+        press(" ".into());
+        assert_eq!(opened.get(), -1, "empty Home must not activate a stale row");
     }
 
     #[test]
@@ -1181,7 +1339,7 @@ mod tests {
         app.set_selected_id(first as i32);
         detail::start(
             &app,
-            db,
+            db.clone(),
             TmdbClient::for_tests("http://127.0.0.1:1", std::time::Duration::from_secs(1)),
             secrets::SharedToken::default(),
             Network::with_post(1, ui.post()),
@@ -1196,6 +1354,18 @@ mod tests {
         assert_eq!(app.get_detail_season().heading, "Specials");
         assert_eq!(app.get_detail_episode_row(), 1);
         assert_eq!(app.get_detail_episodes().row_data(1).unwrap().label, "E2");
+        db.with(|db| library::remove(db, target)).unwrap();
+        app.invoke_library_changed();
+        app.invoke_open_library_media(first as i32, -1, -1);
+        app.invoke_open_library_media(target as i32, 0, 2);
+        ui.render();
+        assert_eq!(
+            app.get_selected_row(),
+            -1,
+            "removed title kept a stale selection"
+        );
+        assert_eq!(app.get_media_detail().title, "Target series");
+        assert_eq!(app.get_detail_episode_row(), 1);
     }
 
     /// Page navigation must be reachable through Tab, without a pointer or

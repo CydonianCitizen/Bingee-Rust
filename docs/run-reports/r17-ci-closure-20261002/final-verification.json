@@ -1,0 +1,35 @@
+{
+  "checked_utc": "2026-10-02 21:27:24 UTC",
+  "branch": "main",
+  "head": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "origin_main": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "live_main": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "source_inputs": 53,
+  "source_mismatches": 0,
+  "successful_runs": 2,
+  "successful_jobs": 6,
+  "artifact_digests_verified": 3,
+  "package_manifest_records_verified": 4,
+  "windows_portable_checksums_verified": 696,
+  "test_result_each_ci_invocation": {
+    "passed": 221,
+    "failed": 0,
+    "ignored": 16
+  },
+  "expensive_local_validation_rerun": false,
+  "new_interactive_gui_validation": false,
+  "dependencies_changed": false,
+  "git_diff_check_exit": 0,
+  "technical_verdict": "TECHNICALLY READY FOR RC",
+  "distribution_verdict": "PUBLIC DISTRIBUTION BLOCKED BY EXTERNAL DECISION",
+  "modified_documentation": [
+    "docs/release-checklist.md",
+    "docs/run-reports/2026-10-02-r17-native-blocker-followup.md",
+    "IMPLEMENTATION_PLAN.md",
+    "docs/known-limitations.md"
+  ],
+  "created_evidence_directory": "docs/run-reports/r17-ci-closure-20261002/",
+  "r18_started": false,
+  "release_published": false,
+  "changes_committed_or_pushed": false
+}

@@ -1,0 +1,13 @@
+[
+  {
+    "platform": "Linux",
+    "artifact_filename": "bingee-desktop-linux-x86_64.tar.gz",
+    "artifact_type": "tar.gz",
+    "architecture": "X64",
+    "application_version": "0.1.0-rc.1",
+    "file_size": 16900521,
+    "sha256": "d875f029d0388b45dcae844f28c80f418a3edc191b72671af2ff4bc8d4a47495",
+    "build_commit": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+    "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)"
+  }
+]

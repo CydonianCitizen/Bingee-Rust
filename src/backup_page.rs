@@ -106,7 +106,7 @@ impl<D: FileChooser> BackupPage<D> {
         match backup::read_from_path(&path) {
             Ok(value) => {
                 window.set_backup_preview(format!(
-                    "Validated backup: {} titles, {} watch events. Confirm to replace current Bingee data.",
+                "Backup checked: {} titles, {} watch events. Restore replaces your current saved data after creating a safety backup.",
                     value.data.media.len(), value.data.watch_events.len(),
                 ).into());
                 window.set_backup_status("".into());
@@ -142,7 +142,8 @@ impl<D: FileChooser> BackupPage<D> {
                     format!(" Previous data: {}.", path.display())
                 });
                 window.set_backup_status(
-                    format!("Restore complete. Restart Bingee to reload all pages.{saved}").into(),
+                    format!("Restore complete. Restart Bingee Desktop to reload all pages.{saved}")
+                        .into(),
                 );
                 window.invoke_library_changed();
             }

@@ -1,0 +1,61 @@
+{
+  "artifacts": [
+    {
+      "id": 11252796850,
+      "name": "bingee-Windows-X64",
+      "size_in_bytes": 22209114,
+      "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11252796850",
+      "archive_download_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11252796850/zip",
+      "expired": false,
+      "created_at": "2026-10-02T21:20:13Z",
+      "expires_at": "2026-12-31T20:59:43Z",
+      "updated_at": "2026-10-02T21:20:13Z",
+      "digest": "sha256:f6013c7e4ddc13e138d2b9de737971e160594736c67aebad7dda992118910c25",
+      "workflow_run": {
+        "id": 37064096196,
+        "repository_id": 1365792500,
+        "head_repository_id": 1365792500,
+        "head_branch": "main",
+        "head_sha": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2"
+      }
+    },
+    {
+      "id": 11252323135,
+      "name": "bingee-macOS-ARM64",
+      "size_in_bytes": 11665654,
+      "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11252323135",
+      "archive_download_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11252323135/zip",
+      "expired": false,
+      "created_at": "2026-10-02T21:14:46Z",
+      "expires_at": "2026-12-31T20:59:43Z",
+      "updated_at": "2026-10-02T21:14:46Z",
+      "digest": "sha256:d134b251265586a06ab470c30a66bde2ea0fdb4c28920134ff8a1748b2b3afb0",
+      "workflow_run": {
+        "id": 37064096196,
+        "repository_id": 1365792500,
+        "head_repository_id": 1365792500,
+        "head_branch": "main",
+        "head_sha": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2"
+      }
+    },
+    {
+      "id": 11251763409,
+      "name": "bingee-Linux-X64",
+      "size_in_bytes": 16806829,
+      "url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11251763409",
+      "archive_download_url": "https://api.github.com/repos/CydonianCitizen/Bingee-Rust/actions/artifacts/11251763409/zip",
+      "expired": false,
+      "created_at": "2026-10-02T21:13:50Z",
+      "expires_at": "2026-12-31T20:59:43Z",
+      "updated_at": "2026-10-02T21:13:50Z",
+      "digest": "sha256:ee4caa82b317b26bff8248be4b26c15b107312518fd805026115914de10a038d",
+      "workflow_run": {
+        "id": 37064096196,
+        "repository_id": 1365792500,
+        "head_repository_id": 1365792500,
+        "head_branch": "main",
+        "head_sha": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2"
+      }
+    }
+  ]
+}

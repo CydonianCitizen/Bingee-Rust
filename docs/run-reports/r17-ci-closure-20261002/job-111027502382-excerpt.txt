@@ -1,0 +1,54 @@
+2026-10-02T20:59:47.3960245Z ##[group]Runner Image Provisioner
+2026-10-02T20:59:47.3969958Z ##[group]Operating System
+2026-10-02T20:59:47.3974587Z ##[group]Runner Image
+2026-10-02T20:59:47.3986016Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T20:59:47.3993065Z Secret source: Actions
+2026-10-02T20:59:48.4395288Z ##[group]Run actions/checkout@v5
+2026-10-02T20:59:48.5952743Z ##[group]Getting Git version info
+2026-10-02T20:59:49.1187090Z ##[group]Initializing the repository
+2026-10-02T20:59:49.2684815Z ##[group]Disabling automatic garbage collection
+2026-10-02T20:59:49.2994582Z ##[group]Setting up auth
+2026-10-02T20:59:51.8700508Z ##[group]Fetching the repository
+2026-10-02T20:59:51.8715349Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3ab08c32a2fef16cf8555e9db467f681c1dbd1a2:refs/remotes/origin/main
+2026-10-02T20:59:53.0568082Z  * [new ref]         3ab08c32a2fef16cf8555e9db467f681c1dbd1a2 -> origin/main
+2026-10-02T20:59:53.0610030Z ##[group]Determining the checkout info
+2026-10-02T20:59:53.1361013Z ##[group]Checking out the ref
+2026-10-02T20:59:53.4628003Z 3ab08c32a2fef16cf8555e9db467f681c1dbd1a2
+2026-10-02T20:59:53.5065507Z ##[group]Run rustup toolchain install stable --profile minimal --component rustfmt,clippy
+2026-10-02T21:00:16.5059385Z   stable-x86_64-pc-windows-msvc updated - rustc 1.99.0 (b940084d7 2026-09-28) (from rustc 1.98.1 (48a229cea 2026-09-01))
+2026-10-02T21:00:16.5762991Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T21:00:17.5579468Z rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T21:00:18.4288732Z cargo 1.99.0 (5f94df478 2026-08-27)
+2026-10-02T21:00:18.4785360Z ##[group]Run cargo fmt --check
+2026-10-02T21:00:21.6967707Z   Downloaded clipboard-win v5.4.1
+2026-10-02T21:01:11.0696738Z    Compiling equator-macro v0.4.2
+2026-10-02T21:01:16.2696814Z    Compiling unicode-script v0.5.8
+2026-10-02T21:01:22.8696838Z    Compiling roxmltree v0.21.1
+2026-10-02T21:03:55.2214418Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 3m 35s
+2026-10-02T21:06:47.6961503Z    Compiling regex v1.13.1
+2026-10-02T21:08:08.3782177Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 4m 12s
+2026-10-02T21:08:28.2696131Z test tracking::tests::watch_again_records_a_rewatch_and_moves_the_watched_date ... ok
+2026-10-02T21:08:41.3164779Z test result: ok. 221 passed; 0 failed; 16 ignored; 0 measured; 0 filtered out; finished in 32.80s
+2026-10-02T21:09:55.3307044Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 13s
+2026-10-02T21:09:55.4156962Z test backup::tests::import_failure_rolls_back_every_row ... ok
+2026-10-02T21:10:32.5162586Z test result: ok. 221 passed; 0 failed; 16 ignored; 0 measured; 0 filtered out; finished in 37.13s
+2026-10-02T21:11:05.2888112Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 32.06s
+2026-10-02T21:11:05.3754663Z ##[group]Run ./scripts/get-inno.ps1
+2026-10-02T21:11:11.8445086Z ##[group]Run ./scripts/package-windows.ps1 -RequireInstaller
+2026-10-02T21:16:14.6967549Z    Compiling keyboard-types v0.7.0
+2026-10-02T21:19:49.5542238Z     Finished `release` profile [optimized] target(s) in 8m 37s
+2026-10-02T21:19:59.4101627Z Inno Setup 6 Command-Line Compiler
+2026-10-02T21:19:59.4313753Z Compiler engine version: Inno Setup 6.7.3
+2026-10-02T21:20:04.7696352Z    Compressing: D:\a\Bingee-Rust\Bingee-Rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\either-1.18.0\LICENSE-MIT
+2026-10-02T21:20:05.5616968Z    Compressing: D:\a\Bingee-Rust\Bingee-Rust\scripts\..\dist\bingee-desktop-windows-x64\licenses\scopeguard-1.2.0\LICENSE-APACHE
+2026-10-02T21:20:06.6983834Z Installer:   D:\a\Bingee-Rust\Bingee-Rust\dist\bingee-desktop-windows-x64-setup.exe, 10038957 bytes, SHA-256 95E4892F582E364415B46222A4F41C2DB3B374F90F262EC7A922221BC0463F78
+2026-10-02T21:20:06.6986293Z Source:      3ab08c32a2fef16cf8555e9db467f681c1dbd1a2
+2026-10-02T21:20:06.7345791Z Executable:  28831744 bytes, SHA-256 834880D5196E117072C70C46C581EF2B6352F5725E74FC8B49F7ABFCD8BA16FB
+2026-10-02T21:20:06.7707197Z Total:       32828219 bytes in 697 files
+2026-10-02T21:20:06.7882648Z ZIP:         D:\a\Bingee-Rust\Bingee-Rust\dist\bingee-desktop-windows-x64.zip, 13738956 bytes, SHA-256 B49B712F723A25112C4AC7052B959C6A8436C2C3CD0B29FD9625C52D8128A8D2
+2026-10-02T21:20:06.8537864Z ##[group]Run foreach ($path in @('dist/bingee-desktop-windows-x64-setup.exe', 'dist/bingee-desktop-windows-x64.zip', 'dist/bingee-desktop-windows-x64/bingee-desktop.exe', 'dist/bingee-desktop-windows-x64/licenses/INDEX.txt', 'dist/bingee-desktop-windows-x64/THIRD_PARTY_NOTICES.txt')) {
+2026-10-02T21:20:07.3456002Z ##[group]Run $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+2026-10-02T21:20:08.1256107Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T21:20:11.9869604Z Uploaded bytes 22209114
+2026-10-02T21:20:12.2964254Z Finished uploading artifact content to blob storage!
+2026-10-02T21:20:12.2966744Z SHA256 digest of uploaded artifact zip is f6013c7e4ddc13e138d2b9de737971e160594736c67aebad7dda992118910c25

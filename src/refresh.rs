@@ -636,7 +636,7 @@ mod tests {
             db.with(|db| crate::home::load(db, 1_800_000_000))
                 .unwrap()
                 .summary,
-            "1 movies · 0 series in Library"
+            "1 movie · 0 series in Library"
         );
     }
 

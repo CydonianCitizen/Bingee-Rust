@@ -1,0 +1,1 @@
+PASS: 696 portable checksums; 697 ZIP file hashes match package; Cargo version 0.1.0-rc.1; notices and license inventory included

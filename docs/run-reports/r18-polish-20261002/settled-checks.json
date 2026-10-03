@@ -1,0 +1,32 @@
+[
+  {
+    "command": "cargo fmt --check",
+    "exit_code": 0,
+    "seconds": 0.53
+  },
+  {
+    "command": "cargo check --locked",
+    "exit_code": 0,
+    "seconds": 10.58
+  },
+  {
+    "command": "cargo clippy --all-targets --all-features -- -D warnings",
+    "exit_code": 0,
+    "seconds": 11.8
+  },
+  {
+    "command": "cargo clippy --all-targets -- -D warnings",
+    "exit_code": 0,
+    "seconds": 12.61
+  },
+  {
+    "command": "cargo clippy --all-targets --features benchmark-fixture -- -D warnings",
+    "exit_code": 0,
+    "seconds": 11.73
+  },
+  {
+    "command": "cargo build --release --locked",
+    "exit_code": 0,
+    "seconds": 123.71
+  }
+]

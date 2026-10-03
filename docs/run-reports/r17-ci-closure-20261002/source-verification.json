@@ -1,0 +1,48 @@
+{
+  "checked_utc": "2026-10-02 21:05:04 UTC",
+  "head": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "origin_main": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "live_main": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+  "branch": "main",
+  "entry_worktree": "clean",
+  "commit_subject": "R17: close native focus and lifecycle blockers",
+  "parent": "6e24b2a109c8fa041075adcbcf1001bc4646cd82",
+  "source_manifest": "../r17-blocker-followup-20261002/final-candidate-identity.json",
+  "source_inputs": 53,
+  "source_mismatches": [],
+  "dependency_changes": [],
+  "corrected_paths": [
+    "src/main.rs",
+    "src/r17_validation.rs",
+    "ui/app-window.slint"
+  ],
+  "pushed_reports": [
+    "docs/release-checklist.md",
+    "docs/run-reports/2026-10-02-r17-native-blocker-followup.md",
+    "IMPLEMENTATION_PLAN.md"
+  ],
+  "workflows": [
+    {
+      "id": 37064096145,
+      "name": "cross-platform",
+      "head_sha": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+      "path": ".github/workflows/cross-platform.yml",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/37064096145",
+      "run_attempt": 1,
+      "event": "push"
+    },
+    {
+      "id": 37064096196,
+      "name": "release artifacts",
+      "head_sha": "3ab08c32a2fef16cf8555e9db467f681c1dbd1a2",
+      "path": ".github/workflows/release-artifacts.yml",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/37064096196",
+      "run_attempt": 1,
+      "event": "push"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+2026-10-02T20:59:50.6962930Z ##[group]Runner Image Provisioner
+2026-10-02T20:59:50.6967260Z ##[group]Operating System
+2026-10-02T20:59:50.6970090Z ##[group]Runner Image
+2026-10-02T20:59:50.6974250Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T20:59:51.4390010Z ##[group]Run actions/checkout@v5
+2026-10-02T20:59:51.7810380Z ##[group]Getting Git version info
+2026-10-02T20:59:51.9139050Z ##[group]Initializing the repository
+2026-10-02T20:59:51.9433870Z ##[group]Disabling automatic garbage collection
+2026-10-02T20:59:51.9507040Z ##[group]Setting up auth
+2026-10-02T20:59:52.3401840Z ##[group]Fetching the repository
+2026-10-02T20:59:52.3407310Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3ab08c32a2fef16cf8555e9db467f681c1dbd1a2:refs/remotes/origin/main
+2026-10-02T20:59:53.4426920Z  * [new ref]         3ab08c32a2fef16cf8555e9db467f681c1dbd1a2 -> origin/main
+2026-10-02T20:59:53.4549980Z ##[group]Determining the checkout info
+2026-10-02T20:59:53.5560730Z ##[group]Checking out the ref
+2026-10-02T20:59:53.6618100Z 3ab08c32a2fef16cf8555e9db467f681c1dbd1a2
+2026-10-02T20:59:53.6847630Z ##[group]Run rustup toolchain install stable --profile minimal --component rustfmt,clippy
+2026-10-02T21:00:00.8671810Z   stable-aarch64-apple-darwin updated - rustc 1.99.0 (b940084d7 2026-09-28) (from rustc 1.98.1 (48a229cea 2026-09-01))
+2026-10-02T21:00:00.9148220Z   stable-aarch64-apple-darwin unchanged - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T21:00:00.9438480Z rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-02T21:00:00.9946270Z cargo 1.99.0 (5f94df478 2026-08-27)
+2026-10-02T21:00:01.0051700Z ##[group]Run cargo fmt --check
+2026-10-02T21:02:33.4974010Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 2m 32s
+2026-10-02T21:06:13.9918620Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 3m 40s
+2026-10-02T21:06:38.1449170Z test result: ok. 221 passed; 0 failed; 16 ignored; 0 measured; 0 filtered out; finished in 24.07s
+2026-10-02T21:07:44.9477630Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 06s
+2026-10-02T21:08:09.2079390Z test result: ok. 221 passed; 0 failed; 16 ignored; 0 measured; 0 filtered out; finished in 24.16s
+2026-10-02T21:08:49.8405590Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 40.37s
+2026-10-02T21:08:49.9814810Z ##[group]Run ./scripts/package-macos.ps1
+2026-10-02T21:14:34.2311620Z     Finished `release` profile [optimized] target(s) in 5m 42s
+2026-10-02T21:14:38.4505700Z /Users/runner/work/Bingee-Rust/Bingee-Rust/dist/Bingee Desktop.app/Contents/Info.plist: OK
+2026-10-02T21:14:39.9437100Z Archive: /Users/runner/work/Bingee-Rust/Bingee-Rust/dist/bingee-desktop-macos-arm64.tar.gz, 11710443 bytes, SHA-256 087A8B92A23E88C0C8CC30956CE497E6848BBC673FAD8184FB5E07BCD590736B
+2026-10-02T21:14:39.9439980Z Unsigned. Gatekeeper may block launch until user explicitly allows it.
+2026-10-02T21:14:40.0489820Z ##[group]Run $bundle = 'dist/Bingee Desktop.app/Contents'
+2026-10-02T21:14:40.0498450Z if ($binary -notmatch 'Mach-O 64-bit' -or $binary -notmatch (uname -m)) { throw "Wrong executable format or architecture: $binary" }
+2026-10-02T21:14:40.6706370Z dist/Bingee Desktop.app/Contents/Info.plist: OK
+2026-10-02T21:14:43.5106440Z 	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+2026-10-02T21:14:43.5108710Z 	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2685.60.104)
+2026-10-02T21:14:43.5110630Z 	/System/Library/Frameworks/Accessibility.framework/Versions/A/Accessibility (compatibility version 1.0.0, current version 1.0.0)
+2026-10-02T21:14:43.5112520Z 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+2026-10-02T21:14:43.5113340Z 	/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL (compatibility version 1.0.0, current version 1.0.0)
+2026-10-02T21:14:43.5114500Z 	/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices (compatibility version 1.0.0, current version 66.0.0)
+2026-10-02T21:14:43.5116010Z 	/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 1965.5.1)
+2026-10-02T21:14:43.5124100Z 	/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo (compatibility version 1.2.0, current version 734.4.0)
+2026-10-02T21:14:43.5125050Z 	/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 170.0.0)
+2026-10-02T21:14:43.5126490Z 	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5026.5.4)
+2026-10-02T21:14:43.5129690Z 	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+2026-10-02T21:14:43.5130610Z 	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+2026-10-02T21:14:43.5131550Z 	/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData (compatibility version 1.0.0, current version 1526.0.0)
+2026-10-02T21:14:43.5132350Z 	/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage (compatibility version 1.0.1, current version 7.0.0)
+2026-10-02T21:14:43.5133250Z 	/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit (compatibility version 1.0.0, current version 2360.120.2)
+2026-10-02T21:14:43.5134190Z 	/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore (compatibility version 1.2.0, current version 1195.14.4)
+2026-10-02T21:14:43.5135000Z 	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+2026-10-02T21:14:43.5135720Z 	/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText (compatibility version 1.0.0, current version 877.4.0)
+2026-10-02T21:14:43.5136490Z 	/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync (compatibility version 1.0.0, current version 3813.5.1)
+2026-10-02T21:14:43.5137470Z 	/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices (compatibility version 1.0.0, current version 1226.0.0)
+2026-10-02T21:14:43.7793980Z ##[group]Run $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+2026-10-02T21:14:44.3450730Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T21:14:45.6574120Z Finished uploading artifact content to blob storage!
+2026-10-02T21:14:45.6575330Z SHA256 digest of uploaded artifact zip is d134b251265586a06ab470c30a66bde2ea0fdb4c28920134ff8a1748b2b3afb0

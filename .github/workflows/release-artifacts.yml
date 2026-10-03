@@ -3,6 +3,7 @@ name: release artifacts
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -17,6 +18,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
+      - name: Validate RC tag against Cargo version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+          if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag does not match Cargo version' }
       - name: Toolchain
         shell: bash
         run: |
@@ -58,7 +65,8 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          foreach ($path in @('dist/bingee-desktop-windows-x64-setup.exe', 'dist/bingee-desktop-windows-x64.zip', 'dist/bingee-desktop-windows-x64/bingee-desktop.exe', 'dist/bingee-desktop-windows-x64/licenses/INDEX.txt', 'dist/bingee-desktop-windows-x64/THIRD_PARTY_NOTICES.txt')) {
+          $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
+          foreach ($path in @("dist/bingee-desktop-$version-windows-x64-setup.exe", "dist/bingee-desktop-$version-windows-x64.zip", 'dist/bingee-desktop-windows-x64/bingee-desktop.exe', 'dist/bingee-desktop-windows-x64/licenses/INDEX.txt', 'dist/bingee-desktop-windows-x64/THIRD_PARTY_NOTICES.txt')) {
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing $path" }
           }
       - name: macOS bundle structure
@@ -80,7 +88,7 @@ jobs:
           if ($binary -notmatch 'Mach-O 64-bit' -or $binary -notmatch (uname -m)) { throw "Wrong executable format or architecture: $binary" }
           otool -L "$bundle/MacOS/bingee-desktop"
           if ($LASTEXITCODE -ne 0) { throw 'otool failed' }
-          $archive = "dist/bingee-desktop-macos-$(uname -m).tar.gz"
+          $archive = "dist/bingee-desktop-$version-macos-$(uname -m).tar.gz"
           $entries = @(tar -tzf $archive)
           if ($LASTEXITCODE -ne 0 -or $entries -notcontains 'Bingee Desktop.app/Contents/Info.plist') { throw 'Archive inspection failed' }
       - name: Linux package structure and headless smoke
@@ -98,7 +106,8 @@ jobs:
           desktop-file-validate "$package/share/applications/bingee-desktop.desktop"
           file "$bin" | grep -q 'ELF 64-bit'
           if ldd "$bin" | grep -q 'not found'; then exit 1; fi
-          tar -tzf "dist/bingee-desktop-linux-$(uname -m).tar.gz" | grep '/bin/bingee-desktop$' >/dev/null
+          version=$(cargo metadata --no-deps --format-version 1 --locked | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "bingee-desktop"))')
+          tar -tzf "dist/bingee-desktop-$version-linux-$(uname -m).tar.gz" | grep '/bin/bingee-desktop$' >/dev/null
           bin="$(realpath "$bin")"
           scratch="$(mktemp -d)"
           mkdir -p "$scratch/home"
@@ -114,7 +123,7 @@ jobs:
         shell: pwsh
         run: |
           $version = (cargo metadata --no-deps --format-version 1 --locked | ConvertFrom-Json).packages | Where-Object name -eq 'bingee-desktop' | Select-Object -ExpandProperty version
-          $files = Get-ChildItem dist -File | Where-Object { $_.Name -match '\.(exe|zip|tar\.gz)$' }
+          $files = Get-ChildItem dist -File | Where-Object { $_.Name.StartsWith("bingee-desktop-$version-") -and $_.Name -match '\.(exe|zip|tar\.gz)$' }
           $manifest = @($files | ForEach-Object {
             [ordered]@{
               platform = $env:RUNNER_OS

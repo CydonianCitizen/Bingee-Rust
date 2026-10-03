@@ -170,7 +170,10 @@ pub fn load(db: &Database, now: i64) -> Result<Snapshot, AppError> {
         });
     }
     Ok(Snapshot {
-        summary: format!("{movies} movies · {series} series in Library"),
+        summary: format!(
+            "{movies} {} · {series} series in Library",
+            if movies == 1 { "movie" } else { "movies" }
+        ),
         entries,
         incomplete_coverage,
     })

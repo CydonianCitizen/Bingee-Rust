@@ -230,7 +230,7 @@ pub fn add(db: &Database, result: &MediaSearchResult, now: i64) -> Result<Added,
     })
 }
 
-fn media_for(tx: &Transaction, external: &ExternalRef) -> rusqlite::Result<Option<i64>> {
+fn media_for(tx: &rusqlite::Connection, external: &ExternalRef) -> rusqlite::Result<Option<i64>> {
     tx.query_row(
         "SELECT local_media_id FROM external_refs
          WHERE source = ?1 AND media_type = ?2 AND external_id = ?3",
@@ -242,6 +242,12 @@ fn media_for(tx: &Transaction, external: &ExternalRef) -> rusqlite::Result<Optio
         |row| row.get(0),
     )
     .optional()
+}
+
+/// Resolve a provider identity without updating cached metadata.
+pub fn local_id(db: &Database, external: &ExternalRef) -> Result<Option<i64>, AppError> {
+    media_for(db.conn(), external)
+        .map_err(|error| AppError::database("Your library could not be read.", error))
 }
 
 /// The provider identity of a stored title, for its detail requests. `None`

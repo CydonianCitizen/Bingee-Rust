@@ -1,14 +1,19 @@
 # R17 native blocker follow-up — 2 October 2026
 
-Technical verdict: **NOT TECHNICALLY READY FOR RC**.
+Current technical verdict: **TECHNICALLY READY FOR RC** for corrected pushed
+`3ab08c32a2fef16cf8555e9db467f681c1dbd1a2`.
 
-Public distribution verdict: **PUBLIC DISTRIBUTION NOT READY**.
+Current public distribution verdict: **PUBLIC DISTRIBUTION BLOCKED BY EXTERNAL DECISION**.
+
+The corrected-source CI closure at the end of this report updates the final
+verdict. Earlier sections retain the original native follow-up's observations
+and source state; its unpushed-source/CI blocker is historical and now resolved.
 
 R16 remains PASS. R18 remains SUSPENDED and was not started. This run addresses
 only corrected-source identity, native input/rendering/startup and graceful
 close. Evidence is in `r17-blocker-followup-20261002/` beside this report.
 
-## Source and CI identity
+## Source and CI identity (historical native follow-up)
 
 Branch is `main`. HEAD, local `origin/main`, and live GitHub main are
 `6e24b2a109c8fa041075adcbcf1001bc4646cd82`. The worktree was already dirty:
@@ -250,7 +255,7 @@ Slint licensing/intended use, TMDB agreement, signing, notarization and public
 distribution decisions remain separate external decisions. They do not cause
 the technical failure.
 
-## Remaining work and next step
+## Remaining work and next step (historical native follow-up)
 
 This run modified `src/main.rs`, `src/r17_validation.rs`, `ui/app-window.slint`,
 `docs/release-checklist.md`, `IMPLEMENTATION_PLAN.md`,
@@ -267,3 +272,148 @@ that exact SHA on Windows, macOS and Linux. This is the remaining genuine
 technical blocker. Native Discover is now verified with a controlled provider;
 screen-reader and OS monitor-DPI claims remain absent. No R18 work or release publication is
 authorized by this run.
+
+## Corrected-source CI closure — 2 October 2026
+
+### Source and individual job results
+
+This continuation starts on clean `main`. HEAD, local `origin/main` and live
+GitHub `main` all identify **`3ab08c32a2fef16cf8555e9db467f681c1dbd1a2`**,
+subject `R17: close native focus and lifecycle blockers`, parent
+`6e24b2a109c8fa041075adcbcf1001bc4646cd82`. The pushed diff includes
+episode/Updates visible focus and accessibility semantics, synchronous title
+loading before episode-target selection, the three ordinary regression tests,
+the manual native test fixture, and R17 report/checklist/plan updates.
+All 53 current source inputs match `final-candidate-identity.json` from the
+native follow-up. Cargo.toml/Cargo.lock, frozen fixture/benchmark and
+measurement paths have no change from the parent. No dependency changed.
+
+Both workflows completed successfully on that exact corrected SHA, attempt 1:
+
+| Platform | cross-platform run 37064096145 | release-artifacts run 37064096196 |
+| --- | --- | --- |
+| Windows x64 | PASS, job 111027502242 | PASS, job 111027502382 |
+| macOS arm64 | PASS, job 111027501990 | PASS, job 111027502520 |
+| Linux x64 | PASS, job 111027502357 | PASS, job 111027502479 |
+
+Runs: [cross-platform](https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/37064096145)
+and [release-artifacts](https://github.com/CydonianCitizen/Bingee-Rust/actions/runs/37064096196).
+Individual step records and decoded job logs were inspected, not just workflow
+conclusions. Saved records and log excerpts are in `r17-ci-closure-20261002/`.
+No success from the parent or an older SHA certifies the corrected candidate.
+
+Every cross-platform job passes `cargo fmt --check`, `cargo check --locked`,
+`cargo test --locked`, all three configured Clippy feature combinations with
+`--locked` and `-D warnings`, and `cargo build --release --locked`.
+Each package job passes format/check, default and all-feature tests, all-feature
+Clippy, and its platform's release build through the packaging script.
+Every CI test invocation reports **221 passed, 0 failed, 16 ignored**.
+Fixture-only tests retain the existing local evidence; the workflows do not
+configure a separate fixture-only test invocation. CI uses rustc 1.99.0
+`(b940084d7 2026-09-28)` and cargo 1.99.0 `(5f94df478 2026-08-27)` with the
+unchanged lockfile; prior local measurements keep their original toolchain.
+
+Windows passes compiler acquisition, Inno Setup 6.7.3 installer compilation,
+portable ZIP creation and configured package structure checks. macOS passes
+native app/tarball creation, plist identity/version checks, Mach-O/architecture
+and linked-library inspection, required resources and archive structure.
+Linux passes installed build/runtime prerequisites, tarball creation, ELF,
+desktop entry, resources/archive and linked-library checks, plus the configured
+20-second Xvfb launch (expected timeout 124 and created schema-v5 database).
+All three manifest generation and artifact-upload steps pass. Conditional
+steps for other platforms are skipped as configured; skipped launches are
+not reported as validation.
+
+### Downloaded artifacts and package identities
+
+All three downloaded GitHub artifact ZIPs match their API/upload digests:
+
+| Artifact | ID | SHA-256 of GitHub artifact ZIP |
+| --- | --- | --- |
+| `bingee-Windows-X64` | 11252796850 | `f6013c7e4ddc13e138d2b9de737971e160594736c67aebad7dda992118910c25` |
+| `bingee-macOS-ARM64` | 11252323135 | `d134b251265586a06ab470c30a66bde2ea0fdb4c28920134ff8a1748b2b3afb0` |
+| `bingee-Linux-X64` | 11251763409 | `ee4caa82b317b26bff8248be4b26c15b107312518fd805026115914de10a038d` |
+
+The actual contained `PACKAGE-MANIFEST.json` files identify corrected
+`3ab08c32a2fef16cf8555e9db467f681c1dbd1a2`, application `0.1.0-rc.1`, the
+proper platform/architecture and rustc 1.99.0. Every package's measured size
+and SHA-256 matches its manifest and package-creation log:
+
+| Package | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `bingee-desktop-windows-x64-setup.exe` | 10038957 | `95e4892f582e364415b46222a4f41c2db3b374f90f262ec7a922221bc0463f78` |
+| `bingee-desktop-windows-x64.zip` | 13738956 | `b49b712f723a25112c4ac7052b959c6a8436c2c3cd0b29fd9625c52d8128a8d2` |
+| `bingee-desktop-macos-arm64.tar.gz` | 11710443 | `087a8b92a23e88c0c8cc30956ce497e6848bbc673fad8184fb5e07bcd590736b` |
+| `bingee-desktop-linux-x86_64.tar.gz` | 16900521 | `d875f029d0388b45dcae844f28c80f418a3edc191b72671af2ff4bc8d4a47495` |
+
+Independent stdlib archive inspection passes all 696 Windows portable file
+checksums, PE32+ x64 GUI format and clean-source README identity; macOS
+Mach-O arm64, required resources and plist (`0.1.0`, bundle version `10002`);
+Linux ELF64 x86_64 executable mode, resources and install/uninstall scripts.
+Exact manifests and inspection results are saved beside the step/log records.
+Downloaded binaries remain under ignored `target/r17-ci-closure-20261002/`.
+
+The new CI Windows executable SHA-256 is
+`834880d5196e117072c70c46c581ef2b6352f5725e74fc8b49f7abfcd8ba16fb`.
+It differs from the earlier locally compiled/native-tested executable; this
+continuation does not transfer exact-binary interactive or performance claims
+to the Rust 1.99.0 build.
+
+### Reused evidence and unperformed validation
+
+No expensive unchanged local R17 exercise was rerun. Matching source inputs
+support reuse of the original scoped migrations, Backup V1 compatibility,
+complete product journey, failure matrix, soak/resource measurements, native
+populated close, native keyboard validation, and local Windows package/smoke.
+Earlier source/binary/toolchain and fake-provider boundaries remain explicit.
+Frozen R4 DB/poster hashes remain the recorded values above; no frozen input
+or dependency file changed.
+
+The corrected workflows configure no Windows package runtime launch or macOS
+native process launch. Neither downloaded binary was launched here. Linux
+Xvfb smoke passes as CI process/database sanity; it is not interactive GUI
+validation or a graceful-close test. No new interactive GUI session on any
+platform, screen-reader output, OS monitor-DPI change, live credentialed TMDB
+exercise, clean-PC prerequisite test, or exact-CI-binary performance
+measurement occurred. These limits do not become new defects or expand R17.
+
+### Commands, exceptions, final state and stop
+
+Git status/revision/log/diff reads, 53-input SHA-256 comparison, connector
+GETs for branch/runs/jobs/logs/artifacts, all final archive inspections and
+`git diff --check` succeed. The final documentation/evidence check records
+all six jobs, configured steps, three artifact digests and four package
+manifest records as PASS.
+
+Read-only helper failures are retained here: `git ls-remote origin
+refs/heads/main` exits 128 because sandbox network access cannot connect;
+the connector verifies live main instead. An accidental `gh --version`
+availability probe before reading the deny rule exits 1 because gh is absent;
+no gh operation executes and all subsequent GitHub reads use the connector.
+Reading `.claude/commands/check-rust.md` exits 1 because the actual instruction
+is `.claude/skills/check-rust/SKILL.md`, which was then read. Initial artifact
+download exits 1 with a forbidden socket; permitted read-only download retries
+complete with exit 0. The first Windows inspection exits 1 on digest assertion
+because transfer is still running; after download completion, the same
+inspection exits 0 and matches the API digest. These are inspection/environment
+errors, not CI or application failures. No commit, push, tag, branch switch,
+dependency change or release publication occurs.
+
+Files modified by this continuation: `docs/release-checklist.md`, this report,
+`IMPLEMENTATION_PLAN.md` and the canonical `docs/known-limitations.md` to remove
+its superseded technical blocker. Raw source/run/job/log/artifact/manifest
+inspection evidence is created in `r17-ci-closure-20261002/`. Application
+behavior is unchanged. Branch stays `main` at the validated SHA; only these
+documentation/evidence changes remain uncommitted. No assumption of public
+distribution authorization or broader GUI proof is made.
+
+**TECHNICALLY READY FOR RC.** Corrected-source CI/artifacts close the remaining
+technical blocker. No new project-owned failure is found.
+
+**PUBLIC DISTRIBUTION BLOCKED BY EXTERNAL DECISION.** Application/Slint license
+basis and intended use, applicable TMDB/Inno terms, signing/notarization and
+distribution policy remain unresolved under the release checklist.
+
+Recommended next step is the owner's external distribution decisions. R18
+remains suspended and was not started. This continuation stops at the final
+R17 verdict; no release is published.

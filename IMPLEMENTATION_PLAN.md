@@ -378,12 +378,15 @@ explicitly unperformed. See `docs/run-reports/2026-10-01-r16-native-revalidation
 | --- | --- | --- |
 | R15 — Hardening and data hygiene | PASS for local exit gate; broader crash/UI coverage partial | `docs/milestones/R15.md`, ADR-0028 |
 | R16 — Distribution and installers | PASS for pushed `6e24b2a` | `docs/run-reports/2026-10-01-r16-native-revalidation.md`; licensing/signing/distribution remain separate |
-| R17 — Final performance and release candidate | PARTIAL; NOT TECHNICALLY READY FOR RC | `docs/run-reports/2026-10-02-r17-native-blocker-followup.md`; final 221/16 gates, Windows package, native keyboard/usable startup and six installed closes pass within recorded scopes; corrected-source CI/artifacts remain blocked by uncommitted/unpushed source |
-| R18 — RC stabilization | SUSPENDED; not started | Optional stabilization/polish after R17 technical PASS; historical checkpoint `docs/run-reports/2026-10-01-r18-rc-stabilization.md` |
+| R17 — Final performance and release candidate | PASS; TECHNICALLY READY FOR RC | Corrected pushed `3ab08c32a2fef16cf8555e9db467f681c1dbd1a2`; cross-platform run 37064096145 and release-artifacts run 37064096196 pass individually on Windows/macOS/Linux, with inspected steps and downloaded manifests/artifact hashes. `docs/run-reports/2026-10-02-r17-native-blocker-followup.md` records closure and reused 221/16 gates, native keyboard/close, package, migration/backup/journey/failure/soak evidence within original scopes. |
+| R18 — RC polish | PASS — TECHNICAL RC PRESERVED | Bounded UI consistency, missing local-detail routes, first-run/backup guidance, versioned package names, release notes and distribution-readiness documents. `docs/run-reports/2026-10-03-r18-rc-polish.md`; historical suspended checkpoint remains unchanged. |
 
-The application version is `0.1.0-rc.1` in Cargo metadata, but the release
-candidate is not approved. The current run report under `docs/run-reports/`
-lists release blockers and the exact remaining checks.
+The application version is `0.1.0-rc.1` in Cargo metadata. The corrected
+candidate is technically ready for RC testing. Public distribution remains
+blocked by external licensing/intended-use, signing/notarization and
+distribution decisions. The current report and `docs/release-checklist.md`
+record exact SHA, run/job IDs, artifact identities/hashes and validation scope.
+No release is published. R18 proceeds under the subsequent explicit polish request; R19 is not authorized.
 
 R17 technical work starts after the pushed revision passes Windows, macOS and Linux package builds, package structure/manifest checks, required process smoke, and normal cross-platform build/tests. Interactive GUI validation may remain explicitly unperformed at the R16 gate. Signing, notarization and external licensing decisions may remain pending. Those decisions still block public distribution.
 
@@ -394,8 +397,6 @@ SQLite and page timings, UI-thread responsiveness, refresh stress,
 keyboard/accessibility, package/upgrade regression, security/privacy sanity,
 and the consolidated release checklist. Measure before optimizing; fix proven
 defects. A headless application exercise establishes deterministic behavior
-and callback timing, not real interactive smoothness. The subsequent user
-request suspends R18 in this run; after technical blockers close, mark it as
-the next optional stabilization/polish phase and stop. No
+and callback timing, not real interactive smoothness. The subsequent user request authorizes R18 polish after R17 technical PASS. No
 release publication or R19 is authorized. `docs/known-limitations.md` is the
 canonical current limitations list; historical reports remain unchanged.

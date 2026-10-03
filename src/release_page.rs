@@ -178,7 +178,13 @@ mod tests {
         ui.render();
         assert_eq!(ui.app.get_updates_rows().row_count(), 1);
         assert_eq!(ui.app.get_updates_unread(), 1);
+        let opened = std::rc::Rc::new(std::cell::Cell::new(None));
+        ui.app.on_open_library_media({
+            let opened = opened.clone();
+            move |id, season, episode| opened.set(Some((id, season, episode)))
+        });
         ui.app.invoke_updates_open(0);
+        assert_eq!(opened.get(), Some((show as i32, 1, 2)));
         assert_eq!(db.with(release::unread_count).unwrap(), 0);
         db.with(|db| {
             save_episodes(

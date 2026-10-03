@@ -1,0 +1,2 @@
+PASS: static workflow contract review: three native platforms; main, dispatch and guarded version tags; contents read; manifest/upload; no release publication.
+Scope: text assertions and source review, not a YAML engine or GitHub execution. Python yaml package unavailable; no dependency installed.

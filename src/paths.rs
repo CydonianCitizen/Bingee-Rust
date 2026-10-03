@@ -112,10 +112,14 @@ impl AppPaths {
     }
 
     pub fn create_dirs(&self) -> Result<(), AppError> {
-        for dir in [&self.data, &self.cache, &self.logs] {
+        for (label, dir) in [
+            ("data", &self.data),
+            ("cache", &self.cache),
+            ("log", &self.logs),
+        ] {
             std::fs::create_dir_all(dir).map_err(|err| {
                 AppError::filesystem(
-                    format!("The folder {} could not be created.", dir.display()),
+                    format!("Bingee Desktop could not create its {label} folder. Check folder permissions and try again."),
                     err,
                 )
             })?;

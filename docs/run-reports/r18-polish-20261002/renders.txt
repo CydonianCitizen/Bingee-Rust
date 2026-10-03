@@ -1,0 +1,23 @@
+warn: could not canonicalize path C:\Users\thoma
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.98s
+     Running unittests src\main.rs (target\debug\deps\bingee_desktop-b933acb840d1b1af.exe)
+
+running 3 tests
+2026-10-03T07:26:44Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r18-render-1280-800-21564\data\bingee.db
+2026-10-03T07:26:44Z INFO Migrating the database from schema version 0 to 5
+2026-10-03T07:26:44Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r18-render-1700-1100-21564\data\bingee.db
+2026-10-03T07:26:44Z INFO Database C:\Users\thoma\AppData\Local\Temp\bingee-test-r18-render-1920-1080-21564\data\bingee.db
+2026-10-03T07:26:44Z INFO Migrating the database from schema version 0 to 5
+2026-10-03T07:26:44Z INFO Migrating the database from schema version 0 to 5
+2026-10-03T07:26:44Z INFO Migration to schema version 5 complete
+2026-10-03T07:26:44Z INFO Library opened: schema version 5, 0 titles
+2026-10-03T07:26:44Z INFO Migration to schema version 5 complete
+2026-10-03T07:26:44Z INFO Library opened: schema version 5, 0 titles
+2026-10-03T07:26:44Z INFO Migration to schema version 5 complete
+2026-10-03T07:26:44Z INFO Library opened: schema version 5, 0 titles
+test tests::offscreen_pages_1280 ... ok
+test tests::offscreen_pages_1700 ... ok
+test tests::offscreen_pages_1920 ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 236 filtered out; finished in 16.41s
+
